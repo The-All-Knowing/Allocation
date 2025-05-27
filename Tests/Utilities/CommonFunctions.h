@@ -7,7 +7,7 @@
 
 namespace Allocation::Tests
 {
-    std::chrono::year_month_day GetCurrentData();
+    std::chrono::year_month_day GetCurrentDate();
 
     std::pair<Domain::Batch, Domain::OrderLine> MakeBatchAndLine(
         const std::string& SKU, size_t batchQty, size_t lineQty);

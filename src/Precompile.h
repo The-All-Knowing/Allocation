@@ -11,3 +11,9 @@
 #include <exception>
 #include <string_view>
 #include <format>
+
+
+/// Poco
+#include "Poco/Data/Session.h"
+#include "Poco/Data/SQLite/Connector.h"
+#include "Poco/Data/RecordSet.h"

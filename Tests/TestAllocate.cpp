@@ -9,7 +9,8 @@ namespace Allocation::Tests::Domain
 {
     using namespace Allocation::Domain;
 
-    const auto today = GetCurrentData();
+    /// @Todo: Надо поставить константу
+    const auto today = GetCurrentDate();
     const auto tomorrow = today + std::chrono::days(1);
     const auto later = tomorrow + std::chrono::days(1);
 

@@ -85,6 +85,7 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "string_view": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "stack": "cpp"
     }
 }

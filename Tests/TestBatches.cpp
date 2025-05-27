@@ -10,7 +10,7 @@ namespace Allocation::Tests::Domain
 
     TEST(Domain, test_allocating_to_a_batch_reduces_the_available_quantity)
     {
-        Batch batch("batch-001", "SMALL-TABLE", 20, GetCurrentData());
+        Batch batch("batch-001", "SMALL-TABLE", 20, GetCurrentDate());
         OrderLine line("order-ref", "SMALL-TABLE", 2);
         batch.Allocate(line);
         EXPECT_EQ(batch.GetAvailableQuantity(), 18);
