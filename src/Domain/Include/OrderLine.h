@@ -5,7 +5,7 @@
 
 namespace Allocation::Domain
 {
- 
+
     class OrderLine
     {
     public:

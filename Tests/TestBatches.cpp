@@ -4,7 +4,7 @@
 #include "Batch.h"
 
 
-namespace Allocation::Tests::Domain
+namespace Allocation::Tests
 {
     using namespace Allocation::Domain;
 
@@ -53,7 +53,15 @@ namespace Allocation::Tests::Domain
         auto [batch, line] = MakeBatchAndLine("ANGULAR-DESK", 20, 2);
         batch.Allocate(line);
         batch.Allocate(line);
-        EXPECT_EQ (batch.GetAvailableQuantity(), 18);
+        EXPECT_EQ(batch.GetAvailableQuantity(), 18);
+    }
+
+    TEST(Domain, test_deallocate)
+    {
+        auto [batch, line] = MakeBatchAndLine("EXPENSIVE-FOOTSTOOL", 20, 2);
+        batch.Allocate(line);
+        batch.Deallocate(line);
+        EXPECT_EQ(batch.GetAvailableQuantity(), 20);
     }
 
 }

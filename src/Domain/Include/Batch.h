@@ -12,7 +12,7 @@ namespace Allocation::Domain
     {
     public:
         Batch(const std::string& reference, const std::string& SKU,
-              size_t quantity, std::chrono::year_month_day ETA = std::chrono::year_month_day());
+              size_t quantity, std::optional<std::chrono::year_month_day> ETA = std::nullopt);
         
         bool CanAllocate(const OrderLine& line) const;
 
@@ -24,17 +24,22 @@ namespace Allocation::Domain
 
         std::string GetReference() const;
 
-        std::chrono::year_month_day GetETA() const;
+        std::optional<std::chrono::year_month_day> GetETA() const;
+
+        std::string GetSKU() const;
+
+        std::vector<OrderLine> GetAllocations() const;
 
     private:
         std::string _reference;
         std::string _SKU;
         size_t _purchasedQuantity{ 0 };
         size_t _availableQuantity;
-        std::chrono::year_month_day _ETA;
+        std::optional<std::chrono::year_month_day> _ETA;
         std::unordered_set<OrderLine, Utilities::OrderLineHash> _allocations;    
     };
 
+    bool operator==(const Batch& lsh, const Batch& rsh);
     bool operator<(const Batch& lsh, const Batch& rsh);
     bool operator>(const Batch& lsh, const Batch& rsh);
 

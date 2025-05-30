@@ -11,6 +11,7 @@
 #include <exception>
 #include <string_view>
 #include <format>
+#include <numeric>
 
 
 /// Poco

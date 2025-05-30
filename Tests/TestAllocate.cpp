@@ -5,7 +5,7 @@
 #include "ModelLayer.h"
 
 
-namespace Allocation::Tests::Domain
+namespace Allocation::Tests
 {
     using namespace Allocation::Domain;
 

@@ -13,9 +13,7 @@ namespace Allocation::Tests
         const std::string& SKU, size_t batchQty, size_t lineQty);
 
     template <class Func>
-    testing::AssertionResult ThrowsWithMessage(
-        Func&& func,
-        const std::string& expectedMsg) 
+    testing::AssertionResult ThrowsWithMessage(Func&& func, const std::string& expectedMsg) 
     {
         try 
         {
@@ -31,4 +29,12 @@ namespace Allocation::Tests
                 << "Wrong message. Actual: " << e.what();
         }
     }
+
+    int InsertOrderLine(Poco::Data::Session& session, std::string orderId = "order1", std::string sku = "GENERIC-SOFA", int qty = 12);
+
+    int InsertBatch(Poco::Data::Session& session, std::string batchRef, std::string sku = "GENERIC-SOFA", int qty = 100);
+
+    void InsertAllocation(Poco::Data::Session& session, int orderlineId, int batchId);
+
+    std::vector<std::string> GetAllocations(Poco::Data::Session& session, std::string batchRef);
 }

@@ -4,7 +4,7 @@
 namespace Allocation::Domain
 {
     Batch::Batch(const std::string& reference, const std::string& SKU,
-                 size_t quantity, std::chrono::year_month_day ETA):
+                 size_t quantity, std::optional<std::chrono::year_month_day> ETA):
                  _reference(reference), _SKU(SKU), _availableQuantity(quantity), _ETA(ETA)
 
     {}
@@ -45,9 +45,24 @@ namespace Allocation::Domain
         return _reference;
     }
 
-    std::chrono::year_month_day Batch::GetETA() const
+    std::optional<std::chrono::year_month_day> Batch::GetETA() const
     {
         return _ETA;
+    }
+
+    std::string Batch::GetSKU() const
+    {
+        return _SKU;
+    }
+
+    std::vector<OrderLine> Batch::GetAllocations() const
+    {
+        return {_allocations.begin(), _allocations.end()};
+    }
+
+    bool operator==(const Batch& lsh, const Batch& rsh)
+    {
+        return lsh.GetReference() == rsh.GetReference();
     }
 
     bool operator<(const Batch& lsh, const Batch& rsh)
