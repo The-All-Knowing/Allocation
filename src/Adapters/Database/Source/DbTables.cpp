@@ -18,7 +18,7 @@ namespace Allocation::Adapters::Database
         )", Poco::Data::Keywords::now;
 
         session << R"(
-            CREATE TABLE batches (
+            CREATE TABLE IF NOT EXISTS batches (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 reference VARCHAR(255),
                 sku VARCHAR(255),
@@ -28,7 +28,7 @@ namespace Allocation::Adapters::Database
         )", Poco::Data::Keywords::now;
 
         session << R"(
-            CREATE TABLE allocations (
+            CREATE TABLE IF NOT EXISTS allocations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 orderline_id INTEGER,
                 batch_id INTEGER,

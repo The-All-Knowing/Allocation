@@ -6,7 +6,7 @@
 #include "Utilities/Common.h"
 #include "CommonFunctions.h"
 #include "DbTables.h"
-#include "SqlLiteRepository.h"
+#include "SqlRepository.h"
 
 
 namespace Allocation::Tests
@@ -20,7 +20,7 @@ namespace Allocation::Tests
         Adapters::Database::InitDatabase(session);
 
         Domain::Batch batch("batch1", "RUSTY-SOAPDISH", 100);
-        IRepositoryPtr repo = std::make_shared<Adapters::Repository::SqlLiteRepository>(session);
+        IRepositoryPtr repo = std::make_shared<Adapters::Repository::SqlRepository>(session);
         repo->Add(batch);
 
         std::string reference; 
@@ -53,7 +53,7 @@ namespace Allocation::Tests
         InsertBatch(session, "batch2");
         InsertAllocation(session, orderlineId, batch1Id);
 
-        IRepositoryPtr repo = std::make_shared<Adapters::Repository::SqlLiteRepository>(session);
+        IRepositoryPtr repo = std::make_shared<Adapters::Repository::SqlRepository>(session);
         auto retrieved = repo->Get("batch1");
 
         Domain::Batch expected("batch1", "GENERIC-SOFA", 100);
@@ -78,7 +78,7 @@ namespace Allocation::Tests
         Domain::Batch batch("batch1", "WEATHERED-BENCH", 100);
         batch.Allocate(order1);
 
-        IRepositoryPtr repo = std::make_shared<Adapters::Repository::SqlLiteRepository>(session);
+        IRepositoryPtr repo = std::make_shared<Adapters::Repository::SqlRepository>(session);
         repo->Add(batch);
         EXPECT_THAT(GetAllocations(session, "batch1"), UnorderedElementsAre("order1"));
 

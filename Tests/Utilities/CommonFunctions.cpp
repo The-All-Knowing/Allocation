@@ -79,4 +79,24 @@ namespace Allocation::Tests
         return results;
     }
 
+    std::string RandomSuffix()
+    {
+        return Poco::UUIDGenerator::defaultGenerator().createRandom().toString().substr(0, 6);
+    }
+
+    std::string RandomSku(const std::string& name)
+    {
+        return "sku-" + name + "-" + RandomSuffix();
+    }
+
+    std::string RandomBatchRef(const std::string& name)
+    {
+        return "batch-" + name + "-" + RandomSuffix();
+    }
+
+    std::string RandomOrderId(const std::string& name)
+    {
+        return "order-" + name + "-" + RandomSuffix();
+    }
+
 }

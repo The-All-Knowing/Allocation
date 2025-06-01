@@ -7,10 +7,10 @@
 namespace Allocation::Adapters::Repository
 {
 
-    class SqlLiteRepository : public Domain::IRepository
+    class SqlRepository : public Domain::IRepository
     {
     public:
-        SqlLiteRepository(Poco::Data::Session& session);
+        SqlRepository(Poco::Data::Session& session);
 
         void Add(const Domain::Batch& batch);
 

@@ -5,6 +5,11 @@
 
 namespace Allocation::Adapters::Repository
 {
+    FakeRepository::FakeRepository(const std::vector<Domain::Batch>& init)
+    {
+        for (const auto batch : init)
+            _batches.insert({batch.GetReference(), batch});
+    }
     
     void FakeRepository::Add(const Domain::Batch& batch)
     {

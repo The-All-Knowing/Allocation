@@ -2,7 +2,7 @@
 
 #include "CommonFunctions.h"
 #include "Utilities/Common.h"
-#include "ModelLayer.h"
+#include "Model.h"
 
 
 namespace Allocation::Tests
@@ -52,7 +52,7 @@ namespace Allocation::Tests
         };
         OrderLine line("oref", "HIGHBROW-POSTER", 10);
         auto allocation = Allocate(line, batches.begin(), batches.end());
-        EXPECT_EQ(allocation, batches[0].GetReference());
+        EXPECT_EQ(allocation, batches[0]);
     }
 
     TEST(Domain, test_raises_out_of_stock_exception_if_cannot_allocate)
@@ -69,7 +69,7 @@ namespace Allocation::Tests
         );
 
         EXPECT_TRUE(
-        ThrowsWithMessage(
+        ThrowsWithMessage<OutOfStock>(
             [&]() { Allocate(OrderLine("order1", "SMALL-FORK", 10), batches.begin(), batches.end());},
             "The article SMALL-FORK is out of stock")
         );

@@ -9,7 +9,7 @@ namespace Allocation::Domain
 {
     
     template<std::forward_iterator ForwardIt>
-    std::string Allocate(const OrderLine& line, ForwardIt begin, ForwardIt end)
+    Batch Allocate(const OrderLine& line, ForwardIt begin, ForwardIt end)
     {
         std::vector<std::reference_wrapper<Batch>> batches;
         batches.reserve(std::distance(begin, end));
@@ -25,7 +25,7 @@ namespace Allocation::Domain
             if (batch.CanAllocate(line))
             {
                 batch.Allocate(line);
-                return batch.GetReference();
+                return batch;
             }
         }
 

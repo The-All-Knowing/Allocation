@@ -12,21 +12,25 @@ namespace Allocation::Tests
     std::pair<Domain::Batch, Domain::OrderLine> MakeBatchAndLine(
         const std::string& SKU, size_t batchQty, size_t lineQty);
 
-    template <class Func>
-    testing::AssertionResult ThrowsWithMessage(Func&& func, const std::string& expectedMsg) 
+    template <class Exception, class Func>
+    testing::AssertionResult ThrowsWithMessage(Func&& func, const std::string& expectedMsg)
     {
         try 
         {
             func();
             return testing::AssertionFailure() << "No exception thrown";
         } 
-        catch (const std::exception& e)
+        catch (const Exception& e)
         {
             if (e.what() == expectedMsg)
                 return testing::AssertionSuccess();
-                
+                    
             return testing::AssertionFailure() 
                 << "Wrong message. Actual: " << e.what();
+        }
+        catch (...)
+        {
+            return testing::AssertionFailure() << "Unexpected exception type thrown";
         }
     }
 
@@ -37,4 +41,11 @@ namespace Allocation::Tests
     void InsertAllocation(Poco::Data::Session& session, int orderlineId, int batchId);
 
     std::vector<std::string> GetAllocations(Poco::Data::Session& session, std::string batchRef);
+
+    std::string RandomSku(const std::string& name = "");
+
+    std::string RandomBatchRef(const std::string& name = "");
+
+    std::string RandomOrderId(const std::string& name = "");
+
 }

@@ -1,17 +1,17 @@
 #pragma once
 
-#include "SqlLiteRepository.h"
+#include "SqlRepository.h"
 #include "Adapters/Database/Include/Mappers/BatchMapper.h"
 
 
 namespace Allocation::Adapters::Repository
 {
 
-    SqlLiteRepository::SqlLiteRepository(Poco::Data::Session& session): _session(session)
+    SqlRepository::SqlRepository(Poco::Data::Session& session): _session(session)
     {}
 
     
-    void SqlLiteRepository::Add(const Domain::Batch& batch)
+    void SqlRepository::Add(const Domain::Batch& batch)
     {
         Database::Mapper::BatchMapper mapper(_session);
 
@@ -21,14 +21,14 @@ namespace Allocation::Adapters::Repository
             mapper.Insert(batch);
     }
 
-    std::optional<Domain::Batch> SqlLiteRepository::Get(const std::string& reference)
+    std::optional<Domain::Batch> SqlRepository::Get(const std::string& reference)
     {
         Database::Mapper::BatchMapper mapper(_session);
 
         return mapper.FindByReference(reference); 
     }
 
-    std::vector<Domain::Batch> SqlLiteRepository::List()
+    std::vector<Domain::Batch> SqlRepository::List()
     {
         Database::Mapper::BatchMapper mapper(_session);
 
