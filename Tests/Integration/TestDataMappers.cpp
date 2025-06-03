@@ -4,9 +4,9 @@
 #include "Precompile.h"
 #include "CommonFunctions.h"
 #include "Utilities/Common.h"
-#include "Adapters/Database/Include/DbTables.h"
-#include "Adapters/Database/Include/Mappers/OrderLineMapper.h"
-#include "Adapters/Database/Include/Mappers/BatchMapper.h"
+#include "Adapters/Database/DbTables.h"
+#include "Adapters/Database/Mappers/OrderLineMapper.h"
+#include "Adapters/Database/Mappers/BatchMapper.h"
 
 
 namespace Allocation::Tests

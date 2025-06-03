@@ -15,7 +15,8 @@ namespace Allocation::Adapters::Database
 
         if (_pool)
             throw std::runtime_error("SessionPool is already configured");
-
+        
+        // @todo: добавить в параметры доп. информацию используемую в Poco::Data::SessionPool, возможно выразить структурой
         _pool = std::make_unique<Poco::Data::SessionPool>(connector, connectionString, 1, 16, 60);
     }
 

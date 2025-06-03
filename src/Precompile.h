@@ -39,4 +39,6 @@
 #include <Poco/Data/SessionImpl.h>
 #include <Poco/Data/StatementImpl.h>
 #include <Poco/Data/Connector.h>
+#include <Poco/Util/HelpFormatter.h>
+#include <Poco/Util/IniFileConfiguration.h>
 #include <Poco/URI.h>

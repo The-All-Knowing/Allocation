@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SqlRepository.h"
-#include "Adapters/Database/Include/Mappers/BatchMapper.h"
+#include "Adapters/Database/Mappers/BatchMapper.h"
 
 
 namespace Allocation::Adapters::Repository

@@ -1,6 +1,6 @@
 #include "Handlers/NotFoundHandler.h"
 
-#include "Adapters/Database/Include/Session/SessionPool.h"
+#include "Adapters/Database/Session/SessionPool.h"
 
 
 namespace Allocation::Infrastructure::Server

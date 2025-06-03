@@ -1,8 +1,8 @@
 #include "Handlers/AllocateHandler.h"
 
-#include "Adapters/Repository/Include/SqlRepository.h"
-#include "Services/Include/Services.h"
-#include "Adapters/Database/Include/Session/SessionPool.h"
+#include "Adapters/Repository/SqlRepository.h"
+#include "Services/Services.h"
+#include "Adapters/Database/Session/SessionPool.h"
 
 
 namespace Allocation::Infrastructure::Server
@@ -36,7 +36,6 @@ namespace Allocation::Infrastructure::Server
         }
         catch (const std::exception& ex)
         {
-            Poco::Util::Application::instance().logger().information("Error Error");
             response.setStatus(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
             response.setContentType("application/json");
             std::ostream& ostr = response.send();

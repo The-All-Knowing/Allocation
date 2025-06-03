@@ -1,7 +1,7 @@
 #include "Services.h"
 #include "Model.h"
 #include "InvalidSku.h"
-#include "Domain/Include/Ports/IRepository.h"
+#include "Domain/Ports/IRepository.h"
 
 
 namespace Allocation::Services

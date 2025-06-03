@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Precompile.h"
-#include "Domain/Include/Ports/IRepository.h"
+#include "Domain/Ports/IRepository.h"
 
 
 namespace Allocation::Adapters::Repository

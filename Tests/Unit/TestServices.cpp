@@ -4,8 +4,8 @@
 #include "CommonFunctions.h"
 #include "Services.h"
 #include "InvalidSku.h"
-#include "Adapters/Repository/Include/FakeRepository.h"
-#include "Adapters/Database/Include/Session/FakeSessionImpl.h"
+#include "Adapters/Repository/FakeRepository.h"
+#include "Adapters/Database/Session/FakeSessionImpl.h"
 
 
 namespace Allocation::Tests
