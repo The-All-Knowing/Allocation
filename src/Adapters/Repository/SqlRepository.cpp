@@ -10,7 +10,6 @@ namespace Allocation::Adapters::Repository
     SqlRepository::SqlRepository(Poco::Data::Session& session): _session(session)
     {}
 
-    
     void SqlRepository::Add(const Domain::Batch& batch)
     {
         Database::Mapper::BatchMapper mapper(_session);

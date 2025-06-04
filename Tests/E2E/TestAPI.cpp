@@ -3,12 +3,38 @@
 #include "Forwards.h"
 #include "Precompile.h"
 #include "CommonFunctions.h"
+#include "Utilities/Common.h"
 #include "Infrastructure/Server/Server.h"
-#include "Adapters/Database/DbTables.h"
 
 
 namespace Allocation::Tests
 {
+    void PostToAddBatch(const std::string& ref, const std::string& sku, int qty, std::optional<std::chrono::year_month_day> eta = std::nullopt)
+    {
+        Poco::JSON::Object::Ptr obj = new Poco::JSON::Object;
+        obj->set("ref", ref);
+        obj->set("sku", sku);
+        obj->set("qty", qty);
+        if (eta.has_value())
+            obj->set("eta", Convert(eta.value()));
+
+        std::stringstream body;
+        obj->stringify(body);
+
+        Poco::URI uri = GetURI("/add_batch");
+        Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
+        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
+        request.setContentType("application/json");
+        request.setContentLength(static_cast<int>(body.str().length()));
+
+        std::ostream& os = session.sendRequest(request);
+        os << body.str();
+
+        Poco::Net::HTTPResponse response;
+        std::istream& rs = session.receiveResponse(response);
+
+        ASSERT_EQ(response.getStatus(), Poco::Net::HTTPResponse::HTTP_CREATED);
+    }
 
     TEST(ApiTests, HappyPathReturns201AndAllocatedBatch)
     {
@@ -17,25 +43,12 @@ namespace Allocation::Tests
         std::string earlyBatch = RandomBatchRef("1");
         std::string laterBatch = RandomBatchRef("2");
         std::string otherBatch = RandomBatchRef("3");
+        std::chrono::year_month_day laterBatchYmd{std::chrono::year{2011}, std::chrono::month{1}, std::chrono::day{2}};
+        std::chrono::year_month_day earlyBatchYmd{std::chrono::year{2011}, std::chrono::month{1}, std::chrono::day{1}};
 
-        Poco::Data::SQLite::Connector::registerConnector();
-        Poco::Data::Session DBsession("SQLite", "TestBd");
-        Adapters::Database::InitDatabase(DBsession);
-        InsertBatch(DBsession, earlyBatch, sku, 3);
-        InsertBatch(DBsession, laterBatch, sku, 3);
-        InsertBatch(DBsession, otherBatch);
-
-        Poco::AutoPtr<Poco::Util::IniFileConfiguration> pConf(
-            new Poco::Util::IniFileConfiguration("./Allocation.ini"));
-        
-        std::string host = pConf->getString("server.host", "127.0.0.1");
-        int port = pConf->getInt("server.port", 9980);
-
-        Poco::URI uri;
-        uri.setScheme("http");
-        uri.setHost(host);
-        uri.setPort(port);
-        uri.setPath("/allocate");
+        PostToAddBatch(laterBatch, sku, 100, laterBatchYmd);
+        PostToAddBatch(earlyBatch, sku, 100, earlyBatchYmd);
+        PostToAddBatch(otherBatch, otherSku, 100);
 
         Poco::JSON::Object::Ptr obj = new Poco::JSON::Object;
         obj->set("orderid", RandomOrderId());
@@ -45,6 +58,7 @@ namespace Allocation::Tests
         std::stringstream body;
         obj->stringify(body);
 
+        Poco::URI uri = GetURI("/allocate");
         Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
         Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
         request.setContentType("application/json");
@@ -68,12 +82,6 @@ namespace Allocation::Tests
         std::string batchRef = json->getValue<std::string>("batchref");
 
         EXPECT_EQ(batchRef, earlyBatch);
-
-        DBsession << "DELETE FROM batches WHERE reference IN (?, ?, ?)",
-            Poco::Data::Keywords::use(earlyBatch),
-            Poco::Data::Keywords::use(laterBatch),
-            Poco::Data::Keywords::use(otherBatch),
-            Poco::Data::Keywords::now;
     }
 
     TEST(ApiTests, UnhappyPathReturns400AndErrorMessage)
@@ -89,18 +97,7 @@ namespace Allocation::Tests
         std::stringstream body;
         obj->stringify(body);
 
-        Poco::AutoPtr<Poco::Util::IniFileConfiguration> pConf(
-        new Poco::Util::IniFileConfiguration("./Allocation.ini"));
-        
-        std::string host = pConf->getString("server.host", "127.0.0.1");
-        int port = pConf->getInt("server.port", 9980);
-
-        Poco::URI uri;
-        uri.setScheme("http");
-        uri.setHost(host);
-        uri.setPort(port);
-        uri.setPath("/allocate");
-
+        Poco::URI uri = GetURI("/allocate");
         Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
         Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
         request.setContentType("application/json");

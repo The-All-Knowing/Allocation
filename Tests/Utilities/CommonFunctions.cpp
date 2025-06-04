@@ -1,8 +1,31 @@
 #include "CommonFunctions.h"
+#include "Adapters/Database/Session/FakeSessionImpl.h"
 
 
 namespace Allocation::Tests
 {
+    Poco::URI GetURI(std::string command)
+    {
+        Poco::AutoPtr<Poco::Util::IniFileConfiguration> pConf(
+        new Poco::Util::IniFileConfiguration("./Allocation.ini"));
+        
+        std::string host = pConf->getString("server.host", "127.0.0.1");
+        int port = pConf->getInt("server.port", 9980);
+
+        Poco::URI uri;
+        uri.setScheme("http");
+        uri.setHost(host);
+        uri.setPort(port);
+        uri.setPath(command);
+
+        return uri;
+    }
+
+    Poco::Data::Session GetFakeSession()
+    {
+        return Poco::Data::Session(new Adapters::Database::FakeSessionImpl());
+    }
+
     std::chrono::year_month_day GetCurrentDate()
     {
         const std::chrono::time_point now{std::chrono::system_clock::now()};

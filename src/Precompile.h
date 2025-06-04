@@ -18,9 +18,12 @@
 
 /// Poco
 #include "Poco/Data/Session.h"
+#include <Poco/Data/Connector.h>
 #include "Poco/Data/SQLite/Connector.h"
 #include "Poco/Data/RecordSet.h"
-#include "Poco/Util/ServerApplication.h"
+#include <Poco/Data/SessionPool.h>
+#include <Poco/Data/SessionImpl.h>
+#include <Poco/Data/StatementImpl.h>
 #include <Poco/Net/HTTPClientSession.h>
 #include "Poco/Net/HTTPServerParams.h"
 #include <Poco/Net/HTTPRequest.h>
@@ -35,10 +38,7 @@
 #include <Poco/JSON/Parser.h>
 #include <Poco/StreamCopier.h>
 #include <Poco/UUIDGenerator.h>
-#include <Poco/Data/SessionPool.h>
-#include <Poco/Data/SessionImpl.h>
-#include <Poco/Data/StatementImpl.h>
-#include <Poco/Data/Connector.h>
+#include "Poco/Util/ServerApplication.h"
 #include <Poco/Util/HelpFormatter.h>
 #include <Poco/Util/IniFileConfiguration.h>
 #include <Poco/URI.h>

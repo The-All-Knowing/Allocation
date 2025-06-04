@@ -1,9 +1,7 @@
 #include "Handlers/NotFoundHandler.h"
 
-#include "Adapters/Database/Session/SessionPool.h"
 
-
-namespace Allocation::Infrastructure::Server
+namespace Allocation::Infrastructure::Server::Handlers
 {
     void NotFoundHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
     {

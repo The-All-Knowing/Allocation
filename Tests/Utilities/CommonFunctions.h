@@ -7,6 +7,10 @@
 
 namespace Allocation::Tests
 {
+    Poco::URI GetURI(std::string command);
+
+    Poco::Data::Session GetFakeSession();
+
     std::chrono::year_month_day GetCurrentDate();
 
     std::pair<Domain::Batch, Domain::OrderLine> MakeBatchAndLine(

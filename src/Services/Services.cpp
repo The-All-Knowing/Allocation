@@ -14,11 +14,23 @@ namespace Allocation::Services
         return it != batches.end();
     }
 
-    std::string Allocate(
-        const Domain::OrderLine& line,
-        IRepositoryPtr repo,
-        Poco::Data::Session& session)
+    void AddBatch(IRepositoryPtr repo,
+        Poco::Data::Session& session,
+        std::string ref, std::string sku, int qty,
+        std::optional<std::chrono::year_month_day> ETA)
     {
+        session.begin();
+        Domain::Batch batch(ref, sku, qty, ETA);
+        repo->Add(batch);
+        session.commit();
+    }
+
+    std::string Allocate(
+        IRepositoryPtr repo,
+        Poco::Data::Session& session,
+        std::string orderid, std::string sku, int qty)
+    {
+        Domain::OrderLine line(orderid, sku, qty);
         session.begin();
         auto batches = repo->List();
         if (!IsValidSku(line.GetSKU(), batches))

@@ -29,6 +29,7 @@ set(allocation_sources
   src/Infrastructure/Server/HandlerFactory.cpp
   src/Infrastructure/Server/Handlers/AllocateHandler.cpp
   src/Infrastructure/Server/Handlers/NotFoundHandler.cpp
+  src/Infrastructure/Server/Handlers/AddBatchHandler.cpp
 )
 
 set(project_includes

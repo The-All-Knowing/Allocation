@@ -3,7 +3,7 @@
 #include "Precompile.h"
 
 
-namespace Allocation::Infrastructure::Server
+namespace Allocation::Infrastructure::Server::Handlers
 {
 
     class NotFoundHandler : public Poco::Net::HTTPRequestHandler

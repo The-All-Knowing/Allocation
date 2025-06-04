@@ -10,6 +10,8 @@ namespace Allocation::Adapters::Repository
     class FakeRepository : public Domain::IRepository
     {
     public:
+        FakeRepository() = default;
+
         FakeRepository(const std::vector<Domain::Batch>& init);
 
         void Add(const Domain::Batch& batch);
