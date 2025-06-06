@@ -25,6 +25,8 @@ set(allocation_sources
   src/Adapters/Database/Mappers/OrderLineMapper.cpp
   src/Adapters/Database/Mappers/BatchMapper.cpp
   src/Services/Services.cpp
+  src/Services/UoW/AbstractUnitOfWork.cpp
+  src/Services/UoW/SqlUnitOfWork.cpp
   src/Infrastructure/Server/Server.cpp
   src/Infrastructure/Server/HandlerFactory.cpp
   src/Infrastructure/Server/Handlers/AllocateHandler.cpp
@@ -67,12 +69,16 @@ set(test_sources
   src/Adapters/Database/Mappers/OrderLineMapper.cpp
   src/Adapters/Database/Mappers/BatchMapper.cpp
   src/Services/Services.cpp
+  src/Services/UoW/FakeUnitOfWork.cpp
+  src/Services/UoW/AbstractUnitOfWork.cpp
+  src/Services/UoW/SqlUnitOfWork.cpp
   Tests/Utilities/CommonFunctions.cpp
   Tests/Unit/TestAllocate.cpp
   Tests/Unit/TestBatches.cpp
   Tests/Unit/TestServices.cpp
   Tests/Integration/TestDataMappers.cpp
   Tests/Integration/TestRepository.cpp
+  Tests/Integration/TestUnitOfWork.cpp
   Tests/E2E/TestAPI.cpp
 )
 

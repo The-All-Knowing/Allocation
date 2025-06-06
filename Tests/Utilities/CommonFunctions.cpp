@@ -122,4 +122,37 @@ namespace Allocation::Tests
         return "order-" + name + "-" + RandomSuffix();
     }
 
+    std::string GetAllocatedBatchRef(Poco::Data::Session& session, std::string orderid, std::string sku)
+    {
+        int orderlineId = 0;
+        std::string batchref;
+
+        // Получение ID строки заказа
+        Poco::Data::Statement selectOrderLine(session);
+        selectOrderLine << "SELECT id FROM order_lines WHERE orderid = ? AND sku = ?",
+                        Poco::Data::Keywords::use(orderid),
+                        Poco::Data::Keywords::use(sku),
+                        Poco::Data::Keywords::into(orderlineId),
+                        Poco::Data::Keywords::now;
+
+        if (selectOrderLine.done() && orderlineId == 0)
+            throw std::runtime_error("OrderLine not found.");
+
+         Poco::Data::Statement selectBatchRef(session);
+        selectBatchRef << R"(
+            SELECT b.reference 
+            FROM allocations 
+            JOIN batches AS b ON batch_id = b.id 
+            WHERE orderline_id = ?
+        )",
+        Poco::Data::Keywords::use(orderlineId),
+        Poco::Data::Keywords::into(batchref),
+        Poco::Data::Keywords::now;
+
+        if (selectBatchRef.done() && batchref.empty())
+            throw std::runtime_error("Allocation not found.");
+
+        return batchref;
+    }    
+
 }

@@ -24,6 +24,7 @@
 #include <Poco/Data/SessionPool.h>
 #include <Poco/Data/SessionImpl.h>
 #include <Poco/Data/StatementImpl.h>
+#include <Poco/Data/Transaction.h>
 #include <Poco/Net/HTTPClientSession.h>
 #include "Poco/Net/HTTPServerParams.h"
 #include <Poco/Net/HTTPRequest.h>

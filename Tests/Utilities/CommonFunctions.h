@@ -52,4 +52,6 @@ namespace Allocation::Tests
 
     std::string RandomOrderId(const std::string& name = "");
 
+    std::string GetAllocatedBatchRef(Poco::Data::Session& session, std::string orderid, std::string sku);
+
 }

@@ -1,8 +1,7 @@
 #include "Handlers/AllocateHandler.h"
 
-#include "Adapters/Repository/SqlRepository.h"
 #include "Services/Services.h"
-#include "Adapters/Database/Session/SessionPool.h"
+#include "Services/UoW/SqlUnitOfWork.h"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
@@ -23,10 +22,8 @@ namespace Allocation::Infrastructure::Server::Handlers
 
         try
         {
-            auto session = Adapters::Database::SessionPool::Instance().GetSession();
-            auto repo = std::make_shared<Adapters::Repository::SqlRepository>(session);
-
-            std::string batchRef = Services::Allocate(repo, session, orderid, sku, qty);
+            Services::UoW::SqlUnitOfWork uow;
+            std::string batchRef = Services::Allocate(uow, orderid, sku, qty);
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_CREATED);
             response.setContentType("application/json");
