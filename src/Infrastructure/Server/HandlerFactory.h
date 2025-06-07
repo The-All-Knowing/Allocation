@@ -11,5 +11,4 @@ namespace Allocation::Infrastructure::Server
     public:
         Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request) override;
     };
-
 }

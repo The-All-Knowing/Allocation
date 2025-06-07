@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SqlRepository.h"
-#include "Adapters/Database/Mappers/BatchMapper.h"
+#include "Adapters/Database/Mappers/ProductMapper.h"
 
 
 namespace Allocation::Adapters::Repository
@@ -10,28 +10,26 @@ namespace Allocation::Adapters::Repository
     SqlRepository::SqlRepository(Poco::Data::Session& session): _session(session)
     {}
 
-    void SqlRepository::Add(const Domain::Batch& batch)
+    void SqlRepository::Add(std::shared_ptr<Domain::Product> product)
     {
-        Database::Mapper::BatchMapper mapper(_session);
+        Database::Mapper::ProductMapper mapper(_session);
 
-        if (auto id = mapper.GetBatchId(batch.GetReference()); id.has_value())
-            mapper.Update(id.value(), batch);
+        if (mapper.IsExists(product->GetSKU()))
+            mapper.Update(product);
         else
-            mapper.Insert(batch);
+            mapper.Insert(product);
     }
 
-    std::optional<Domain::Batch> SqlRepository::Get(const std::string& reference)
+    std::shared_ptr<Domain::Product> SqlRepository::Get(std::string_view SKU)
     {
-        Database::Mapper::BatchMapper mapper(_session);
-
-        return mapper.FindByReference(reference); 
+        Database::Mapper::ProductMapper mapper(_session);
+        return mapper.FindBySKU(std::string(SKU));
     }
 
-    std::vector<Domain::Batch> SqlRepository::List()
+    void SqlRepository::UpdateVersion(std::string_view SKU, size_t old, size_t newVersion)
     {
-        Database::Mapper::BatchMapper mapper(_session);
-
-        return mapper.GetAll();
+        Database::Mapper::ProductMapper mapper(_session);
+        if(!mapper.UpdateVersion(std::string(SKU), old, newVersion))
+            throw std::exception("Could not serialize access due to concurrent update");
     }
-
 }

@@ -1,17 +1,19 @@
 #include <gtest/gtest.h>
 
+#include "Precompile.h"
 #include "CommonFunctions.h"
-#include "Batch.h"
+#include "Product/Batch.h"
 
 
 namespace Allocation::Tests
 {
-    using namespace Allocation::Domain;
-
     TEST(Domain, test_allocating_to_a_batch_reduces_the_available_quantity)
     {
-        Batch batch("batch-001", "SMALL-TABLE", 20, GetCurrentDate());
-        OrderLine line("order-ref", "SMALL-TABLE", 2);
+        using namespace std::chrono;
+        const year_month_day today{2007y, October, 18d};
+
+        Domain::Batch batch("batch-001", "SMALL-TABLE", 20, today);
+        Domain::OrderLine line("order-ref", "SMALL-TABLE", 2);
         batch.Allocate(line);
         EXPECT_EQ(batch.GetAvailableQuantity(), 18);
     }
@@ -36,8 +38,8 @@ namespace Allocation::Tests
 
     TEST(Domain, test_cannot_allocate_if_skus_do_not_match)
     {
-        Batch batch("batch-001", "UNCOMFORTABLE-CHAIR", 100);
-        OrderLine differentSkuLine("order-123", "EXPENSIVE-TOASTER", 10);
+        Domain::Batch batch("batch-001", "UNCOMFORTABLE-CHAIR", 100);
+        Domain::OrderLine differentSkuLine("order-123", "EXPENSIVE-TOASTER", 10);
         EXPECT_FALSE(batch.CanAllocate(differentSkuLine));
     }
 
@@ -63,5 +65,4 @@ namespace Allocation::Tests
         batch.Deallocate(line);
         EXPECT_EQ(batch.GetAvailableQuantity(), 20);
     }
-
 }

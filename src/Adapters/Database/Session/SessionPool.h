@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Precompile.h"
+#include "ConnectionConfig.h"
 
 
 namespace Allocation::Adapters::Database
@@ -11,7 +12,9 @@ namespace Allocation::Adapters::Database
     public:
         static SessionPool& Instance();
 
-        void Configure(const std::string& connector, const std::string& connectionString);
+        bool IsConfigured();
+        void Configure(const ConnectionConfig& config);
+        void Reconfigure(const ConnectionConfig& config);
 
         Poco::Data::Session GetSession();
 
@@ -23,7 +26,6 @@ namespace Allocation::Adapters::Database
         SessionPool& operator=(const SessionPool&) = delete;
 
         std::unique_ptr<Poco::Data::SessionPool> _pool;
-        std::mutex _mutex;
+        std::shared_mutex _mutex;
     };
-
 }

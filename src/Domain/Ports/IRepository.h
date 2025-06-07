@@ -1,20 +1,17 @@
 #pragma once
 
-#include "Batch.h"
+#include "Product/Product.h"
 
 
 namespace Allocation::Domain
 {
+
     class IRepository
     {
     public:
         virtual ~IRepository() = default;
 
-        virtual void Add(const Domain::Batch& batch) = 0;
-
-        virtual std::optional<Batch> Get(const std::string& reference) = 0;
-
-        virtual std::vector<Batch> List() = 0;
+        virtual void Add(std::shared_ptr<Product> product) = 0;
+        virtual [[nodiscard]] std::shared_ptr<Product> Get(std::string_view SKU) = 0;
     };
-   
 }

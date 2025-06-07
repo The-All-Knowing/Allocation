@@ -13,7 +13,7 @@ namespace Allocation::Services::UoW
         _isCommited = false;
     }
 
-    bool AbstractUnitOfWork::IsCommited() const
+    bool AbstractUnitOfWork::IsCommited() const noexcept
     {
         return _isCommited;
     }   

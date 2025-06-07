@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Forwards.h"
+#include "IRepository.h"
 
 
 namespace Allocation::Domain
 {
+    
     class IUnitOfWork
     {
     public:
@@ -12,9 +13,7 @@ namespace Allocation::Domain
 
         virtual void Commit() = 0;
         virtual void RollBack() = 0;
-        virtual bool IsCommited() const = 0;
-
-        virtual IRepository& GetBatchRepository() = 0;
+        virtual bool IsCommited() const noexcept = 0;
+        virtual IRepository& GetProductRepository() = 0;
     };
-   
 }

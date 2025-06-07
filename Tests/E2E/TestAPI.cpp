@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include "Forwards.h"
 #include "Precompile.h"
 #include "CommonFunctions.h"
 #include "Utilities/Common.h"
@@ -9,7 +8,25 @@
 
 namespace Allocation::Tests
 {
-    void PostToAddBatch(const std::string& ref, const std::string& sku, int qty, std::optional<std::chrono::year_month_day> eta = std::nullopt)
+    Poco::URI GetURI(std::string command)
+    {
+        Poco::AutoPtr<Poco::Util::IniFileConfiguration> pConf(
+        new Poco::Util::IniFileConfiguration("./Allocation.ini"));
+        
+        std::string host = pConf->getString("server.host", "127.0.0.1");
+        int port = pConf->getInt("server.port", 9980);
+
+        Poco::URI uri;
+        uri.setScheme("http");
+        uri.setHost(host);
+        uri.setPort(port);
+        uri.setPath(command);
+
+        return uri;
+    }
+
+    void PostToAddBatch(const std::string& ref, const std::string& sku, int qty,
+        std::optional<std::chrono::year_month_day> eta = std::nullopt)
     {
         Poco::JSON::Object::Ptr obj = new Poco::JSON::Object;
         obj->set("ref", ref);
@@ -121,5 +138,4 @@ namespace Allocation::Tests
         std::string message = json->getValue<std::string>("message");
         EXPECT_EQ(message, "Invalid sku " + unknownSku);
     }
-
 }

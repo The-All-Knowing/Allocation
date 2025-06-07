@@ -29,6 +29,16 @@ namespace Allocation::Infrastructure::Server::Handlers
             response.setContentType("application/json");
             std::ostream& ostr = response.send();
             ostr << "{\"batchref\": \"" << batchRef << "\"}";
+            return;
+        }
+        catch (const Poco::Exception& ex)
+        {
+            response.setStatus(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            std::string msg = ex.displayText();
+            response.send() << "{\"error\":\"" << msg << "\"}";
+
+            Poco::Util::Application::instance().logger().error(msg);
         }
         catch (const std::exception& ex)
         {
@@ -37,6 +47,8 @@ namespace Allocation::Infrastructure::Server::Handlers
             std::ostream& ostr = response.send();
             std::string msg = ex.what();
             ostr << "{\"message\": \"" << msg << "\"}";
+
+            Poco::Util::Application::instance().logger().error(msg);
         }
     }
 }

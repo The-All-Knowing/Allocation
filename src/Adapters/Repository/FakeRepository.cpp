@@ -5,31 +5,22 @@
 
 namespace Allocation::Adapters::Repository
 {
-    FakeRepository::FakeRepository(const std::vector<Domain::Batch>& init)
+    FakeRepository::FakeRepository(const std::vector<std::shared_ptr<Domain::Product>>& init)
     {
-        for (const auto batch : init)
-            _batches.insert({batch.GetReference(), batch});
+        for (const auto& prod : init)
+            _skuByProduct.insert({prod->GetSKU(), prod});
     }
     
-    void FakeRepository::Add(const Domain::Batch& batch)
+    void FakeRepository::Add(std::shared_ptr<Domain::Product> product)
     {
-        _batches.insert_or_assign(batch.GetReference(), batch);
+        _skuByProduct.insert_or_assign(product->GetSKU(), product);
     }
 
-    std::optional<Domain::Batch> FakeRepository::Get(const std::string& reference)
+    std::shared_ptr<Domain::Product> FakeRepository::Get(std::string_view SKU)
     {
-        auto it = _batches.find(reference);
-        if (it != _batches.end())
+        auto it = _skuByProduct.find(std::string(SKU));
+        if (it != _skuByProduct.end())
             return it->second;
-        return std::nullopt;
+        return nullptr;
     }
-
-    std::vector<Domain::Batch> FakeRepository::List()
-    {
-        std::vector<Domain::Batch> result;
-        for (const auto& [_, batch] : _batches)
-            result.push_back(batch);
-        return result;
-    }
-
 }

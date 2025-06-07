@@ -3,13 +3,13 @@
 #include "Precompile.h"
 
 
-namespace Allocation::Domain
+namespace Allocation::Services::Exceptions
 {
 
-    class OutOfStock : public std::exception
+    class InvalidSku : public std::exception
     {
     public:
-        OutOfStock(std::string_view SKU) : msg(std::format("The article {} is out of stock", SKU)) 
+        InvalidSku(std::string_view SKU) : msg(std::format("Invalid sku {}", SKU)) 
         {}
 
         char const* what() const noexcept override
@@ -20,5 +20,4 @@ namespace Allocation::Domain
     private:
         std::string msg;
     };
-
 }

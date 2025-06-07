@@ -1,40 +1,39 @@
 #include "Services.h"
-#include "Model.h"
-#include "InvalidSku.h"
+#include "Exceptions/InvalidSku.h"
 #include "Domain/Ports/IRepository.h"
 
 
 namespace Allocation::Services
 {
-    bool IsValidSku(std::string sku, const std::vector<Domain::Batch>& batches)
-    {
-        auto it = std::find_if(batches.begin(), batches.end(),
-        [&sku](const auto& batch){return batch.GetSKU() == sku;});
-
-        return it != batches.end();
-    }
-
     void AddBatch(Domain::IUnitOfWork& uow,
-        std::string ref, std::string sku, int qty,
+        std::string_view ref, std::string_view SKU, size_t qty,
         std::optional<std::chrono::year_month_day> ETA)
     {
-        Domain::Batch batch(ref, sku, qty, ETA);
-        uow.GetBatchRepository().Add(batch);
+        auto& repo = uow.GetProductRepository();
+        std::shared_ptr<Domain::Product> product = repo.Get(SKU);
+        if (!product)
+            product = std::make_shared<Domain::Product>(SKU);
+
+        product->AddBatch(Domain::Batch(ref, SKU, qty, ETA));
+        repo.Add(product);
         uow.Commit();
     }
 
     std::string Allocate(
         Domain::IUnitOfWork& uow,
-        std::string orderid, std::string sku, int qty)
+        std::string_view orderid, std::string_view sku, size_t qty)
     {
-        Domain::OrderLine line(orderid, sku, qty);
-        auto batches = uow.GetBatchRepository().List();
-        if (!IsValidSku(line.GetSKU(), batches))
-            throw InvalidSku(std::format("Invalid sku {}", line.GetSKU()));
+        Domain::OrderLine line(std::string(orderid), std::string(sku), qty);
 
-        auto batch = Domain::Allocate(line, batches.begin(), batches.end());
-        uow.GetBatchRepository().Add(batch);
+        auto& products = uow.GetProductRepository();
+        auto product = products.Get(sku);
+        if (!product)
+            throw Exceptions::InvalidSku(sku);
+        
+        auto ref = product->Allocate(line);
+        products.Add(product);
         uow.Commit();
-        return batch.GetReference();
+        
+        return ref;
     }
 }

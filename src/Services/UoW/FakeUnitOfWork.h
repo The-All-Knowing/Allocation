@@ -1,21 +1,24 @@
 #pragma once
 
 #include "Precompile.h"
-#include "Forwards.h"
 #include "AbstractUnitOfWork.h"
 #include "Adapters/Repository/FakeRepository.h"
 
 
 namespace Allocation::Services::UoW
 {
-    class FakeUnitOfWork : public AbstractUnitOfWork
+    class FakeUnitOfWork final : public AbstractUnitOfWork 
     {
     public:
-        FakeUnitOfWork(Adapters::Repository::FakeRepository& repo);
+        FakeUnitOfWork() : _repo(std::make_shared<Adapters::Repository::FakeRepository>()) {}
+        FakeUnitOfWork(std::shared_ptr<Adapters::Repository::FakeRepository> repo) : _repo(repo) {}
 
-        Domain::IRepository& GetBatchRepository() override;
+        Domain::IRepository& GetProductRepository()
+        {
+            return *_repo;
+        }
 
     private:
-        Adapters::Repository::FakeRepository& _repo;
+        std::shared_ptr<Adapters::Repository::FakeRepository> _repo;
     };
 }

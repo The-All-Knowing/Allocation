@@ -16,14 +16,16 @@ set(allocation_sources
   src/main.cpp
   src/Precompile.cpp
   src/Utilities/Common.cpp
-  src/Domain/Batch.cpp
-  src/Domain/OrderlLine.cpp
+  src/Domain/Product/Batch.cpp
+  src/Domain/Product/Product.cpp
   src/Adapters/Database/DbTables.cpp
   src/Adapters/Repository/SqlRepository.cpp
+  src/Adapters/Repository/TrackingRepository.cpp
   src/Adapters/Repository/FakeRepository.cpp
   src/Adapters/Database/Session/SessionPool.cpp
   src/Adapters/Database/Mappers/OrderLineMapper.cpp
   src/Adapters/Database/Mappers/BatchMapper.cpp
+  src/Adapters/Database/Mappers/ProductMapper.cpp
   src/Services/Services.cpp
   src/Services/UoW/AbstractUnitOfWork.cpp
   src/Services/UoW/SqlUnitOfWork.cpp
@@ -60,24 +62,24 @@ enable_testing()
 set(test_sources
   src/Precompile.cpp
   src/Utilities/Common.cpp
-  src/Domain/Batch.cpp
-  src/Domain/OrderlLine.cpp
+  src/Domain/Product/Batch.cpp
+  src/Domain/Product/Product.cpp
   src/Adapters/Database/DbTables.cpp
   src/Adapters/Repository/SqlRepository.cpp
+  src/Adapters/Repository/TrackingRepository.cpp
   src/Adapters/Repository/FakeRepository.cpp
   src/Adapters/Database/Session/SessionPool.cpp
   src/Adapters/Database/Mappers/OrderLineMapper.cpp
   src/Adapters/Database/Mappers/BatchMapper.cpp
+  src/Adapters/Database/Mappers/ProductMapper.cpp
   src/Services/Services.cpp
-  src/Services/UoW/FakeUnitOfWork.cpp
   src/Services/UoW/AbstractUnitOfWork.cpp
   src/Services/UoW/SqlUnitOfWork.cpp
   Tests/Utilities/CommonFunctions.cpp
-  Tests/Unit/TestAllocate.cpp
+  Tests/Utilities/UoWFixture.cpp
+  Tests/Unit/TestProduct.cpp
   Tests/Unit/TestBatches.cpp
   Tests/Unit/TestServices.cpp
-  Tests/Integration/TestDataMappers.cpp
-  Tests/Integration/TestRepository.cpp
   Tests/Integration/TestUnitOfWork.cpp
   Tests/E2E/TestAPI.cpp
 )

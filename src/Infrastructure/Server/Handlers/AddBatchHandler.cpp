@@ -33,11 +33,23 @@ namespace Allocation::Infrastructure::Server::Handlers
             response.setContentType("application/json");
             response.send() << "{\"message\":\"Batch added\"}";
         }
+        catch (const Poco::Exception& ex)
+        {
+            response.setStatus(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+            response.setContentType("application/json");
+            std::string msg = ex.displayText();
+            response.send() << "{\"error\":\"" << msg << "\"}";
+
+            Poco::Util::Application::instance().logger().error(msg);
+        }
         catch (const std::exception& ex)
         {
             response.setStatus(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
             response.setContentType("application/json");
-            response.send() << "{\"error\":\"" << ex.what() << "\"}";
+            std::string msg = ex.what();
+            response.send() << "{\"error\":\"" << msg << "\"}";
+
+            Poco::Util::Application::instance().logger().error(msg);
         }
     }
 }

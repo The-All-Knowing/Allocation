@@ -68,10 +68,30 @@ namespace Allocation::Infrastructure::Server
 
     void ServerApp::initDatabase()
     {
-        Poco::Data::SQLite::Connector::registerConnector();
-        Adapters::Database::SessionPool::Instance().Configure("SQLite", "TestBd");
+        const auto& cfg = config();
+        
+        Adapters::Database::ConnectionConfig config;
+        std::string dbHost = cfg.getString("database.host", "localhost");
+        int dbPort = cfg.getInt("database.port", 5432);
+        std::string dbname = cfg.getString("database.name", "Allocation");
+        std::string user = cfg.getString("database.username", "postgres");
+        std::string password = cfg.getString("database.password", "1");
+
+        std::ostringstream oss;
+        oss << "host=" << dbHost
+            << " port=" << dbPort
+            << " dbname=" << dbname
+            << " user=" << user
+            << " password=" << password;
+
+        config.connTimeout = cfg.getInt("database.connection_timeout", 60);
+        config.connector = Poco::Data::PostgreSQL::Connector::KEY;
+        config.connectionString = oss.str();
+
+        Adapters::Database::SessionPool::Instance().Configure(config);
+        Poco::Data::PostgreSQL::Connector::registerConnector();
+
         auto session = Adapters::Database::SessionPool::Instance().GetSession();
         Adapters::Database::InitDatabase(session);
     }
-
 }

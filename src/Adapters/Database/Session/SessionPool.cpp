@@ -9,19 +9,48 @@ namespace Allocation::Adapters::Database
         return instance;
     }
 
-    void SessionPool::Configure(const std::string& connector, const std::string& connectionString)
+    bool SessionPool::IsConfigured()
     {
-        std::lock_guard<std::mutex> lock(_mutex);
+        std::shared_lock lock(_mutex);
+        return static_cast<bool>(_pool);
+    }
+
+    void SessionPool::Configure(const ConnectionConfig& config)
+    {
+        std::unique_lock lock(_mutex);
 
         if (_pool)
             throw std::runtime_error("SessionPool is already configured");
         
-        // @todo: добавить в параметры доп. информацию используемую в Poco::Data::SessionPool, возможно выразить структурой
-        _pool = std::make_unique<Poco::Data::SessionPool>(connector, connectionString, 1, 16, 60);
+        _pool = std::make_unique<Poco::Data::SessionPool>(
+            config.connector,
+            config.connectionString,
+            config.minSessions,
+            config.maxSessions,
+            config.idleTime,
+            config.connTimeout);
+    }
+
+    void SessionPool::Reconfigure(const ConnectionConfig& config)
+    {
+        std::unique_lock lock(_mutex);
+
+        if (_pool)
+            _pool->shutdown();
+
+        _pool = std::make_unique<Poco::Data::SessionPool>(
+            config.connector,
+            config.connectionString,
+            config.minSessions,
+            config.maxSessions,
+            config.idleTime,
+            config.connTimeout);
     }
 
     Poco::Data::Session SessionPool::GetSession()
     {
+        std::shared_lock lock(_mutex);
+
         if (!_pool)
             throw std::runtime_error("SessionPool is not configured");
 

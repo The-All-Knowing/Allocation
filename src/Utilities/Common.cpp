@@ -13,11 +13,11 @@ namespace Allocation
 
     Poco::DateTime Convert(std::chrono::year_month_day date)
     {
-        std::chrono::sys_days days = date;
-        std::time_t time = std::chrono::system_clock::to_time_t(days);
-        std::tm* tm = std::gmtime(&time);
+        int year = int(date.year());
+        int month = static_cast<unsigned>(date.month());
+        int day = static_cast<unsigned>(date.day());
 
-        return Poco::DateTime(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+        return Poco::DateTime{year, month, day};
     }
 
     std::chrono::year_month_day operator+(const std::chrono::year_month_day& ymd, const std::chrono::days& days)
@@ -29,5 +29,4 @@ namespace Allocation
     {
         return ymd + days;
     }
-    
 }
