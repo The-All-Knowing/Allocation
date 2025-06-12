@@ -20,6 +20,7 @@
 #include <thread>
 #include <atomic>
 #include <iostream>
+#include <typeindex>
 
 
 /// Poco

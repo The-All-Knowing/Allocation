@@ -1,6 +1,6 @@
 #include "Product.h"
 
-#include "Exceptions/OutOfStock.h"
+#include "Events/OutOfStock.h"
 
 
 namespace Allocation::Domain
@@ -44,7 +44,8 @@ namespace Allocation::Domain
             }
         }
 
-        throw Exceptions::OutOfStock(line.SKU);
+        _events.push_back(std::make_shared<Events::OutOfStock>(line.SKU));
+        return "";
     }
 
     std::vector<Batch> Product::GetBatches() const noexcept
@@ -64,5 +65,15 @@ namespace Allocation::Domain
     std::string Product::GetSKU() const noexcept
     {
         return _sku;
+    }
+
+    const std::vector<Events::IEventPtr>& Product::Events() const
+    {
+        return _events;
+    }
+    
+    void Product::ClearEvents()
+    {
+        _events.clear();
     }
 }

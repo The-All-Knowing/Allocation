@@ -3,8 +3,8 @@
 #include "Precompile.h"
 #include "CommonFunctions.h"
 #include "Utilities/Common.h"
-#include "Domain/Exceptions/OutOfStock.h"
 #include "Domain/Product/Product.h"
+#include "Domain/Events/OutOfStock.h"
 
 
 namespace Allocation::Tests
@@ -53,17 +53,18 @@ namespace Allocation::Tests
         EXPECT_EQ(allocation, inStockBatch.GetReference());
     }
 
-    TEST(Domain, test_raises_out_of_stock_exception_if_cannot_allocate)
+    TEST(Domain, test_records_out_of_stock_event_if_cannot_allocate)
     {
         Domain::Batch batch("batch1", "SMALL-FORK", 10, today);
         Domain::Product product("SMALL-FORK", {batch});
         product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
 
-        EXPECT_TRUE(
-        ThrowsWithMessage<Domain::Exceptions::OutOfStock>(
-            [&]() { product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));},
-            "The article SMALL-FORK is out of stock")
-        );
+        product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
+        EXPECT_FALSE(product.Events().empty());
+        EXPECT_EQ(product.Events().front()->Name(), "OutOfStock");
+        auto event = std::dynamic_pointer_cast<Domain::Events::OutOfStock>(product.Events().front());
+        EXPECT_TRUE(event);
+        EXPECT_EQ(event->SKU, "SMALL-FORK");
     }
 
     TEST(Domain, test_increments_version_number)

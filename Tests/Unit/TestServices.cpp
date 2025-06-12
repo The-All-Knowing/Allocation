@@ -4,7 +4,9 @@
 #include "Adapters/Repository/FakeRepository.h"
 #include "Services.h"
 #include "Services/UoW/FakeUnitOfWork.h"
+#include "Services/EventBus/EventBus.h"
 #include "Services/Exceptions/InvalidSku.h"
+#include "Domain/Events/OutOfStock.h"
 
 
 namespace Allocation::Tests
@@ -60,5 +62,20 @@ namespace Allocation::Tests
         Services::Allocate(uow, "o1", "OMINOUS-MIRROR", 10);
 
         EXPECT_TRUE(uow.IsCommited());
+    }
+
+    TEST(Services, test_sends_email_on_out_of_stock_error)
+    {
+        auto handler = [](std::shared_ptr<Domain::Events::OutOfStock> event)
+        {
+            EXPECT_EQ(event->SKU, "POPULAR-CURTAINS");
+        };
+
+        Services::EventBus::Instance().Subscribe<Domain::Events::OutOfStock>(handler);
+
+        Services::UoW::FakeUnitOfWork uow;
+        Services::AddBatch(uow, "b1", "POPULAR-CURTAINS", 9);
+
+        Services::Allocate(uow, "o1", "POPULAR-CURTAINS", 10);
     }
 }

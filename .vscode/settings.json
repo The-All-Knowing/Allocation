@@ -89,6 +89,7 @@
       "stack": "cpp",
       "csignal": "cpp",
       "ranges": "cpp",
-      "shared_mutex": "cpp"
+      "shared_mutex": "cpp",
+      "typeindex": "cpp"
     }
 }

@@ -40,6 +40,7 @@ namespace Allocation::Services::UoW
     {
         _impl->commit();
         AbstractUnitOfWork::Commit();
+        AbstractUnitOfWork::PublishEvents(_impl->tracking.GetSeen());
     }
 
     Poco::Data::Session& SqlUnitOfWork::GetSession() const noexcept

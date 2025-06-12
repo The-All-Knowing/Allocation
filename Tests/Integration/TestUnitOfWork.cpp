@@ -106,6 +106,7 @@ namespace Allocation::Tests
             std::string SKU = RandomSku();
             std::string batch = RandomBatchRef();
             InsertBatch(session, batch, SKU, 100, 1);
+            session.commit();
 
             std::string order1 = RandomOrderId("1");
             std::string order2 = RandomOrderId("2");
