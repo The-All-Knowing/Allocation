@@ -22,10 +22,18 @@ namespace Allocation::Services::UoW
             return _tracking;
         }
 
-        void Commit() override
+        std::vector<Domain::Events::IEventPtr> GetNewEvents() noexcept override
         {
-            AbstractUnitOfWork::Commit();
-            AbstractUnitOfWork::PublishEvents(_tracking.GetSeen());
+            std::vector<Domain::Events::IEventPtr> result;
+
+            for (const auto& product : _tracking.GetSeen())
+            {
+                auto& events = product->Events();
+                result.insert(result.end(), events.begin(), events.end());
+                product->ClearEvents();
+            }
+
+            return result;
         }
 
     private:

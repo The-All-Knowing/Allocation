@@ -27,11 +27,10 @@ set(allocation_sources
   src/Adapters/Database/Mappers/BatchMapper.cpp
   src/Adapters/Database/Mappers/ProductMapper.cpp
   src/Adapters/Email/Email.cpp
-  src/Services/Services.cpp
   src/Services/UoW/AbstractUnitOfWork.cpp
   src/Services/UoW/SqlUnitOfWork.cpp
-  src/Services/EventBus/EventBus.cpp
-  src/Services/EventBus/Handlers.cpp
+  src/Services/MessageBus/MessageBus.cpp
+  src/Services/MessageBus/Handlers.cpp
   src/Infrastructure/Server/Server.cpp
   src/Infrastructure/Server/HandlerFactory.cpp
   src/Infrastructure/Server/Handlers/AllocateHandler.cpp
@@ -76,17 +75,17 @@ set(test_sources
   src/Adapters/Database/Mappers/BatchMapper.cpp
   src/Adapters/Database/Mappers/ProductMapper.cpp
   src/Adapters/Email/Email.cpp
-  src/Services/Services.cpp
   src/Services/UoW/AbstractUnitOfWork.cpp
   src/Services/UoW/SqlUnitOfWork.cpp
-  src/Services/EventBus/EventBus.cpp
-  src/Services/EventBus/Handlers.cpp
+  src/Services/MessageBus/MessageBus.cpp
+  src/Services/MessageBus/Handlers.cpp
   Tests/Utilities/CommonFunctions.cpp
-  Tests/Utilities/UoWFixture.cpp
+  Tests/Utilities/SqlFixture.cpp
   Tests/Unit/TestProduct.cpp
   Tests/Unit/TestBatches.cpp
-  Tests/Unit/TestServices.cpp
+  Tests/Unit/TestHandlers.cpp
   Tests/Integration/TestUnitOfWork.cpp
+  Tests/Integration/TestRepository.cpp
   Tests/E2E/TestAPI.cpp
 )
 

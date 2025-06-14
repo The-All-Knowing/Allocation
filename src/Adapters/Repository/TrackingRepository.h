@@ -14,6 +14,7 @@ namespace Allocation::Adapters::Repository
 
         void Add(std::shared_ptr<Domain::Product> product) override;
         [[nodiscard]] std::shared_ptr<Domain::Product> Get(std::string_view SKU) override;
+        [[nodiscard]] std::shared_ptr<Domain::Product> GetByBatchRef(std::string_view ref) override;
 
         [[nodiscard]] std::vector<std::shared_ptr<Domain::Product>> GetSeen() const noexcept;
         std::vector<std::tuple<std::string, size_t, size_t>> GetChangedVersions() const noexcept;

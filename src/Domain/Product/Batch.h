@@ -10,27 +10,30 @@ namespace Allocation::Domain
     class Batch
     {
     public:
-        explicit Batch(std::string_view reference, std::string_view SKU, size_t quantity,
-                std::optional<std::chrono::year_month_day> ETA = std::nullopt);
-        
+        Batch(std::string_view reference, std::string_view SKU, size_t quantity,
+            std::optional<std::chrono::year_month_day> ETA = std::nullopt);
+
+        void SetPurchasedQuantity(size_t newQty) noexcept;
+
         [[nodiscard]] bool CanAllocate(const OrderLine& line) const noexcept;
         void Allocate(const OrderLine& line) noexcept;
         void Deallocate(const OrderLine& line) noexcept;
 
-        [[nodiscard]] size_t GetAvailableQuantity() const noexcept;
+        [[nodiscard]] int GetAvailableQuantity() const noexcept;
         [[nodiscard]] std::string_view GetReference() const noexcept;
         [[nodiscard]] std::optional<std::chrono::year_month_day> GetETA() const noexcept;
         [[nodiscard]] std::string_view GetSKU() const noexcept;
         [[nodiscard]] std::vector<OrderLine> GetAllocations() const noexcept;
 
         auto operator<=>(const Batch& other) const;
+        bool operator==(const Batch& other) const = default;
 
     private:
         std::string _reference;
         std::string _SKU;
-        size_t _availableQuantity;
+        size_t _purchasedQuantity;
         std::optional<std::chrono::year_month_day> _ETA;
-        std::unordered_set<OrderLine> _allocations;    
+        std::unordered_set<OrderLine> _allocations;
     };
 
     struct BatchETAComparator

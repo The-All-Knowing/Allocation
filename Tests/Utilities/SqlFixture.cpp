@@ -1,11 +1,11 @@
-#include "UoWFixture.h"
+#include "SqlFixture.h"
 #include "Adapters/Database/Session/SessionPool.h"
 #include "Adapters/Database/DbTables.h"
 
 
 namespace Allocation::Tests
 {
-    void UoWFixture::SetUp()
+    void SqlFixture::SetUp()
     {
         try
         {
@@ -22,7 +22,7 @@ namespace Allocation::Tests
         }
     }
 
-    void UoWFixture::TearDown()
+    void SqlFixture::TearDown()
     {
         try
         {
@@ -39,7 +39,7 @@ namespace Allocation::Tests
         }
     }
 
-    void UoWFixture::SetUpTestSuite()
+    void SqlFixture::SetUpTestSuite()
     {
         Poco::Path exePath(Poco::Path::current());
         Poco::Path iniPath = exePath;
@@ -71,7 +71,7 @@ namespace Allocation::Tests
         }
     }
 
-    Adapters::Database::ConnectionConfig UoWFixture::LoadDatabaseConfig(const std::string& path)
+    Adapters::Database::ConnectionConfig SqlFixture::LoadDatabaseConfig(const std::string& path)
     {
         Adapters::Database::ConnectionConfig result;
         Poco::AutoPtr<Poco::Util::IniFileConfiguration> pConf(

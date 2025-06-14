@@ -8,6 +8,8 @@ namespace Allocation::Adapters::Database
 
     void InitDatabase(Poco::Data::Session& session)
     {
+        session.begin();
+
         session << R"(
             CREATE TABLE IF NOT EXISTS public.order_lines (
             id SERIAL PRIMARY KEY,
@@ -41,13 +43,17 @@ namespace Allocation::Adapters::Database
                 FOREIGN KEY(orderline_id) REFERENCES public.order_lines(id), 
                 FOREIGN KEY(batch_id) REFERENCES public.batches(id))
         )", Poco::Data::Keywords::now;
+
+        session.commit();
     }
 
     void DropDatabase(Poco::Data::Session& session)
     {
+        session.begin();
         session << "DROP TABLE IF EXISTS public.allocations CASCADE", Poco::Data::Keywords::now;
         session << "DROP TABLE IF EXISTS public.batches CASCADE", Poco::Data::Keywords::now;
         session << "DROP TABLE IF EXISTS public.order_lines CASCADE", Poco::Data::Keywords::now;
         session << "DROP TABLE IF EXISTS public.products CASCADE", Poco::Data::Keywords::now;
+        session.commit();
     }
 }

@@ -7,7 +7,7 @@
 namespace Allocation::Tests
 {
 
-    class UoWFixture : public ::testing::Test
+    class SqlFixture : public ::testing::Test
     {
     protected:
         void SetUp() override;

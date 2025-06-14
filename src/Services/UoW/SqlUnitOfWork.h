@@ -3,7 +3,6 @@
 #include "Precompile.h"
 #include "AbstractUnitOfWork.h"
 #include "Domain/Ports/IRepository.h"
-#include "Domain/Ports/IUnitOfWork.h"
 
 
 namespace Allocation::Services::UoW
@@ -22,8 +21,11 @@ namespace Allocation::Services::UoW
         void RollBack() override;
 
         Domain::IRepository& GetProductRepository() override;
+        std::vector<Domain::Events::IEventPtr> GetNewEvents() noexcept override;
 
     private:
         std::unique_ptr<Impl> _impl;
     };
+
+    std::shared_ptr<Domain::IUnitOfWork> SqlUowFactory(); 
 }

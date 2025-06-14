@@ -21,6 +21,7 @@
 #include <atomic>
 #include <iostream>
 #include <typeindex>
+#include <queue>
 
 
 /// Poco

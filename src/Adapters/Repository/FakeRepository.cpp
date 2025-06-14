@@ -23,4 +23,19 @@ namespace Allocation::Adapters::Repository
             return it->second;
         return nullptr;
     }
+
+    std::shared_ptr<Domain::Product> FakeRepository::GetByBatchRef(std::string_view ref)
+    {
+        for (const auto& [_, product] : _skuByProduct)
+        {
+            const auto& batches = product->GetBatches();
+            if (std::any_of(batches.begin(), batches.end(), [ref](const auto& batch) {
+                return batch.GetReference() == ref;
+            }))
+            {
+                return product;
+            }
+        }
+        return nullptr;
+    }
 }

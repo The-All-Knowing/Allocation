@@ -1,8 +1,9 @@
 #include "Handlers/AddBatchHandler.h"
 
 #include "Utilities/Common.h"
-#include "Services/Services.h"
+#include "Services/MessageBus/MessageBus.h"
 #include "Services/UoW/SqlUnitOfWork.h"
+#include "Domain/Events/BatchCreated.h"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
@@ -26,8 +27,8 @@ namespace Allocation::Infrastructure::Server::Handlers
 
         try
         {
-            Services::UoW::SqlUnitOfWork uow;
-            Services::AddBatch(uow, ref, sku, qty, eta);
+            auto event = std::make_shared<Domain::Events::BatchCreated>(ref, sku, qty);
+            Services::MessageBus::Instance().Handle(Allocation::Services::UoW::SqlUowFactory, event);
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_CREATED);
             response.setContentType("application/json");

@@ -90,8 +90,5 @@ namespace Allocation::Infrastructure::Server
 
         Adapters::Database::SessionPool::Instance().Configure(config);
         Poco::Data::PostgreSQL::Connector::registerConnector();
-
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
-        Adapters::Database::InitDatabase(session);
     }
 }

@@ -27,6 +27,18 @@ namespace Allocation::Adapters::Repository
         return product;
     }
 
+    std::shared_ptr<Domain::Product> TrackingRepository::GetByBatchRef(std::string_view ref)
+    {
+        auto product = _repo.GetByBatchRef(ref);
+        if (product)
+        {
+            _seen[product->GetSKU()] = product;
+            _seenObjByOldVersion[product->GetSKU()] = product->GetVersion(); 
+        }
+
+        return product;
+    }
+
     std::vector<std::shared_ptr<Domain::Product>> TrackingRepository::GetSeen() const noexcept
     {
         std::vector<std::shared_ptr<Domain::Product>> result;

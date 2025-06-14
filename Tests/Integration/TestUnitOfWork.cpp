@@ -3,7 +3,7 @@
 #include "Precompile.h"
 #include "Common.h"
 #include "CommonFunctions.h"
-#include "UoWFixture.h"
+#include "SqlFixture.h"
 #include "Adapters/Database/Session/SessionPool.h"
 #include "Services/UoW/SqlUnitOfWork.h"
 
@@ -11,7 +11,7 @@
 namespace Allocation::Tests
 {
 
-    TEST_F(UoWFixture, test_uow_can_retrieve_a_batch_and_allocate_to_it)
+    TEST_F(SqlFixture, test_uow_can_retrieve_a_batch_and_allocate_to_it)
     {
         try
         {
@@ -34,7 +34,7 @@ namespace Allocation::Tests
         }
     }
 
-    TEST_F(UoWFixture, test_rolls_back_uncommitted_work_by_default)
+    TEST_F(SqlFixture, test_rolls_back_uncommitted_work_by_default)
     {
         try
         {
@@ -57,7 +57,7 @@ namespace Allocation::Tests
         }
     }
 
-    TEST_F(UoWFixture, test_rolls_back_on_error)
+    TEST_F(SqlFixture, test_rolls_back_on_error)
     {
         try
         {
@@ -98,7 +98,7 @@ namespace Allocation::Tests
         }
     }
 
-    TEST_F(UoWFixture, test_concurrent_updates_to_version_are_not_allowed)
+    TEST_F(SqlFixture, test_concurrent_updates_to_version_are_not_allowed)
     {
         try
         {

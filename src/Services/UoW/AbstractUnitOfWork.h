@@ -13,8 +13,6 @@ namespace Allocation::Services::UoW
         void RollBack() override;
         bool IsCommited() const noexcept override;
 
-        void PublishEvents(const std::vector<std::shared_ptr<Domain::Product>>& products);
-
     private:
         bool _isCommited{false};
     };

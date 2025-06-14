@@ -1,6 +1,7 @@
 #include "Product.h"
 
 #include "Events/OutOfStock.h"
+#include "Events/AllocationRequired.h"
 
 
 namespace Allocation::Domain
@@ -48,6 +49,25 @@ namespace Allocation::Domain
         return "";
     }
 
+    void Product::ChangeBatchQuantity(std::string_view ref, size_t newQty)
+    {
+        auto it = _referenceByBatches.find(std::string(ref));
+        if (it == _referenceByBatches.end()) return;
+
+        auto& batch = it->second;
+        batch.SetPurchasedQuantity(newQty);
+
+        for (const auto& order : batch.GetAllocations())
+        {
+            if (batch.GetAvailableQuantity() >= 0)
+                break;
+
+            batch.Deallocate(order);
+            _events.push_back(std::make_shared<Events::AllocationRequired>(
+                order.reference, order.SKU, order.quantity));
+        }
+    }
+
     std::vector<Batch> Product::GetBatches() const noexcept
     {
         std::vector<Batch> result;
@@ -75,5 +95,22 @@ namespace Allocation::Domain
     void Product::ClearEvents()
     {
         _events.clear();
+    }
+
+    bool operator==(const Product& lhs, const Product& rhs) noexcept
+    {
+        if (lhs.GetSKU() != rhs.GetSKU() || lhs.GetVersion() != rhs.GetVersion())
+            return false;
+
+        auto lhsBatches = lhs.GetBatches();
+        auto rhsBatches = rhs.GetBatches();
+
+        if (lhsBatches.size() != rhsBatches.size())
+            return false;
+
+        std::sort(lhsBatches.begin(), lhsBatches.end(), BatchETAComparator());
+        std::sort(rhsBatches.begin(), rhsBatches.end(), BatchETAComparator());
+
+        return std::equal(lhsBatches.begin(), lhsBatches.end(), rhsBatches.begin());
     }
 }

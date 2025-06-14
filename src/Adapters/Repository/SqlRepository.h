@@ -13,6 +13,7 @@ namespace Allocation::Adapters::Repository
         SqlRepository(Poco::Data::Session& session);
         void Add(std::shared_ptr<Domain::Product> product) override;
         [[nodiscard]] std::shared_ptr<Domain::Product> Get(std::string_view SKU) override;
+        [[nodiscard]] std::shared_ptr<Domain::Product> GetByBatchRef(std::string_view ref) override;
 
         void UpdateVersion(std::string_view SKU, size_t old, size_t newVersion);
 

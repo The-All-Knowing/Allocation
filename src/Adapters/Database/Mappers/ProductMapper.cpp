@@ -37,6 +37,34 @@ namespace Allocation::Adapters::Database::Mapper
         return result;
     }
 
+    std::shared_ptr<Domain::Product> ProductMapper::FindByBatchRef(std::string ref)
+    {
+        BatchMapper _batchMapper(_session);
+        std::shared_ptr<Domain::Product> result;
+
+        std::string SKU;
+        int version;
+
+        Poco::Data::Statement select(_session);
+        select << R"(
+            SELECT public.products.sku, public.products.version_number FROM public.products
+            JOIN public.batches ON public.products.sku = public.batches.sku
+            WHERE public.batches.reference = $1)",
+            Poco::Data::Keywords::use(ref),
+            Poco::Data::Keywords::into(SKU),
+            Poco::Data::Keywords::into(version);
+
+        select.execute();
+
+        if (select.done() && !SKU.empty())
+        {
+            auto batches = _batchMapper.GetBySKU(SKU);
+            result = std::make_shared<Domain::Product>(SKU, batches, version);
+        }
+
+        return result;
+    }
+
     void ProductMapper::Update(std::shared_ptr<Domain::Product> product)
     {
         BatchMapper _batchMapper(_session);

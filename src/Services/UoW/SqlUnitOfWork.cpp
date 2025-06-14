@@ -40,7 +40,6 @@ namespace Allocation::Services::UoW
     {
         _impl->commit();
         AbstractUnitOfWork::Commit();
-        AbstractUnitOfWork::PublishEvents(_impl->tracking.GetSeen());
     }
 
     Poco::Data::Session& SqlUnitOfWork::GetSession() const noexcept
@@ -57,5 +56,24 @@ namespace Allocation::Services::UoW
     Domain::IRepository& SqlUnitOfWork::GetProductRepository()
     {
         return _impl->getRepo();
+    }
+
+    std::vector<Domain::Events::IEventPtr> SqlUnitOfWork::GetNewEvents() noexcept
+    {
+        std::vector<Domain::Events::IEventPtr> result;
+
+        for (const auto& product : _impl->tracking.GetSeen())
+        {
+            auto& events = product->Events();
+            result.insert(result.end(), events.begin(), events.end());
+            product->ClearEvents();
+        }
+
+        return result;
+    }
+
+    std::shared_ptr<Domain::IUnitOfWork> SqlUowFactory()
+    {
+        return std::make_shared<SqlUnitOfWork>();
     }
 }

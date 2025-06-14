@@ -26,6 +26,12 @@ namespace Allocation::Adapters::Repository
         return mapper.FindBySKU(std::string(SKU));
     }
 
+    std::shared_ptr<Domain::Product>  SqlRepository::GetByBatchRef(std::string_view ref)
+    {
+        Database::Mapper::ProductMapper mapper(_session);
+        return mapper.FindByBatchRef(std::string(ref));
+    }
+
     void SqlRepository::UpdateVersion(std::string_view SKU, size_t old, size_t newVersion)
     {
         Database::Mapper::ProductMapper mapper(_session);
