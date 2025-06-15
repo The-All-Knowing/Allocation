@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IRepository.h"
-#include "Events/IEvent.h"
+#include "IMessage.h"
 
 
 namespace Allocation::Domain
@@ -16,6 +16,6 @@ namespace Allocation::Domain
         virtual void RollBack() = 0;
         virtual bool IsCommited() const noexcept = 0;
         virtual IRepository& GetProductRepository() = 0;
-        virtual std::vector<Events::IEventPtr> GetNewEvents() noexcept = 0;
+        virtual std::vector<IMessagePtr> GetNewMessages() noexcept = 0;
     };
 }

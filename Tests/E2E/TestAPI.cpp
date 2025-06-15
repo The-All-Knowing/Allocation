@@ -91,7 +91,7 @@ namespace Allocation::Tests
         Poco::StreamCopier::copyStream(rs, result);
 
         auto status = response.getStatus(); 
-        EXPECT_EQ(status, Poco::Net::HTTPResponse::HTTP_CREATED);
+        EXPECT_EQ(status, Poco::Net::HTTPResponse::HTTP_OK);
 
         Poco::JSON::Parser parser;
         Poco::Dynamic::Var parsed = parser.parse(result);

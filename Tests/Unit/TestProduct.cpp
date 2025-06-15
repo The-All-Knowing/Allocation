@@ -60,9 +60,9 @@ namespace Allocation::Tests
         product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
 
         product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
-        EXPECT_FALSE(product.Events().empty());
-        EXPECT_EQ(product.Events().front()->Name(), "OutOfStock");
-        auto event = std::dynamic_pointer_cast<Domain::Events::OutOfStock>(product.Events().front());
+        EXPECT_FALSE(product.Messages().empty());
+        EXPECT_EQ(product.Messages().front()->Name(), "OutOfStock");
+        auto event = std::dynamic_pointer_cast<Domain::Events::OutOfStock>(product.Messages().front());
         EXPECT_TRUE(event);
         EXPECT_EQ(event->SKU, "SMALL-FORK");
     }

@@ -1,7 +1,7 @@
 #include "Product.h"
 
 #include "Events/OutOfStock.h"
-#include "Events/AllocationRequired.h"
+#include "Commands/Allocate.h"
 
 
 namespace Allocation::Domain
@@ -45,7 +45,7 @@ namespace Allocation::Domain
             }
         }
 
-        _events.push_back(std::make_shared<Events::OutOfStock>(line.SKU));
+        _messages.push_back(std::make_shared<Events::OutOfStock>(line.SKU));
         return "";
     }
 
@@ -63,7 +63,7 @@ namespace Allocation::Domain
                 break;
 
             batch.Deallocate(order);
-            _events.push_back(std::make_shared<Events::AllocationRequired>(
+            _messages.push_back(std::make_shared<Commands::Allocate>(
                 order.reference, order.SKU, order.quantity));
         }
     }
@@ -87,14 +87,14 @@ namespace Allocation::Domain
         return _sku;
     }
 
-    const std::vector<Events::IEventPtr>& Product::Events() const
+    const std::vector<Domain::IMessagePtr>& Product::Messages() const
     {
-        return _events;
+        return _messages;
     }
     
-    void Product::ClearEvents()
+    void Product::ClearMessages()
     {
-        _events.clear();
+        _messages.clear();
     }
 
     bool operator==(const Product& lhs, const Product& rhs) noexcept

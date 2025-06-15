@@ -2,7 +2,7 @@
 
 #include "Services/UoW/SqlUnitOfWork.h"
 #include "Services/MessageBus/MessageBus.h"
-#include "Domain/Events/AllocationRequired.h"
+#include "Domain/Commands/Allocate.h"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
@@ -23,11 +23,11 @@ namespace Allocation::Infrastructure::Server::Handlers
 
         try
         {
-            auto event = std::make_shared<Domain::Events::AllocationRequired>(orderid, sku, qty);
+            auto event = std::make_shared<Domain::Commands::Allocate>(orderid, sku, qty);
             auto result = Services::MessageBus::Instance().Handle(Allocation::Services::UoW::SqlUowFactory, event);
             std::string batchRef = result.back();
 
-            response.setStatus(Poco::Net::HTTPResponse::HTTP_CREATED);
+            response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
             response.setContentType("application/json");
             std::ostream& ostr = response.send();
             ostr << "{\"batchref\": \"" << batchRef << "\"}";

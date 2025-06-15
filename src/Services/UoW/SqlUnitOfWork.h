@@ -21,7 +21,7 @@ namespace Allocation::Services::UoW
         void RollBack() override;
 
         Domain::IRepository& GetProductRepository() override;
-        std::vector<Domain::Events::IEventPtr> GetNewEvents() noexcept override;
+        std::vector<Domain::IMessagePtr> GetNewMessages() noexcept override;
 
     private:
         std::unique_ptr<Impl> _impl;

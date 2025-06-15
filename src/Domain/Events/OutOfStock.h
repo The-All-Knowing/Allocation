@@ -1,12 +1,12 @@
 #pragma once
 
-#include "IEvent.h"
+#include "AbstractEvent.h"
 
 
 namespace Allocation::Domain::Events
 {
 
-    struct OutOfStock final : public IEvent
+    struct OutOfStock final : public AbstractEvent
     {
         OutOfStock(std::string SKU): SKU(std::move(SKU)) {};
 

@@ -3,7 +3,7 @@
 #include "Utilities/Common.h"
 #include "Services/MessageBus/MessageBus.h"
 #include "Services/UoW/SqlUnitOfWork.h"
-#include "Domain/Events/BatchCreated.h"
+#include "Domain/Commands/CreateBatch.h"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
@@ -27,7 +27,7 @@ namespace Allocation::Infrastructure::Server::Handlers
 
         try
         {
-            auto event = std::make_shared<Domain::Events::BatchCreated>(ref, sku, qty);
+            auto event = std::make_shared<Domain::Commands::CreateBatch>(ref, sku, qty);
             Services::MessageBus::Instance().Handle(Allocation::Services::UoW::SqlUowFactory, event);
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_CREATED);

@@ -58,15 +58,15 @@ namespace Allocation::Services::UoW
         return _impl->getRepo();
     }
 
-    std::vector<Domain::Events::IEventPtr> SqlUnitOfWork::GetNewEvents() noexcept
+    std::vector<Domain::IMessagePtr> SqlUnitOfWork::GetNewMessages() noexcept
     {
-        std::vector<Domain::Events::IEventPtr> result;
+        std::vector<Domain::IMessagePtr> result;
 
         for (const auto& product : _impl->tracking.GetSeen())
         {
-            auto& events = product->Events();
-            result.insert(result.end(), events.begin(), events.end());
-            product->ClearEvents();
+            auto& messages = product->Messages();
+            result.insert(result.end(), messages.begin(), messages.end());
+            product->ClearMessages();
         }
 
         return result;

@@ -22,15 +22,15 @@ namespace Allocation::Services::UoW
             return _tracking;
         }
 
-        std::vector<Domain::Events::IEventPtr> GetNewEvents() noexcept override
+        std::vector<Domain::IMessagePtr> GetNewMessages() noexcept override
         {
-            std::vector<Domain::Events::IEventPtr> result;
+            std::vector<Domain::IMessagePtr> result;
 
             for (const auto& product : _tracking.GetSeen())
             {
-                auto& events = product->Events();
-                result.insert(result.end(), events.begin(), events.end());
-                product->ClearEvents();
+                auto& messages = product->Messages();
+                result.insert(result.end(), messages.begin(), messages.end());
+                product->ClearMessages();
             }
 
             return result;
