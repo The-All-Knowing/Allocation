@@ -11,7 +11,7 @@ namespace Allocation::Domain::Commands
         Allocate(std::string orderid, std::string sku, size_t qty) :
             orderid(std::move(orderid)), sku(std::move(sku)), qty(qty) 
         {}
-        std::string Name() const override { return "Allocate"; };
+        [[nodiscard]] std::string Name() const override { return "Allocate"; };
 
         std::string orderid;
         std::string sku;

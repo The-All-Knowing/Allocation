@@ -17,7 +17,7 @@ namespace Allocation::Adapters::Repository
         [[nodiscard]] std::shared_ptr<Domain::Product> GetByBatchRef(std::string_view ref) override;
 
         [[nodiscard]] std::vector<std::shared_ptr<Domain::Product>> GetSeen() const noexcept;
-        std::vector<std::tuple<std::string, size_t, size_t>> GetChangedVersions() const noexcept;
+        [[nodiscard]] std::vector<std::tuple<std::string, size_t, size_t>> GetChangedVersions() const noexcept;
 
     private:
         Domain::IRepository& _repo;

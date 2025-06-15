@@ -15,17 +15,17 @@ namespace Allocation::Services::UoW
         SqlUnitOfWork();
         ~SqlUnitOfWork();
 
-        Poco::Data::Session& GetSession() const noexcept;
+        [[nodiscard]] Poco::Data::Session& GetSession() const noexcept;
 
         void Commit() override;
         void RollBack() override;
 
-        Domain::IRepository& GetProductRepository() override;
-        std::vector<Domain::IMessagePtr> GetNewMessages() noexcept override;
+        [[nodiscard]] Domain::IRepository& GetProductRepository() override;
+        [[nodiscard]] std::vector<Domain::IMessagePtr> GetNewMessages() noexcept override;
 
     private:
         std::unique_ptr<Impl> _impl;
     };
 
-    std::shared_ptr<Domain::IUnitOfWork> SqlUowFactory(); 
+    [[nodiscard]] std::shared_ptr<Domain::IUnitOfWork> SqlUowFactory(); 
 }

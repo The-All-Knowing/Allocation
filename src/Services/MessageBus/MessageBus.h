@@ -51,7 +51,7 @@ namespace Allocation::Services
                 };
         }
 
-        [[nodiscard]] std::vector<std::string> Handle(UoWFactory uowFactory, const CommandPtr& command);
+        std::vector<std::string> Handle(UoWFactory uowFactory, const CommandPtr& command);
 
     private:
         MessageBus();

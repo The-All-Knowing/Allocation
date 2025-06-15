@@ -17,12 +17,12 @@ namespace Allocation::Services::UoW
         FakeUnitOfWork(std::shared_ptr<Adapters::Repository::FakeRepository> repo) : _repo(repo), _tracking(*_repo)
         {}
 
-        Domain::IRepository& GetProductRepository()
+        [[nodiscard]] Domain::IRepository& GetProductRepository()
         {
             return _tracking;
         }
 
-        std::vector<Domain::IMessagePtr> GetNewMessages() noexcept override
+        [[nodiscard]] std::vector<Domain::IMessagePtr> GetNewMessages() noexcept override
         {
             std::vector<Domain::IMessagePtr> result;
 

@@ -14,8 +14,8 @@ namespace Allocation::Domain
 
         virtual void Commit() = 0;
         virtual void RollBack() = 0;
-        virtual bool IsCommited() const noexcept = 0;
-        virtual IRepository& GetProductRepository() = 0;
-        virtual std::vector<IMessagePtr> GetNewMessages() noexcept = 0;
+        virtual [[nodiscard]] bool IsCommited() const noexcept = 0;
+        virtual [[nodiscard]] IRepository& GetProductRepository() = 0;
+        virtual [[nodiscard]] std::vector<IMessagePtr> GetNewMessages() noexcept = 0;
     };
 }

@@ -45,9 +45,4 @@ namespace Allocation::Domain
     {
         return {_allocations.begin(), _allocations.end()};
     }
-
-    auto Batch::operator<=>(const Batch& other) const
-    {
-        return GetReference() <=> other.GetReference();
-    }
 }

@@ -10,7 +10,7 @@ namespace Allocation::Domain::Events
     {
         OutOfStock(std::string SKU): SKU(std::move(SKU)) {};
 
-        std::string Name() const override { return "OutOfStock"; };
+        [[nodiscard]] std::string Name() const override { return "OutOfStock"; };
         std::string SKU;
     };
 }

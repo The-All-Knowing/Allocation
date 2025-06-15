@@ -25,7 +25,6 @@ namespace Allocation::Domain
         [[nodiscard]] std::string_view GetSKU() const noexcept;
         [[nodiscard]] std::vector<OrderLine> GetAllocations() const noexcept;
 
-        auto operator<=>(const Batch& other) const;
         bool operator==(const Batch& other) const = default;
 
     private:
