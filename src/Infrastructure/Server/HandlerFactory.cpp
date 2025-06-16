@@ -2,6 +2,7 @@
 #include "Handlers/AllocateHandler.h"
 #include "Handlers/NotFoundHandler.h"
 #include "Handlers/AddBatchHandler.h"
+#include "Handlers/AllocationsViewHandler.h"
 #include "Services/Loggers/ILogger.h"
 
 
@@ -19,6 +20,14 @@ namespace Allocation::Infrastructure::Server
 
             if (request.getURI() == "/add_batch")
                 return new Handlers::AddBatchHandler;
+        }
+
+        if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_GET)
+        {
+            if (request.getURI().find("/allocations/") == 0)
+            {
+                return new Handlers::AllocationsViewHandler;
+            }
         }
 
         return new Handlers::NotFoundHandler;

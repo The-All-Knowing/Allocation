@@ -44,16 +44,30 @@ namespace Allocation::Adapters::Database
                 FOREIGN KEY(batch_id) REFERENCES public.batches(id))
         )", Poco::Data::Keywords::now;
 
+        session << R"(
+            CREATE OR REPLACE VIEW public.allocations_view AS
+            SELECT 
+                o.orderid,
+                o.sku,
+                b.reference AS batchref
+            FROM public.allocations a
+            JOIN public.order_lines o ON a.orderline_id = o.id
+            JOIN public.batches b ON a.batch_id = b.id
+        )", Poco::Data::Keywords::now;
+
         session.commit();
     }
 
     void DropDatabase(Poco::Data::Session& session)
     {
         session.begin();
+
+        session << "DROP VIEW IF EXISTS public.allocations_view CASCADE", Poco::Data::Keywords::now;
         session << "DROP TABLE IF EXISTS public.allocations CASCADE", Poco::Data::Keywords::now;
         session << "DROP TABLE IF EXISTS public.batches CASCADE", Poco::Data::Keywords::now;
         session << "DROP TABLE IF EXISTS public.order_lines CASCADE", Poco::Data::Keywords::now;
         session << "DROP TABLE IF EXISTS public.products CASCADE", Poco::Data::Keywords::now;
+        
         session.commit();
     }
 }

@@ -52,14 +52,17 @@ namespace Allocation::Adapters::Database::Mapper
             WHERE public.batches.reference = $1)",
             Poco::Data::Keywords::use(ref),
             Poco::Data::Keywords::into(SKU),
-            Poco::Data::Keywords::into(version);
+            Poco::Data::Keywords::into(version),
+            Poco::Data::Keywords::range(0, 1);
 
-        select.execute();
-
-        if (select.done() && !SKU.empty())
+        while (!select.done())
         {
-            auto batches = _batchMapper.GetBySKU(SKU);
-            result = std::make_shared<Domain::Product>(SKU, batches, version);
+            select.execute();
+            if (!SKU.empty())
+            {
+                auto batches = _batchMapper.GetBySKU(SKU);
+                result = std::make_shared<Domain::Product>(SKU, batches, version);
+            }
         }
 
         return result;

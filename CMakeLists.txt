@@ -33,11 +33,13 @@ set(allocation_sources
   src/Services/MessageBus/MessageBus.cpp
   src/Services/MessageBus/Handlers.cpp
   src/Services/Loggers/ILogger.cpp
+  src/Services/Views.cpp
   src/Infrastructure/Server/Server.cpp
   src/Infrastructure/Server/HandlerFactory.cpp
   src/Infrastructure/Server/Handlers/AllocateHandler.cpp
   src/Infrastructure/Server/Handlers/NotFoundHandler.cpp
   src/Infrastructure/Server/Handlers/AddBatchHandler.cpp
+  src/Infrastructure/Server/Handlers/AllocationsViewHandler.cpp
   src/Infrastructure/Redis/RedisListenerModule.cpp
   src/Infrastructure/Redis/RedisConfig.cpp
 )
@@ -85,6 +87,7 @@ set(test_sources
   src/Services/MessageBus/MessageBus.cpp
   src/Services/MessageBus/Handlers.cpp
   src/Services/Loggers/ILogger.cpp
+  src/Services/Views.cpp
   src/Infrastructure/Redis/RedisConfig.cpp
   Tests/Utilities/CommonFunctions.cpp
   Tests/Utilities/SqlFixture.cpp
@@ -95,6 +98,7 @@ set(test_sources
   Tests/Unit/TestHandlers.cpp
   Tests/Integration/TestUnitOfWork.cpp
   Tests/Integration/TestRepository.cpp
+  Tests/Integration/TestViews.cpp
   Tests/E2E/TestAPI.cpp
   #Tests/E2E/TestExternalEvents.cpp
   Tests/mainTests.cpp
