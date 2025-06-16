@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Precompile.h"
-#include "Loggers/ILogger.h"
 #include "Events/AbstractEvent.h"
 #include "Commands/AbstractCommand.h"
 #include "Domain/Ports/IUnitOfWork.h"
@@ -22,8 +21,6 @@ namespace Allocation::Services
 
     public:
         static MessageBus& Instance();
-
-        void SetLogger(Loggers::ILoggerPtr logger);
 
         template<typename T>
         requires std::derived_from<T, Domain::Events::AbstractEvent>
@@ -61,8 +58,6 @@ namespace Allocation::Services
 
         std::unordered_map<std::type_index, std::vector<EventHandler>> _eventHandlers;
         std::unordered_map<std::type_index, CommandHandler> _commandHandlers;
-
-        Loggers::ILoggerPtr _logger;
 
         MessageBus(const MessageBus&) = delete;
         MessageBus& operator=(const MessageBus&) = delete;

@@ -3,14 +3,18 @@
 #include "HandlerFactory.h"
 #include "Adapters/Database/Session/SessionPool.h"
 #include "Adapters/Database/DbTables.h"
+#include "Infrastructure/Redis/RedisListenerModule.h"
+#include "Services/Loggers/PocoLogger.h"
 
 
 namespace Allocation::Infrastructure::Server
 {
     void ServerApp::initialize(Application& self)
     {
+        Services::Loggers::InitializeLogger(std::make_shared<Services::Loggers::PocoLogger>());
         loadConfiguration();
         initDatabase();
+        addSubsystem(new Redis::RedisListenerModule());
         ServerApplication::initialize(self);
     }
 
@@ -58,12 +62,11 @@ namespace Allocation::Infrastructure::Server
         Poco::Net::ServerSocket serverSocket(port);
         Poco::Net::HTTPServer server(new HandlerFactory, serverSocket, pParams);
 
-        auto& logger = Poco::Util::Application::instance().logger();
-        logger.information("The server is running");
+        Services::Loggers::GetLogger()->Information("The server is running");
         server.start();
         waitForTerminationRequest();
         server.stop();
-        logger.information("The server is stopped");
+        Services::Loggers::GetLogger()->Information("The server is stopped");
     }
 
     void ServerApp::initDatabase()

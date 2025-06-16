@@ -1,6 +1,7 @@
 #include "Product.h"
 
 #include "Events/OutOfStock.h"
+#include "Events/Allocated.h"
 #include "Commands/Allocate.h"
 
 
@@ -41,6 +42,8 @@ namespace Allocation::Domain
             {
                 batch.Allocate(line);
                 _versionNumber++;
+                _messages.push_back(std::make_shared<Events::Allocated>(
+                    line.SKU, line.reference , line.quantity));
                 return std::string(batch.GetReference());
             }
         }

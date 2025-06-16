@@ -1,7 +1,9 @@
 #include "Handlers.h"
 #include "Adapters/Email/Email.h"
+#include "Adapters/Redis/RedisEventPublisher.h"
 #include "Domain/Product/Product.h"
 #include "Exceptions/InvalidSku.h"
+#include "Infrastructure/Redis/RedisConfig.h"
 
 
 namespace Allocation::Services::Handlers
@@ -9,6 +11,13 @@ namespace Allocation::Services::Handlers
     void SendOutOfStockNotification(std::shared_ptr<Domain::IUnitOfWork>, std::shared_ptr<Domain::Events::OutOfStock> event)
     {
         Adapters::Email::SendMail("stock@made.com", std::format("Out of stock for {}", event->SKU));
+    }
+
+    void PublishAllocatedEvent(std::shared_ptr<Domain::IUnitOfWork> uow, std::shared_ptr<Domain::Events::Allocated> event)
+    {
+        auto config = Infrastructure::Redis::RedisConfig::FromConfig();
+        Adapters::Redis::RedisEventPublisher publisher(config->host, config->port);
+        publisher.Publish("line_allocated", event);
     }
 
     std::optional<std::string> AddBatch(std::shared_ptr<Domain::IUnitOfWork> uow, std::shared_ptr<Domain::Commands::CreateBatch> message)

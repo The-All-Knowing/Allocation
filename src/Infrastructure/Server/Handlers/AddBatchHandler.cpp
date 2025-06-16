@@ -1,6 +1,7 @@
 #include "Handlers/AddBatchHandler.h"
 
 #include "Utilities/Common.h"
+#include "Services/Loggers/ILogger.h"
 #include "Services/MessageBus/MessageBus.h"
 #include "Services/UoW/SqlUnitOfWork.h"
 #include "Domain/Commands/CreateBatch.h"
@@ -41,7 +42,7 @@ namespace Allocation::Infrastructure::Server::Handlers
             std::string msg = ex.displayText();
             response.send() << "{\"error\":\"" << msg << "\"}";
 
-            Poco::Util::Application::instance().logger().error(msg);
+           Services::Loggers::GetLogger()->Error(msg);
         }
         catch (const std::exception& ex)
         {
@@ -50,7 +51,7 @@ namespace Allocation::Infrastructure::Server::Handlers
             std::string msg = ex.what();
             response.send() << "{\"error\":\"" << msg << "\"}";
 
-            Poco::Util::Application::instance().logger().error(msg);
+            Services::Loggers::GetLogger()->Error(msg);
         }
     }
 }

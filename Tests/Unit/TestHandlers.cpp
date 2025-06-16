@@ -15,7 +15,6 @@ namespace Allocation::Tests
 {
     TEST(Handlers, test_for_new_product)
     {
-        Services::MessageBus::Instance().SetLogger(std::make_shared<Services::Loggers::FakeLogger>());
         auto uow = std::make_shared<Services::UoW::FakeUnitOfWork>();
         auto FakeUowFactory = [uow]() {return uow;};
 
@@ -27,7 +26,6 @@ namespace Allocation::Tests
 
     TEST(Handlers, test_for_existing_product)
     {
-        Services::MessageBus::Instance().SetLogger(std::make_shared<Services::Loggers::FakeLogger>());
         auto uow = std::make_shared<Services::UoW::FakeUnitOfWork>();
         auto FakeUowFactory = [uow]() {return uow;};
 
@@ -45,7 +43,6 @@ namespace Allocation::Tests
 
     TEST(Handlers, test_returns_allocation)
     {
-        Services::MessageBus::Instance().SetLogger(std::make_shared<Services::Loggers::FakeLogger>());
         auto uow = std::make_shared<Services::UoW::FakeUnitOfWork>();
         auto FakeUowFactory = [uow]() {return uow;};
 
@@ -59,7 +56,6 @@ namespace Allocation::Tests
 
     TEST(Handlers, test_errors_for_invalid_sku)
     {
-        Services::MessageBus::Instance().SetLogger(std::make_shared<Services::Loggers::FakeLogger>());
         auto uow = std::make_shared<Services::UoW::FakeUnitOfWork>();
         auto FakeUowFactory = [uow]() {return uow;};
 
@@ -81,7 +77,6 @@ namespace Allocation::Tests
 
     TEST(Handlers, test_commits)
     {
-        Services::MessageBus::Instance().SetLogger(std::make_shared<Services::Loggers::FakeLogger>());
         auto uow = std::make_shared<Services::UoW::FakeUnitOfWork>();
         auto FakeUowFactory = [uow]() {return uow;};
 
@@ -94,7 +89,6 @@ namespace Allocation::Tests
 
     TEST(Handlers, test_sends_email_on_out_of_stock_error)
     {
-        Services::MessageBus::Instance().SetLogger(std::make_shared<Services::Loggers::FakeLogger>());
         auto handler = [](std::shared_ptr<Domain::IUnitOfWork> uow, std::shared_ptr<Domain::Events::OutOfStock> event) -> std::optional<std::string>
         {
             EXPECT_EQ(event->SKU, "POPULAR-CURTAINS");
@@ -115,7 +109,6 @@ namespace Allocation::Tests
 
     TEST(Handlers, test_changes_available_quantity)
     {
-        Services::MessageBus::Instance().SetLogger(std::make_shared<Services::Loggers::FakeLogger>());
         auto uow = std::make_shared<Services::UoW::FakeUnitOfWork>();
         auto FakeUowFactory = [uow]() {return uow;};
 
@@ -132,7 +125,6 @@ namespace Allocation::Tests
 
     TEST(Handlers, test_reallocates_if_necessary)
     {
-        Services::MessageBus::Instance().SetLogger(std::make_shared<Services::Loggers::FakeLogger>());
         using namespace std::chrono;
         const year_month_day today(2020y, January, 31d);
 

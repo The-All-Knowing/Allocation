@@ -1,14 +1,15 @@
 #include "MessageBus.h"
-#include "Loggers/PocoLogger.h"
+#include "Loggers/ILogger.h"
 #include "Domain/Events/OutOfStock.h"
 #include "Handlers.h"
 
 
 namespace Allocation::Services
 {
-    MessageBus::MessageBus() : _logger(std::make_shared<Loggers::PocoLogger>())
+    MessageBus::MessageBus()
     {
         SubscribeToEvent<Allocation::Domain::Events::OutOfStock>(Handlers::SendOutOfStockNotification);
+        SubscribeToEvent<Allocation::Domain::Events::Allocated>(Handlers::PublishAllocatedEvent);
 
         SetCommandHandler<Allocation::Domain::Commands::Allocate>(Handlers::Allocate);
         SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(Handlers::AddBatch);
@@ -19,11 +20,6 @@ namespace Allocation::Services
     {
         static MessageBus messageBus;
         return messageBus;
-    }
-
-    void MessageBus::SetLogger(Loggers::ILoggerPtr logger)
-    {
-        _logger = logger;
     }
 
     std::vector<std::string> MessageBus::Handle(UoWFactory uowFactory, const CommandPtr& command)
@@ -64,14 +60,14 @@ namespace Allocation::Services
         {
             try
             {
-                _logger->Debug(std::format("Handling event {} with handler {}", event->Name(), handler.target_type().name()));
+                Loggers::GetLogger()->Debug(std::format("Handling event {} with handler {}", event->Name(), handler.target_type().name()));
                 handler(uow, event);
                 for (auto& newMessage : uow->GetNewMessages())
                     queue.push(newMessage);
             }
             catch(...)
             {
-                _logger->Error(std::format("Exception handling event {}", event->Name()));
+                Loggers::GetLogger()->Error(std::format("Exception handling event {}", event->Name()));
             }
             
         }
@@ -79,7 +75,7 @@ namespace Allocation::Services
 
     std::optional<std::string> MessageBus::HandleCommand(UoWPtr uow, CommandPtr command, std::queue<Domain::IMessagePtr>& queue)
     {
-        _logger->Debug(std::format("handling command {}", command->Name()));
+        Loggers::GetLogger()->Debug(std::format("handling command {}", command->Name()));
         try
         {
             auto result = _commandHandlers[typeid(*command)](uow, command);
@@ -89,7 +85,7 @@ namespace Allocation::Services
         }
         catch(...)
         {
-            _logger->Error(std::format("Exception handling command {}", command->Name()));
+            Loggers::GetLogger()->Error(std::format("Exception handling command {}", command->Name()));
             throw;
         }
     }

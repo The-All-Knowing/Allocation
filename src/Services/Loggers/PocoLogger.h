@@ -18,6 +18,11 @@ namespace Allocation::Services::Loggers
             Poco::Util::Application::instance().logger().error(message);
         };
 
+        void Information(const std::string& message) override
+        {
+            Poco::Util::Application::instance().logger().information(message);
+        };
+
         ~PocoLogger() override = default;
     };
 }

@@ -2,6 +2,7 @@
 #include "Handlers/AllocateHandler.h"
 #include "Handlers/NotFoundHandler.h"
 #include "Handlers/AddBatchHandler.h"
+#include "Services/Loggers/ILogger.h"
 
 
 namespace Allocation::Infrastructure::Server
@@ -9,7 +10,7 @@ namespace Allocation::Infrastructure::Server
 
     Poco::Net::HTTPRequestHandler* HandlerFactory::createRequestHandler(const Poco::Net::HTTPServerRequest& request)
     {
-        Poco::Util::Application::instance().logger().information("Request: %s %s", request.getMethod(), request.getURI());
+        Services::Loggers::GetLogger()->Information(std::format("Request: {} {}", request.getMethod(), request.getURI()));
 
         if (request.getMethod() == "POST")
         {

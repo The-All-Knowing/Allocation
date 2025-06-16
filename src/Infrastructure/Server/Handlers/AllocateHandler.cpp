@@ -1,5 +1,6 @@
 #include "Handlers/AllocateHandler.h"
 
+#include "Services/Loggers/ILogger.h"
 #include "Services/UoW/SqlUnitOfWork.h"
 #include "Services/MessageBus/MessageBus.h"
 #include "Domain/Commands/Allocate.h"
@@ -40,7 +41,7 @@ namespace Allocation::Infrastructure::Server::Handlers
             std::string msg = ex.displayText();
             response.send() << "{\"error\":\"" << msg << "\"}";
 
-            Poco::Util::Application::instance().logger().error(msg);
+            Services::Loggers::GetLogger()->Error(msg);
         }
         catch (const std::exception& ex)
         {
@@ -50,7 +51,7 @@ namespace Allocation::Infrastructure::Server::Handlers
             std::string msg = ex.what();
             ostr << "{\"message\": \"" << msg << "\"}";
 
-            Poco::Util::Application::instance().logger().error(msg);
+            Services::Loggers::GetLogger()->Error(msg);
         }
     }
 }

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <typeindex>
 #include <queue>
+#include <condition_variable>
 
 
 /// Poco
@@ -52,4 +53,11 @@
 #include "Poco/Util/ServerApplication.h"
 #include <Poco/Util/HelpFormatter.h>
 #include <Poco/Util/IniFileConfiguration.h>
+#include <Poco/Util/Subsystem.h>
+#include <Poco/Delegate.h>
 #include <Poco/URI.h>
+#include <Poco/Redis/Client.h>
+#include <Poco/Redis/AsyncReader.h>
+#include <Poco/Redis/Command.h>
+#include <Poco/Redis/Redis.h>
+#include <Poco/Redis/Type.h>

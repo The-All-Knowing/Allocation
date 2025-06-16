@@ -18,6 +18,11 @@ namespace Allocation::Services::Loggers
             std::cerr << message << std::endl;
         };
 
+        void Information(const std::string& message) override
+        {
+            std::cerr << message << std::endl;
+        }
+
         ~FakeLogger() override = default;
     };
 }
