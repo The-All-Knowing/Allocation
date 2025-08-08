@@ -1,0 +1,37 @@
+# Format Style Options - Created with Clang Power Tools
+---
+AccessModifierOffset: -4
+AlignAfterOpenBracket: DontAlign
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: All
+AllowShortLoopsOnASingleLine: false
+BasedOnStyle: Google
+AllowShortIfStatementsOnASingleLine: false
+BreakBeforeBraces: Allman
+ColumnLimit: 100
+Cpp11BracedListStyle: true
+DerivePointerAlignment: false
+FixNamespaceComments: false
+NamespaceIndentation: All
+BraceWrapping:
+  AfterNamespace: false 
+IncludeCategories: 
+  - Regex: 'catch_amalgamated.hpp'
+    Priority: 1
+IndentCaseLabels: true
+IndentPPDirectives: None
+IndentWidth: 4
+MaxEmptyLinesToKeep: 10
+PointerAlignment: Left
+SortIncludes: true
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+TabWidth: 4
+UseTab: false
+...
