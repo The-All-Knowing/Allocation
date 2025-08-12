@@ -1,4 +1,4 @@
-#include "ILogger.h"
+#include "ILogger.hpp"
 
 
 namespace Allocation::Services::Loggers
@@ -36,13 +36,7 @@ namespace Allocation::Services::Loggers
         std::mutex LoggerHolder::mutex_;
     }
 
-    ILoggerPtr GetLogger()
-    {
-        return Internal::LoggerHolder::GetLogger();
-    }
+    ILoggerPtr GetLogger() { return Internal::LoggerHolder::GetLogger(); }
 
-    void InitializeLogger(ILoggerPtr logger)
-    {
-        Internal::LoggerHolder::SetLogger(logger);
-    }
+    void InitializeLogger(ILoggerPtr logger) { Internal::LoggerHolder::SetLogger(logger); }
 }

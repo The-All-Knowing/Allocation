@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
-#include "Precompile.h"
-#include "CommonFunctions.h"
-#include "Infrastructure/Redis/RedisConfig.h"
-#include "Utilities/Common.h"
-#include "RedisClient.h"
-#include "ApiClient.h"
+#include "Infrastructure/Redis/RedisConfig.hpp"
+#include "Precompile.hpp"
+#include "Utilities/Common.hpp"
+#include "Utilities/CommonFunctions.hpp"
+#include "Utilities/RedisClient.hpp"
+#include "Utilities/ApiClient.hpp"
 
 
 namespace Allocation::Tests

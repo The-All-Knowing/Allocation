@@ -1,19 +1,18 @@
-#include "ProductMapper.h"
-#include "BatchMapper.h"
+#include "ProductMapper.hpp"
+
+#include "BatchMapper.hpp"
 
 
 namespace Allocation::Adapters::Database::Mapper
 {
-    ProductMapper::ProductMapper(Poco::Data::Session& session): _session(session)
-    {}
+    ProductMapper::ProductMapper(Poco::Data::Session& session) : _session(session) {}
 
     bool ProductMapper::IsExists(std::string SKU)
     {
         Poco::Nullable<int> dummy;
         int rowsAffected = 0;
         _session << "SELECT 1 FROM public.products WHERE sku = $1",
-            Poco::Data::Keywords::into(dummy),
-            Poco::Data::Keywords::use(SKU),
+            Poco::Data::Keywords::into(dummy), Poco::Data::Keywords::use(SKU),
             Poco::Data::Keywords::now;
         return !dummy.isNull();
     }
@@ -22,12 +21,11 @@ namespace Allocation::Adapters::Database::Mapper
     {
         BatchMapper _batchMapper(_session);
         std::shared_ptr<Domain::Product> result;
-        
+
         Poco::Nullable<int> version;
         _session << R"(SELECT version_number FROM public.products WHERE sku = $1)",
-                    Poco::Data::Keywords::into(version),
-                    Poco::Data::Keywords::use(SKU),
-                    Poco::Data::Keywords::now;
+            Poco::Data::Keywords::into(version), Poco::Data::Keywords::use(SKU),
+            Poco::Data::Keywords::now;
 
         if (version.isNull())
             return result;
@@ -50,10 +48,8 @@ namespace Allocation::Adapters::Database::Mapper
             SELECT public.products.sku, public.products.version_number FROM public.products
             JOIN public.batches ON public.products.sku = public.batches.sku
             WHERE public.batches.reference = $1)",
-            Poco::Data::Keywords::use(ref),
-            Poco::Data::Keywords::into(SKU),
-            Poco::Data::Keywords::into(version),
-            Poco::Data::Keywords::range(0, 1);
+            Poco::Data::Keywords::use(ref), Poco::Data::Keywords::into(SKU),
+            Poco::Data::Keywords::into(version), Poco::Data::Keywords::range(0, 1);
 
         while (!select.done())
         {
@@ -84,8 +80,7 @@ namespace Allocation::Adapters::Database::Mapper
         int version = product->GetVersion();
 
         _session << R"(INSERT INTO public.products (sku, version_number) VALUES ($1, $2))",
-            Poco::Data::Keywords::use(sku),
-            Poco::Data::Keywords::use(version),
+            Poco::Data::Keywords::use(sku), Poco::Data::Keywords::use(version),
             Poco::Data::Keywords::now;
 
         _batchMapper.Insert(product->GetBatches());
@@ -94,16 +89,15 @@ namespace Allocation::Adapters::Database::Mapper
     bool ProductMapper::UpdateVersion(std::string SKU, size_t oldVersion, size_t newVersion)
     {
         Poco::Nullable<int> actualVersion;
-        _session << "UPDATE public.products SET version_number = $1 WHERE sku = $2 AND version_number = $3 RETURNING version_number",
-            Poco::Data::Keywords::into(actualVersion),
-            Poco::Data::Keywords::use(newVersion),
-            Poco::Data::Keywords::use(SKU),
-            Poco::Data::Keywords::use(oldVersion),
+        _session << "UPDATE public.products SET version_number = $1 WHERE sku = $2 AND "
+                    "version_number = $3 RETURNING version_number",
+            Poco::Data::Keywords::into(actualVersion), Poco::Data::Keywords::use(newVersion),
+            Poco::Data::Keywords::use(SKU), Poco::Data::Keywords::use(oldVersion),
             Poco::Data::Keywords::now;
 
         if (actualVersion.isNull() || (actualVersion.value() != newVersion))
             return false;
-        
+
         return true;
     }
 }

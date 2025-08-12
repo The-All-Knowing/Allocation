@@ -1,6 +1,7 @@
-#include "SqlFixture.h"
-#include "Adapters/Database/Session/SessionPool.h"
-#include "Adapters/Database/DbTables.h"
+#include "SqlFixture.hpp"
+
+#include "Adapters/Database/DbTables.hpp"
+#include "Adapters/Database/Session/SessionPool.hpp"
 
 
 namespace Allocation::Tests
@@ -83,11 +84,8 @@ namespace Allocation::Tests
         std::string password = pConf->getString("database.password", "1");
 
         std::ostringstream oss;
-        oss << "host=" << dbHost
-            << " port=" << dbPort
-            << " dbname=" << "AllocationTest"
-            << " user=" << user
-            << " password=" << password;
+        oss << "host=" << dbHost << " port=" << dbPort << " dbname=" << "AllocationTest"
+            << " user=" << user << " password=" << password;
 
         result.connector = Poco::Data::PostgreSQL::Connector::KEY;
         result.connectionString = oss.str();

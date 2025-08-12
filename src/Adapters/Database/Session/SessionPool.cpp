@@ -1,4 +1,4 @@
-#include "Session/SessionPool.h"
+#include "SessionPool.hpp"
 
 
 namespace Allocation::Adapters::Database
@@ -21,14 +21,9 @@ namespace Allocation::Adapters::Database
 
         if (_pool)
             throw std::runtime_error("SessionPool is already configured");
-        
-        _pool = std::make_unique<Poco::Data::SessionPool>(
-            config.connector,
-            config.connectionString,
-            config.minSessions,
-            config.maxSessions,
-            config.idleTime,
-            config.connTimeout);
+
+        _pool = std::make_unique<Poco::Data::SessionPool>(config.connector, config.connectionString,
+            config.minSessions, config.maxSessions, config.idleTime, config.connTimeout);
     }
 
     void SessionPool::Reconfigure(const ConnectionConfig& config)
@@ -38,13 +33,8 @@ namespace Allocation::Adapters::Database
         if (_pool)
             _pool->shutdown();
 
-        _pool = std::make_unique<Poco::Data::SessionPool>(
-            config.connector,
-            config.connectionString,
-            config.minSessions,
-            config.maxSessions,
-            config.idleTime,
-            config.connTimeout);
+        _pool = std::make_unique<Poco::Data::SessionPool>(config.connector, config.connectionString,
+            config.minSessions, config.maxSessions, config.idleTime, config.connTimeout);
     }
 
     Poco::Data::Session SessionPool::GetSession()

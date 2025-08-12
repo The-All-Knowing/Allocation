@@ -1,7 +1,8 @@
-#include "SqlUnitOfWork.h"
-#include "Adapters/Repository/SqlRepository.h"
-#include "Adapters/Repository/TrackingRepository.h"
-#include "Session/SessionPool.h"
+#include "SqlUnitOfWork.hpp"
+
+#include "Adapters/Database/Session/SessionPool.hpp"
+#include "Adapters/Repository/SqlRepository.hpp"
+#include "Adapters/Repository/TrackingRepository.hpp"
 
 
 namespace Allocation::Services::UoW
@@ -25,7 +26,7 @@ namespace Allocation::Services::UoW
         {
             for (auto& [sku, old, newVersion] : tracking.GetChangedVersions())
                 repository.UpdateVersion(sku, old, newVersion);
-            
+
             session.commit();
         }
 
@@ -42,10 +43,7 @@ namespace Allocation::Services::UoW
         AbstractUnitOfWork::Commit();
     }
 
-    Poco::Data::Session& SqlUnitOfWork::GetSession() const noexcept
-    {
-        return _impl->session;
-    }
+    Poco::Data::Session& SqlUnitOfWork::GetSession() const noexcept { return _impl->session; }
 
     void SqlUnitOfWork::RollBack()
     {
@@ -53,10 +51,7 @@ namespace Allocation::Services::UoW
         AbstractUnitOfWork::RollBack();
     }
 
-    Domain::IRepository& SqlUnitOfWork::GetProductRepository()
-    {
-        return _impl->getRepo();
-    }
+    Domain::IRepository& SqlUnitOfWork::GetProductRepository() { return _impl->getRepo(); }
 
     std::vector<Domain::IMessagePtr> SqlUnitOfWork::GetNewMessages() noexcept
     {

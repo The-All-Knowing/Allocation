@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "Precompile.h"
-#include "CommonFunctions.h"
-#include "Utilities/Common.h"
-#include "Infrastructure/Server/Server.h"
-#include "ApiClient.h"
+#include "Infrastructure/Server/Server.hpp"
+#include "Precompile.hpp"
+#include "Utilities/ApiClient.hpp"
+#include "Utilities/Common.hpp"
+#include "Utilities/CommonFunctions.hpp"
 
 
 namespace Allocation::Tests
@@ -16,8 +16,10 @@ namespace Allocation::Tests
         std::string earlyBatch = RandomBatchRef("1");
         std::string laterBatch = RandomBatchRef("2");
         std::string otherBatch = RandomBatchRef("3");
-        std::chrono::year_month_day laterBatchYmd{std::chrono::year{2011}, std::chrono::month{1}, std::chrono::day{2}};
-        std::chrono::year_month_day earlyBatchYmd{std::chrono::year{2011}, std::chrono::month{1}, std::chrono::day{1}};
+        std::chrono::year_month_day laterBatchYmd{
+            std::chrono::year{2011}, std::chrono::month{1}, std::chrono::day{2}};
+        std::chrono::year_month_day earlyBatchYmd{
+            std::chrono::year{2011}, std::chrono::month{1}, std::chrono::day{1}};
 
         ApiClient::PostToAddBatch(laterBatch, sku, 100, laterBatchYmd);
         ApiClient::PostToAddBatch(earlyBatch, sku, 100, earlyBatchYmd);
@@ -33,7 +35,8 @@ namespace Allocation::Tests
 
         Poco::URI uri = ApiClient::GetURI("/allocate");
         Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
-        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
+        Poco::Net::HTTPRequest request(
+            Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
         request.setContentType("application/json");
         request.setContentLength((int)body.str().length());
 
@@ -46,7 +49,7 @@ namespace Allocation::Tests
         std::stringstream result;
         Poco::StreamCopier::copyStream(rs, result);
 
-        auto status = response.getStatus(); 
+        auto status = response.getStatus();
         EXPECT_EQ(status, Poco::Net::HTTPResponse::HTTP_OK);
 
         Poco::JSON::Parser parser;
@@ -72,7 +75,8 @@ namespace Allocation::Tests
 
         Poco::URI uri = ApiClient::GetURI("/allocate");
         Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
-        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
+        Poco::Net::HTTPRequest request(
+            Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
         request.setContentType("application/json");
         request.setContentLength((int)body.str().length());
 

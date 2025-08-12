@@ -1,10 +1,10 @@
-#include "Server.h"
+#include "Server.hpp"
 
-#include "HandlerFactory.h"
-#include "Adapters/Database/Session/SessionPool.h"
-#include "Adapters/Database/DbTables.h"
-#include "Infrastructure/Redis/RedisListenerModule.h"
-#include "Services/Loggers/PocoLogger.h"
+#include "Adapters/Database/DbTables.hpp"
+#include "Adapters/Database/Session/SessionPool.hpp"
+#include "HandlerFactory.hpp"
+#include "Infrastructure/Redis/RedisListenerModule.hpp"
+#include "Services/Loggers/PocoLogger.hpp"
 
 
 namespace Allocation::Infrastructure::Server
@@ -27,7 +27,7 @@ namespace Allocation::Infrastructure::Server
                 .required(false)
                 .repeatable(false)
                 .callback(Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::handleHelp)));
-    } 
+    }
 
     int ServerApp::main(const std::vector<std::string>&)
     {
@@ -72,7 +72,7 @@ namespace Allocation::Infrastructure::Server
     void ServerApp::initDatabase()
     {
         const auto& cfg = config();
-        
+
         Adapters::Database::ConnectionConfig config;
         std::string dbHost = cfg.getString("database.host", "localhost");
         int dbPort = cfg.getInt("database.port", 5432);
@@ -81,10 +81,7 @@ namespace Allocation::Infrastructure::Server
         std::string password = cfg.getString("database.password", "1");
 
         std::ostringstream oss;
-        oss << "host=" << dbHost
-            << " port=" << dbPort
-            << " dbname=" << dbname
-            << " user=" << user
+        oss << "host=" << dbHost << " port=" << dbPort << " dbname=" << dbname << " user=" << user
             << " password=" << password;
 
         config.connTimeout = cfg.getInt("database.connection_timeout", 60);

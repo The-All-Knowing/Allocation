@@ -1,4 +1,4 @@
-#include "RedisConfig.h"
+#include "RedisConfig.hpp"
 
 
 namespace Allocation::Infrastructure::Redis
@@ -12,7 +12,7 @@ namespace Allocation::Infrastructure::Redis
 
             Poco::AutoPtr<Poco::Util::IniFileConfiguration> pConf(
                 new Poco::Util::IniFileConfiguration(exePath.toString()));
-                
+
             std::string host = pConf->getString("redis.host", "127.0.0.1");
             int port = pConf->getInt("redis.port", 6379);
             return std::make_shared<RedisConfig>(host, port);

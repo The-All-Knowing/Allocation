@@ -1,4 +1,4 @@
-#include "RedisClient.h"
+#include "RedisClient.hpp"
 
 
 namespace Allocation::Tests
@@ -13,10 +13,7 @@ namespace Allocation::Tests
         _thread = std::thread([this]() { this->Listen(); });
     }
 
-    RedisClient::~RedisClient()
-    {
-        Stop();
-    }
+    RedisClient::~RedisClient() { Stop(); }
 
     void RedisClient::Stop()
     {
@@ -24,7 +21,7 @@ namespace Allocation::Tests
         {
             if (_thread.joinable())
                 _thread.join();
-        } 
+        }
     }
 
     std::optional<std::string> RedisClient::GetMessage() const
@@ -36,9 +33,8 @@ namespace Allocation::Tests
     bool RedisClient::WaitForMessage(int timeoutMs)
     {
         std::unique_lock<std::mutex> lock(_mutex);
-        return _cv.wait_for(lock, std::chrono::milliseconds(timeoutMs), [this]() {
-            return _message.has_value();
-        });
+        return _cv.wait_for(
+            lock, std::chrono::milliseconds(timeoutMs), [this]() { return _message.has_value(); });
     }
 
     void RedisClient::Listen()
@@ -67,7 +63,8 @@ namespace Allocation::Tests
                 }
             }
             catch (const Poco::Exception&)
-            {}
+            {
+            }
         }
     }
 }

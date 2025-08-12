@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "Precompile.h"
-#include "CommonFunctions.h"
-#include "Utilities/Common.h"
-#include "Domain/Product/Product.h"
-#include "Domain/Events/OutOfStock.h"
+#include "Domain/Events/OutOfStock.hpp"
+#include "Domain/Product/Product.hpp"
+#include "Precompile.hpp"
+#include "Utilities/Common.hpp"
+#include "Utilities/CommonFunctions.hpp"
 
 
 namespace Allocation::Tests
@@ -62,7 +62,8 @@ namespace Allocation::Tests
         product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
         EXPECT_FALSE(product.Messages().empty());
         EXPECT_EQ(product.Messages().back()->Name(), "OutOfStock");
-        auto event = std::dynamic_pointer_cast<Domain::Events::OutOfStock>(product.Messages().back());
+        auto event =
+            std::dynamic_pointer_cast<Domain::Events::OutOfStock>(product.Messages().back());
         EXPECT_TRUE(event);
         EXPECT_EQ(event->SKU, "SMALL-FORK");
     }
@@ -70,14 +71,10 @@ namespace Allocation::Tests
     TEST(Domain, test_increments_version_number)
     {
         Domain::OrderLine line("oref", "SCANDI-PEN", 10);
-        Domain::Product product(
-            "SCANDI-PEN",
-            {Domain::Batch("b1", "SCANDI-PEN", 100)},
-            7
-        );
+        Domain::Product product("SCANDI-PEN", {Domain::Batch("b1", "SCANDI-PEN", 100)}, 7);
 
         product.Allocate(line);
-        
+
         EXPECT_EQ(product.GetVersion(), 8);
     }
 }

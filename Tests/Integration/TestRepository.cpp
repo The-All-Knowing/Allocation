@@ -1,16 +1,15 @@
 #include <gtest/gtest.h>
 
-#include "Precompile.h"
-#include "Common.h"
-#include "CommonFunctions.h"
-#include "SqlFixture.h"
-#include "Adapters/Database/Session/SessionPool.h"
-#include "Adapters/Repository/SqlRepository.h"
+#include "Adapters/Database/Session/SessionPool.hpp"
+#include "Adapters/Repository/SqlRepository.hpp"
+#include "Precompile.hpp"
+#include "Utilities/Common.hpp"
+#include "Utilities/CommonFunctions.hpp"
+#include "Utilities/SqlFixture.hpp"
 
 
 namespace Allocation::Tests
 {
-
     TEST_F(SqlFixture, test_get_by_batchref)
     {
         auto session = Adapters::Database::SessionPool::Instance().GetSession();

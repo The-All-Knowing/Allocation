@@ -1,14 +1,15 @@
-#include "Handlers/AllocateHandler.h"
+#include "AllocateHandler.hpp"
 
-#include "Services/Loggers/ILogger.h"
-#include "Services/UoW/SqlUnitOfWork.h"
-#include "Services/MessageBus/MessageBus.h"
-#include "Domain/Commands/Allocate.h"
+#include "Domain/Commands/Allocate.hpp"
+#include "Services/Loggers/ILogger.hpp"
+#include "Services/MessageBus/MessageBus.hpp"
+#include "Services/UoW/SqlUnitOfWork.hpp"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
 {
-    void AllocateHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+    void AllocateHandler::handleRequest(
+        Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
     {
         std::istream& bodyStream = request.stream();
         std::ostringstream body;
@@ -25,7 +26,8 @@ namespace Allocation::Infrastructure::Server::Handlers
         try
         {
             auto event = std::make_shared<Domain::Commands::Allocate>(orderid, sku, qty);
-            auto result = Services::MessageBus::Instance().Handle(Allocation::Services::UoW::SqlUowFactory, event);
+            auto result = Services::MessageBus::Instance().Handle(
+                Allocation::Services::UoW::SqlUowFactory, event);
             std::string batchRef = result.back();
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);

@@ -1,21 +1,17 @@
-#pragma once
-
-#include "Mappers/OrderLineMapper.h"
+#include "OrderLineMapper.hpp"
 
 
 namespace Allocation::Adapters::Database::Mapper
 {
-    OrderLineMapper::OrderLineMapper(Poco::Data::Session& session): _session(session)
-    {}
+    OrderLineMapper::OrderLineMapper(Poco::Data::Session& session) : _session(session) {}
 
     std::vector<Domain::OrderLine> OrderLineMapper::FindByBatchId(int batchId)
-    {   
+    {
         Poco::Data::Statement select(_session);
         select << R"(SELECT sku, qty, orderid FROM public.order_lines
                    JOIN public.allocations ON allocations.id = order_lines.id
                    WHERE allocations.batch_id = $1)",
-                    Poco::Data::Keywords::use(batchId),
-                    Poco::Data::Keywords::now;
+            Poco::Data::Keywords::use(batchId), Poco::Data::Keywords::now;
 
         Poco::Data::RecordSet rs(select);
         std::vector<Domain::OrderLine> result;
@@ -47,18 +43,15 @@ namespace Allocation::Adapters::Database::Mapper
                 VALUES ($1, $2, $3)
                 RETURNING id
             )",
-                Poco::Data::Keywords::into(orderlineId),
-                Poco::Data::Keywords::use(sku),
-                Poco::Data::Keywords::use(qty),
-                Poco::Data::Keywords::use(orderid),
+                Poco::Data::Keywords::into(orderlineId), Poco::Data::Keywords::use(sku),
+                Poco::Data::Keywords::use(qty), Poco::Data::Keywords::use(orderid),
                 Poco::Data::Keywords::now;
 
             _session << R"(
                 INSERT INTO public.allocations (orderline_id, batch_id)
                 VALUES ($1, $2)
             )",
-                Poco::Data::Keywords::use(orderlineId),
-                Poco::Data::Keywords::use(batchId),
+                Poco::Data::Keywords::use(orderlineId), Poco::Data::Keywords::use(batchId),
                 Poco::Data::Keywords::now;
         }
     }
@@ -68,8 +61,7 @@ namespace Allocation::Adapters::Database::Mapper
         _session << R"(
             DELETE FROM public.allocations WHERE batch_id IN ($1)
         )",
-        Poco::Data::Keywords::use(batchesId),
-        Poco::Data::Keywords::now;
+            Poco::Data::Keywords::use(batchesId), Poco::Data::Keywords::now;
 
         _session << R"(
             DELETE FROM public.order_lines 
@@ -77,6 +69,6 @@ namespace Allocation::Adapters::Database::Mapper
                 SELECT orderline_id FROM public.allocations
             )
         )",
-        Poco::Data::Keywords::now;
+            Poco::Data::Keywords::now;
     }
 }

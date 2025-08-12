@@ -1,6 +1,4 @@
-#pragma once
-
-#include "FakeRepository.h"
+#include "FakeRepository.hpp"
 
 
 namespace Allocation::Adapters::Repository
@@ -10,7 +8,7 @@ namespace Allocation::Adapters::Repository
         for (const auto& prod : init)
             _skuByProduct.insert({prod->GetSKU(), prod});
     }
-    
+
     void FakeRepository::Add(std::shared_ptr<Domain::Product> product)
     {
         _skuByProduct.insert_or_assign(product->GetSKU(), product);
@@ -29,9 +27,8 @@ namespace Allocation::Adapters::Repository
         for (const auto& [_, product] : _skuByProduct)
         {
             const auto& batches = product->GetBatches();
-            if (std::any_of(batches.begin(), batches.end(), [ref](const auto& batch) {
-                return batch.GetReference() == ref;
-            }))
+            if (std::any_of(batches.begin(), batches.end(),
+                    [ref](const auto& batch) { return batch.GetReference() == ref; }))
             {
                 return product;
             }

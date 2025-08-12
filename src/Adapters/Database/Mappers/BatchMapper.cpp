@@ -1,12 +1,13 @@
-#include "Mappers/BatchMapper.h"
-#include "Mappers/OrderLineMapper.h"
-#include "Utilities/Common.h"
+#include "BatchMapper.hpp"
+
+#include "OrderLineMapper.hpp"
+#include "Utilities/Common.hpp"
+
 
 
 namespace Allocation::Adapters::Database::Mapper
 {
-    BatchMapper::BatchMapper(Poco::Data::Session& session): _session(session)
-    {}
+    BatchMapper::BatchMapper(Poco::Data::Session& session) : _session(session) {}
 
     std::vector<Domain::Batch> BatchMapper::GetBySKU(const std::string& SKU)
     {
@@ -15,20 +16,19 @@ namespace Allocation::Adapters::Database::Mapper
 
         auto id = GetIdBatches(SKU);
 
-        if(id.empty())
+        if (id.empty())
             return result;
 
         Poco::Data::Statement select(_session);
         select << R"(SELECT id, reference, sku, purchased_quantity, eta
                     FROM public.batches
                     WHERE id IN ($1))",
-                Poco::Data::Keywords::use(id),
-                Poco::Data::Keywords::now;
+            Poco::Data::Keywords::use(id), Poco::Data::Keywords::now;
 
         Poco::Data::RecordSet rs(select);
         bool more = rs.moveFirst();
 
-        while(more)
+        while (more)
         {
             size_t id = rs["id"].convert<size_t>();
             std::string reference = rs["reference"].convert<std::string>();
@@ -42,7 +42,7 @@ namespace Allocation::Adapters::Database::Mapper
             Domain::Batch batch(reference, sku, qty, eta);
             for (const auto& order : ordersMapper.FindByBatchId(id))
                 batch.Allocate(order);
-            
+
             result.push_back(batch);
             more = rs.moveNext();
         }
@@ -63,10 +63,9 @@ namespace Allocation::Adapters::Database::Mapper
         {
             OrderLineMapper ordersMapper(_session);
             ordersMapper.RemoveByBatchesId(id);
-            
+
             _session << R"(DELETE FROM public.batches WHERE sku IN ($1))",
-                            Poco::Data::Keywords::use(id),
-                            Poco::Data::Keywords::now;
+                Poco::Data::Keywords::use(id), Poco::Data::Keywords::now;
         }
     }
 
@@ -77,8 +76,7 @@ namespace Allocation::Adapters::Database::Mapper
         _session << R"(
             SELECT id FROM public.batches WHERE reference = $1
             ORDER BY id DESC LIMIT 1)",
-            Poco::Data::Keywords::into(batchId),
-            Poco::Data::Keywords::use(reference),
+            Poco::Data::Keywords::into(batchId), Poco::Data::Keywords::use(reference),
             Poco::Data::Keywords::now;
 
         return batchId;
@@ -89,9 +87,8 @@ namespace Allocation::Adapters::Database::Mapper
         std::vector<int> batchesId;
 
         _session << R"(SELECT id FROM public.batches WHERE sku = $1)",
-                        Poco::Data::Keywords::into(batchesId),
-                        Poco::Data::Keywords::use(SKU),
-                        Poco::Data::Keywords::now;
+            Poco::Data::Keywords::into(batchesId), Poco::Data::Keywords::use(SKU),
+            Poco::Data::Keywords::now;
 
         return batchesId;
     }
@@ -106,7 +103,7 @@ namespace Allocation::Adapters::Database::Mapper
 
             size_t totalQty = batch.GetAvailableQuantity();
             for (const auto& order : allocations)
-                totalQty+= order.quantity; 
+                totalQty += order.quantity;
 
             std::string reference{batch.GetReference()};
             std::string sku{batch.GetSKU()};
@@ -117,10 +114,8 @@ namespace Allocation::Adapters::Database::Mapper
 
             _session << R"(INSERT INTO public.batches (reference, sku, purchased_quantity, eta)
                             VALUES ($1, $2, $3, $4))",
-                Poco::Data::Keywords::use(reference),
-                Poco::Data::Keywords::use(sku),
-                Poco::Data::Keywords::use(totalQty),
-                Poco::Data::Keywords::use(pocoEta),
+                Poco::Data::Keywords::use(reference), Poco::Data::Keywords::use(sku),
+                Poco::Data::Keywords::use(totalQty), Poco::Data::Keywords::use(pocoEta),
                 Poco::Data::Keywords::now;
 
             int batchId = GetIdBatch(reference);

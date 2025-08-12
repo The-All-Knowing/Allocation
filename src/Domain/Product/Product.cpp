@@ -1,18 +1,17 @@
-#include "Product.h"
+#include "Product.hpp"
 
-#include "Events/OutOfStock.h"
-#include "Events/Allocated.h"
-#include "Commands/Allocate.h"
+#include "Domain/Commands/Allocate.hpp"
+#include "Domain/Events/Allocated.hpp"
+#include "Domain/Events/OutOfStock.hpp"
 
 
 namespace Allocation::Domain
 {
-
-    Product::Product(std::string_view SKU, const std::vector<Batch>& batches, size_t versionNumber):
-        _sku(SKU),  _versionNumber(versionNumber)
+    Product::Product(std::string_view SKU, const std::vector<Batch>& batches, size_t versionNumber)
+        : _sku(SKU), _versionNumber(versionNumber)
     {
         for (auto& batch : batches)
-            AddBatch(batch); 
+            AddBatch(batch);
     }
 
     void Product::AddBatch(const Batch& batch) noexcept
@@ -36,14 +35,15 @@ namespace Allocation::Domain
 
         std::ranges::sort(sortedBatches, BatchETAComparator{});
 
-        for (Batch& batch : sortedBatches | std::views::transform([](auto& b) -> Batch& { return b.get(); }))
+        for (Batch& batch :
+            sortedBatches | std::views::transform([](auto& b) -> Batch& { return b.get(); }))
         {
             if (batch.CanAllocate(line))
             {
                 batch.Allocate(line);
                 _versionNumber++;
-                _messages.push_back(std::make_shared<Events::Allocated>(
-                    line.SKU, line.reference , line.quantity));
+                _messages.push_back(
+                    std::make_shared<Events::Allocated>(line.SKU, line.reference, line.quantity));
                 return std::string(batch.GetReference());
             }
         }
@@ -55,7 +55,8 @@ namespace Allocation::Domain
     void Product::ChangeBatchQuantity(std::string_view ref, size_t newQty)
     {
         auto it = _referenceByBatches.find(std::string(ref));
-        if (it == _referenceByBatches.end()) return;
+        if (it == _referenceByBatches.end())
+            return;
 
         auto& batch = it->second;
         batch.SetPurchasedQuantity(newQty);
@@ -66,8 +67,8 @@ namespace Allocation::Domain
                 break;
 
             batch.Deallocate(order);
-            _messages.push_back(std::make_shared<Commands::Allocate>(
-                order.reference, order.SKU, order.quantity));
+            _messages.push_back(
+                std::make_shared<Commands::Allocate>(order.reference, order.SKU, order.quantity));
         }
     }
 
@@ -79,26 +80,14 @@ namespace Allocation::Domain
 
         return result;
     }
-    
-    size_t Product::GetVersion() const noexcept
-    {
-        return _versionNumber;
-    }
 
-    std::string Product::GetSKU() const noexcept
-    {
-        return _sku;
-    }
+    size_t Product::GetVersion() const noexcept { return _versionNumber; }
 
-    const std::vector<Domain::IMessagePtr>& Product::Messages() const
-    {
-        return _messages;
-    }
-    
-    void Product::ClearMessages()
-    {
-        _messages.clear();
-    }
+    std::string Product::GetSKU() const noexcept { return _sku; }
+
+    const std::vector<Domain::IMessagePtr>& Product::Messages() const { return _messages; }
+
+    void Product::ClearMessages() { _messages.clear(); }
 
     bool operator==(const Product& lhs, const Product& rhs) noexcept
     {

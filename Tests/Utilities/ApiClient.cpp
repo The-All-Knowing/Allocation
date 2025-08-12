@@ -1,7 +1,8 @@
-#include "ApiClient.h"
-#include <gtest/gtest.h>
-#include "Utilities/Common.h"
+#include "ApiClient.hpp"
 
+#include <gtest/gtest.h>
+
+#include "Utilities/Common.hpp"
 
 
 namespace Allocation::Tests::ApiClient
@@ -9,8 +10,8 @@ namespace Allocation::Tests::ApiClient
     Poco::URI GetURI(const std::string& command)
     {
         Poco::AutoPtr<Poco::Util::IniFileConfiguration> pConf(
-        new Poco::Util::IniFileConfiguration("./Allocation.ini"));
-        
+            new Poco::Util::IniFileConfiguration("./Allocation.ini"));
+
         std::string host = pConf->getString("server.host", "127.0.0.1");
         int port = pConf->getInt("server.port", 9980);
 
@@ -38,7 +39,8 @@ namespace Allocation::Tests::ApiClient
 
         Poco::URI uri = GetURI("/add_batch");
         Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
-        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
+        Poco::Net::HTTPRequest request(
+            Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), Poco::Net::HTTPMessage::HTTP_1_1);
         request.setContentType("application/json");
         request.setContentLength(static_cast<int>(body.str().length()));
 
@@ -52,10 +54,7 @@ namespace Allocation::Tests::ApiClient
     }
 
     std::string PostToAllocate(
-        const std::string& orderid,
-        const std::string& sku,
-        int qty,
-        bool expectSuccess)
+        const std::string& orderid, const std::string& sku, int qty, bool expectSuccess)
     {
         Poco::URI uri = GetURI("/allocate");
         Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
@@ -68,7 +67,8 @@ namespace Allocation::Tests::ApiClient
         std::stringstream requestBody;
         json->stringify(requestBody);
 
-        Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), "HTTP/1.1");
+        Poco::Net::HTTPRequest request(
+            Poco::Net::HTTPRequest::HTTP_POST, uri.getPath(), "HTTP/1.1");
         request.setContentType("application/json");
         request.setContentLength(requestBody.str().length());
 

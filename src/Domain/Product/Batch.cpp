@@ -1,17 +1,15 @@
-#include "Batch.h"
+#include "Batch.hpp"
 
 
 namespace Allocation::Domain
 {
     Batch::Batch(std::string_view reference, std::string_view SKU, size_t quantity,
-                std::optional<std::chrono::year_month_day> ETA)
+        std::optional<std::chrono::year_month_day> ETA)
         : _reference(reference), _SKU(SKU), _purchasedQuantity(quantity), _ETA(ETA)
-    {}
-
-    void Batch::SetPurchasedQuantity(size_t newQty) noexcept
     {
-        _purchasedQuantity = newQty;
     }
+
+    void Batch::SetPurchasedQuantity(size_t newQty) noexcept { _purchasedQuantity = newQty; }
 
     bool Batch::CanAllocate(const OrderLine& line) const noexcept
     {
@@ -24,10 +22,7 @@ namespace Allocation::Domain
             _allocations.insert(line);
     }
 
-    void Batch::Deallocate(const OrderLine& line) noexcept
-    {
-        _allocations.erase(line);
-    }
+    void Batch::Deallocate(const OrderLine& line) noexcept { _allocations.erase(line); }
 
     int Batch::GetAvailableQuantity() const noexcept
     {

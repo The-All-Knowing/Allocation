@@ -1,15 +1,16 @@
-#include "Handlers/AddBatchHandler.h"
+#include "AddBatchHandler.hpp"
 
-#include "Utilities/Common.h"
-#include "Services/Loggers/ILogger.h"
-#include "Services/MessageBus/MessageBus.h"
-#include "Services/UoW/SqlUnitOfWork.h"
-#include "Domain/Commands/CreateBatch.h"
+#include "Domain/Commands/CreateBatch.hpp"
+#include "Services/Loggers/ILogger.hpp"
+#include "Services/MessageBus/MessageBus.hpp"
+#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "Utilities/Common.hpp"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
 {
-    void AddBatchHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+    void AddBatchHandler::handleRequest(
+        Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
     {
         std::istream& bodyStream = request.stream();
         std::ostringstream body;
@@ -18,7 +19,7 @@ namespace Allocation::Infrastructure::Server::Handlers
         Poco::JSON::Parser parser;
         Poco::Dynamic::Var result = parser.parse(body.str());
         Poco::JSON::Object::Ptr json = result.extract<Poco::JSON::Object::Ptr>();
-        
+
         std::string ref = json->getValue<std::string>("ref");
         std::string sku = json->getValue<std::string>("sku");
         int qty = json->getValue<int>("qty");
@@ -29,7 +30,8 @@ namespace Allocation::Infrastructure::Server::Handlers
         try
         {
             auto event = std::make_shared<Domain::Commands::CreateBatch>(ref, sku, qty);
-            Services::MessageBus::Instance().Handle(Allocation::Services::UoW::SqlUowFactory, event);
+            Services::MessageBus::Instance().Handle(
+                Allocation::Services::UoW::SqlUowFactory, event);
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_CREATED);
             response.setContentType("application/json");
@@ -42,7 +44,7 @@ namespace Allocation::Infrastructure::Server::Handlers
             std::string msg = ex.displayText();
             response.send() << "{\"error\":\"" << msg << "\"}";
 
-           Services::Loggers::GetLogger()->Error(msg);
+            Services::Loggers::GetLogger()->Error(msg);
         }
         catch (const std::exception& ex)
         {

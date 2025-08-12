@@ -1,14 +1,11 @@
-#pragma once
+#include "SqlRepository.hpp"
 
-#include "SqlRepository.h"
-#include "Adapters/Database/Mappers/ProductMapper.h"
+#include "Adapters/Database/Mappers/ProductMapper.hpp"
 
 
 namespace Allocation::Adapters::Repository
 {
-
-    SqlRepository::SqlRepository(Poco::Data::Session& session): _session(session)
-    {}
+    SqlRepository::SqlRepository(Poco::Data::Session& session) : _session(session) {}
 
     void SqlRepository::Add(std::shared_ptr<Domain::Product> product)
     {
@@ -26,7 +23,7 @@ namespace Allocation::Adapters::Repository
         return mapper.FindBySKU(std::string(SKU));
     }
 
-    std::shared_ptr<Domain::Product>  SqlRepository::GetByBatchRef(std::string_view ref)
+    std::shared_ptr<Domain::Product> SqlRepository::GetByBatchRef(std::string_view ref)
     {
         Database::Mapper::ProductMapper mapper(_session);
         return mapper.FindByBatchRef(std::string(ref));
@@ -35,7 +32,7 @@ namespace Allocation::Adapters::Repository
     void SqlRepository::UpdateVersion(std::string_view SKU, size_t old, size_t newVersion)
     {
         Database::Mapper::ProductMapper mapper(_session);
-        if(!mapper.UpdateVersion(std::string(SKU), old, newVersion))
-            throw std::exception("Could not serialize access due to concurrent update");
+        if (!mapper.UpdateVersion(std::string(SKU), old, newVersion))
+            throw std::runtime_error("Could not serialize access due to concurrent update");
     }
 }

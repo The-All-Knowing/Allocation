@@ -1,14 +1,14 @@
-#include "Handlers/AllocationsViewHandler.h"
+#include "AllocationsViewHandler.hpp"
 
-#include "Services/Loggers/ILogger.h"
-#include "Services/UoW/SqlUnitOfWork.h"
-#include "Services/Views.h"
+#include "Services/Loggers/ILogger.hpp"
+#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "Services/Views.hpp"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
 {
-
-    void AllocationsViewHandler::handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
+    void AllocationsViewHandler::handleRequest(
+        Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
     {
         try
         {

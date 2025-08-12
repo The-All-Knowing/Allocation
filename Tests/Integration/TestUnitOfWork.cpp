@@ -1,23 +1,22 @@
 #include <gtest/gtest.h>
 
-#include "Precompile.h"
-#include "Common.h"
-#include "CommonFunctions.h"
-#include "SqlFixture.h"
-#include "Adapters/Database/Session/SessionPool.h"
-#include "Services/UoW/SqlUnitOfWork.h"
+#include "Adapters/Database/Session/SessionPool.hpp"
+#include "Precompile.hpp"
+#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "Utilities/Common.hpp"
+#include "Utilities/CommonFunctions.hpp"
+#include "Utilities/SqlFixture.hpp"
 
 
 namespace Allocation::Tests
 {
-
     TEST_F(SqlFixture, test_uow_can_retrieve_a_batch_and_allocate_to_it)
     {
         try
         {
             auto session = Adapters::Database::SessionPool::Instance().GetSession();
             InsertBatch(session, "batch1", "HIPSTER-WORKBENCH", 100);
-            
+
             Services::UoW::SqlUnitOfWork uow;
             auto product = uow.GetProductRepository().Get("HIPSTER-WORKBENCH");
             Domain::OrderLine line("o1", "HIPSTER-WORKBENCH", 10);
@@ -28,7 +27,7 @@ namespace Allocation::Tests
             auto batchRef = GetAllocatedBatchRef(session, "o1", "HIPSTER-WORKBENCH");
             EXPECT_EQ(batchRef, "batch1");
         }
-        catch(const Poco::Exception& e)
+        catch (const Poco::Exception& e)
         {
             FAIL() << e.displayText();
         }
@@ -45,13 +44,12 @@ namespace Allocation::Tests
 
             auto session = Adapters::Database::SessionPool::Instance().GetSession();
             int count = 0;
-            session << "SELECT COUNT(*) FROM public.batches",
-                Poco::Data::Keywords::into(count),
+            session << "SELECT COUNT(*) FROM public.batches", Poco::Data::Keywords::into(count),
                 Poco::Data::Keywords::now;
 
             EXPECT_EQ(count, 0);
         }
-        catch(const Poco::Exception& e)
+        catch (const Poco::Exception& e)
         {
             FAIL() << e.displayText();
         }
@@ -67,19 +65,19 @@ namespace Allocation::Tests
             throw std::exception();
         }
         catch (const std::exception&)
-        {}
+        {
+        }
 
         auto session = Adapters::Database::SessionPool::Instance().GetSession();
         int count = 0;
-        session << "SELECT COUNT(*) FROM public.batches",
-            Poco::Data::Keywords::into(count),
+        session << "SELECT COUNT(*) FROM public.batches", Poco::Data::Keywords::into(count),
             Poco::Data::Keywords::now;
 
         EXPECT_EQ(count, 0);
     }
 
-    void tryToAllocate(std::string orderid, std::string sku,
-                    std::mutex& mutex, std::vector<std::string>& exceptions)
+    void tryToAllocate(std::string orderid, std::string sku, std::mutex& mutex,
+        std::vector<std::string>& exceptions)
     {
         try
         {
@@ -102,7 +100,7 @@ namespace Allocation::Tests
     {
         try
         {
-            auto session = Adapters::Database::SessionPool::Instance().GetSession();        
+            auto session = Adapters::Database::SessionPool::Instance().GetSession();
             std::string SKU = RandomSku();
             std::string batch = RandomBatchRef();
             InsertBatch(session, batch, SKU, 100, 1);
@@ -114,16 +112,17 @@ namespace Allocation::Tests
             std::mutex exceptions_mutex;
             std::vector<std::string> exceptions;
 
-            std::thread t1(tryToAllocate, order1, SKU, std::ref(exceptions_mutex), std::ref(exceptions));
-            std::thread t2(tryToAllocate, order2, SKU, std::ref(exceptions_mutex), std::ref(exceptions));
+            std::thread t1(
+                tryToAllocate, order1, SKU, std::ref(exceptions_mutex), std::ref(exceptions));
+            std::thread t2(
+                tryToAllocate, order2, SKU, std::ref(exceptions_mutex), std::ref(exceptions));
 
             t1.join();
             t2.join();
 
             int version = 0;
             session << "SELECT version_number FROM public.products WHERE sku = $1",
-                Poco::Data::Keywords::use(SKU),
-                Poco::Data::Keywords::into(version),
+                Poco::Data::Keywords::use(SKU), Poco::Data::Keywords::into(version),
                 Poco::Data::Keywords::now;
             EXPECT_EQ(version, 2);
 
@@ -137,12 +136,11 @@ namespace Allocation::Tests
                 JOIN public.batches ON allocations.batch_id = batches.id
                 WHERE order_lines.sku = $1
             )",
-            Poco::Data::Keywords::use(SKU),
-            Poco::Data::Keywords::into(order_count),
-            Poco::Data::Keywords::now;
+                Poco::Data::Keywords::use(SKU), Poco::Data::Keywords::into(order_count),
+                Poco::Data::Keywords::now;
             EXPECT_EQ(order_count, 1);
         }
-        catch(const Poco::Exception& e)
+        catch (const Poco::Exception& e)
         {
             FAIL() << e.displayText();
         }

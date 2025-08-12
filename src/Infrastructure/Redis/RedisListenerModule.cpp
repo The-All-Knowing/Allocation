@@ -1,16 +1,18 @@
-#include "RedisListenerModule.h"
-#include "MessageBus/MessageBus.h"
-#include "Domain/Commands/ChangeBatchQuantity.h"
-#include "Services/UoW/SqlUnitOfWork.h"
-#include "RedisConfig.h"
-#include "Services/Loggers/ILogger.h"
+#include "RedisListenerModule.hpp"
+
+#include "Domain/Commands/ChangeBatchQuantity.hpp"
+#include "RedisConfig.hpp"
+#include "Services/Loggers/ILogger.hpp"
+#include "Services/MessageBus/MessageBus.hpp"
+#include "Services/UoW/SqlUnitOfWork.hpp"
 
 
 namespace Allocation::Infrastructure::Redis
 {
-    RedisListenerModule::RedisListenerModule() : 
-        _client(RedisConfig::FromConfig()->host, RedisConfig::FromConfig()->port) 
-    {}
+    RedisListenerModule::RedisListenerModule()
+        : _client(RedisConfig::FromConfig()->host, RedisConfig::FromConfig()->port)
+    {
+    }
 
     void RedisListenerModule::initialize(Poco::Util::Application& app)
     {
@@ -65,20 +67,25 @@ namespace Allocation::Infrastructure::Redis
                 std::string batchRef = json->getValue<std::string>("batchref");
                 int qty = json->getValue<int>("qty");
 
-                auto command = std::make_shared<Domain::Commands::ChangeBatchQuantity>(batchRef, qty);
-                Services::MessageBus::Instance().Handle(Allocation::Services::UoW::SqlUowFactory, command);
+                auto command =
+                    std::make_shared<Domain::Commands::ChangeBatchQuantity>(batchRef, qty);
+                Services::MessageBus::Instance().Handle(
+                    Allocation::Services::UoW::SqlUowFactory, command);
             }
             catch (const Poco::Exception& ex)
             {
-                Services::Loggers::GetLogger()->Error("Failed to parse Redis message JSON: " + ex.displayText());
+                Services::Loggers::GetLogger()->Error(
+                    "Failed to parse Redis message JSON: " + ex.displayText());
             }
             catch (const std::exception& ex)
             {
-                Services::Loggers::GetLogger()->Error(std::string("Standard exception: ") + ex.what());
+                Services::Loggers::GetLogger()->Error(
+                    std::string("Standard exception: ") + ex.what());
             }
             catch (...)
             {
-                Services::Loggers::GetLogger()->Error("Unknown exception while processing Redis message");
+                Services::Loggers::GetLogger()->Error(
+                    "Unknown exception while processing Redis message");
             }
         }
     }

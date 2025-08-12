@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "Precompile.h"
-#include "CommonFunctions.h"
-#include "Product/Batch.h"
+#include "Domain/Product/Batch.hpp"
+#include "Precompile.hpp"
+#include "Utilities/CommonFunctions.hpp"
 
 
 namespace Allocation::Tests
@@ -17,7 +17,7 @@ namespace Allocation::Tests
         batch.Allocate(line);
         EXPECT_EQ(batch.GetAvailableQuantity(), 18);
     }
-    
+
     TEST(Domain, test_can_allocate_if_available_greater_than_required)
     {
         auto [largeBatch, smallLine] = MakeBatchAndLine("ELEGANT-LAMP", 20, 2);
@@ -26,7 +26,7 @@ namespace Allocation::Tests
 
     TEST(Domain, test_cannot_allocate_if_available_smaller_than_required)
     {
-        auto [smallBatch,largeLine] = MakeBatchAndLine("ELEGANT-LAMP", 2, 20);
+        auto [smallBatch, largeLine] = MakeBatchAndLine("ELEGANT-LAMP", 2, 20);
         EXPECT_FALSE(smallBatch.CanAllocate(largeLine));
     }
 
