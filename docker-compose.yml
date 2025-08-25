@@ -14,40 +14,8 @@ services:
           - ./postgresql/schemas:/docker-entrypoint-initdb.d
           - ./.pgdata:/var/lib/postgresql/data
         networks:
-          - postgres
-
-    realmedium-sample:
-        image: ghcr.io/userver-framework/ubuntu-22.04-userver-pg:latest
-        privileged: true
-        environment:
-          - POSTGRES_DB=realmedium_db-1
-          - POSTGRES_USER=user
-          - POSTGRES_PASSWORD=password
-          - PREFIX=${PREFIX:-~/.local}
-          - CC
-          - CCACHE_DIR=/realmedium/.ccache
-          - CCACHE_HASHDIR
-          - CCACHE_NOHASHDIR
-          - CCACHE_PREFIX
-          - CCACHE_SIZE
-          - CMAKE_OPTS
-          - CORES_DIR=/cores
-          - CXX
-          - MAKE_OPTS
-          - CMAKE_OPTIONS
-        volumes:
-          - .:/realmedium:rw
-          - ${TC_CORES_DIR:-./.cores}:/cores:rw
-        ports:
-          - 8080:8080
-        working_dir: /realmedium
-        entrypoint:
-          - ./tests/run_as_user.sh
-        depends_on:
-          - postgres
-        networks:
-          - postgres
+          - allocation
 
 networks:
-    postgres:
+    allocation:
         driver: bridge
