@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Precompile.hpp"
 #include "ConnectionConfig.hpp"
+#include "Precompile.hpp"
 
 
 namespace Allocation::Adapters::Database

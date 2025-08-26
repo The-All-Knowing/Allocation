@@ -5,7 +5,7 @@ services:
         container_name: service-postgres
         image: postgres:12
         environment:
-          - POSTGRES_DB=allocation_db-1
+          - POSTGRES_DB=allocation
           - POSTGRES_USER=user
           - POSTGRES_PASSWORD=password
         ports:
@@ -15,6 +15,43 @@ services:
           - ./.pgdata:/var/lib/postgresql/data
         networks:
           - allocation
+    redis:
+        container_name: service-redis
+        image: redis:alpine
+        ports:
+          - 6379
+        networks:
+          - allocation
+
+    allocation:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      environment:
+        - POSTGRES_DB=allocation
+        - POSTGRES_USER=user
+        - POSTGRES_PASSWORD=password
+        - PREFIX=${PREFIX:-~/.local}
+        - CC
+        - CMAKE_OPTS
+        - CXX
+        - MAKE_OPTS
+        - CMAKE_OPTIONS
+        - PATH=/home/user/.local/bin:/root/.local/bin:$PATH
+      volumes:
+        - .:/allocation:rw
+      ports:
+        - 8080:8080
+      working_dir: /allocation
+      entrypoint:
+        - ./tests/run_as_user.sh
+        - make
+        - conan-debug
+      depends_on:
+        - postgres
+        - redis
+      networks:
+        - allocation
 
 networks:
     allocation:

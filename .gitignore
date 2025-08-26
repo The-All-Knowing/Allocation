@@ -6,8 +6,12 @@ compile_commands.json
 .vscode/
 .cores/
 .ccache/
+.pgdata/
+.devcontainer/
 cmake-build-*
 Testing/
 .DS_Store
 bin/
+etc/
+CMakeFiles/
 CMakeUserPresets.json
