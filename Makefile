@@ -42,13 +42,18 @@ cmake-debug: conan-debug
 cmake-release: conan-release
 	cmake --preset conan-release
 
-build/%/CMakeCache.txt:
-	$(MAKE) cmake-$*
+build/Debug/CMakeCache.txt:
+	$(MAKE) cmake-debug
+
+build/Release/CMakeCache.txt:
+	$(MAKE) cmake-release
 
 # Build using cmake
-.PHONY: build-debug build-release
-build-debug build-release: build-%: build/%/CMakeCache.txt
-	cmake --build build/$* -j $(NPROCS) --target allocation
+build-debug: build/Debug/CMakeCache.txt
+	cmake --build build/Debug -j $(NPROCS) --target allocation
+
+build-release: build/Release/CMakeCache.txt
+	cmake --build build/Release -j $(NPROCS) --target allocation
 
 # Test
 .PHONY: test-debug test-release
@@ -81,9 +86,13 @@ dist-clean:
 #rm -rf tests/.pytest_cache/
 
 # Install
-.PHONY: install-debug install-release
-install-debug install-release: install-%: build-%
-	cmake --install build/$* -v --component allocation
+.PHONY: install-debug
+install-debug: build-debug
+	cmake --install build/Debug -v --component allocation
+
+.PHONY: install-release
+install-release: build-release
+	cmake --install build/Release -v --component allocation
 
 # Format the sources
 .PHONY: format
