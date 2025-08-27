@@ -24,6 +24,7 @@ services:
           - allocation
 
     allocation:
+      container_name: service-allocation
       build:
         context: .
         dockerfile: Dockerfile
@@ -33,11 +34,16 @@ services:
         - POSTGRES_PASSWORD=password
         - PREFIX=${PREFIX:-~/.local}
         - CC
+        - CCACHE_DIR=/allocation/.ccache
+        - CCACHE_HASHDIR
+        - CCACHE_NOHASHDIR
+        - CCACHE_PREFIX
+        - CCACHE_SIZE
         - CMAKE_OPTS
+        - CORES_DIR=/cores
         - CXX
         - MAKE_OPTS
         - CMAKE_OPTIONS
-        - PATH=/home/user/.local/bin:/root/.local/bin:$PATH
       volumes:
         - .:/allocation:rw
       ports:
@@ -45,8 +51,6 @@ services:
       working_dir: /allocation
       entrypoint:
         - ./tests/run_as_user.sh
-        - make
-        - conan-debug
       depends_on:
         - postgres
         - redis

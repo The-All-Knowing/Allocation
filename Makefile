@@ -1,46 +1,39 @@
-CMAKE_COMMON_FLAGS ?= -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-CMAKE_DEBUG_FLAGS ?= -DUSERVER_SANITIZE='addr ub'
-CMAKE_RELEASE_FLAGS ?=
 CMAKE_OS_FLAGS ?= -DUSERVER_FEATURE_CRYPTOPP_BLAKE2=0 -DUSERVER_FEATURE_REDIS_HI_MALLOC=1
 NPROCS ?= $(shell nproc)
 CLANG_FORMAT ?= clang-format
 DOCKER_COMPOSE ?= docker-compose
 
-ifeq ($(KERNEL),Darwin)
-CMAKE_COMMON_FLAGS += -DUSERVER_NO_WERROR=1 -DUSERVER_CHECK_PACKAGE_VERSIONS=0 \
-  -DUSERVER_DOWNLOAD_PACKAGE_CRYPTOPP=1 \
-  -DOPENSSL_ROOT_DIR=$(shell brew --prefix openssl) \
-  -DUSERVER_PG_INCLUDE_DIR=$(shell pg_config --includedir) \
-  -DUSERVER_PG_LIBRARY_DIR=$(shell pg_config --libdir) \
-  -DUSERVER_PG_SERVER_LIBRARY_DIR=$(shell pg_config --pkglibdir) \
-  -DUSERVER_PG_SERVER_INCLUDE_DIR=$(shell pg_config --includedir-server)
-endif
-
 # NOTE: use Makefile.local to override the options defined above.
 -include Makefile.local
-
-CMAKE_DEBUG_FLAGS += -DCMAKE_BUILD_TYPE=Debug $(CMAKE_COMMON_FLAGS)
-CMAKE_RELEASE_FLAGS += -DCMAKE_BUILD_TYPE=Release $(CMAKE_COMMON_FLAGS)
 
 .PHONY: all
 all: test-debug test-release
 
 # start conan
+.PHONY: conan-profile
+conan-profile:
+	@if [ ! -f "$$HOME/.conan2/profiles/default" ]; then \
+		echo "Conan default profile not found. Creating..."; \
+		conan profile detect --force; \
+	else \
+		echo "Conan default profile exists."; \
+	fi
+
 .PHONY: conan-debug
-conan-debug:
+conan-debug: conan-profile
 	conan install . -s build_type=Debug --build=missing
 
 .PHONY: conan-release
-conan-release:
+conan-release: conan-profile
 	conan install . -s build_type=Release --build=missing
 
 .PHONY: cmake-debug
 cmake-debug: conan-debug
-	cmake --preset conan-debug
+	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=build/Debug/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -B build/Debug -S .
 
 .PHONY: cmake-release
 cmake-release: conan-release
-	cmake --preset conan-release
+	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -B build/Release -S .
 
 build/Debug/CMakeCache.txt:
 	$(MAKE) cmake-debug
@@ -56,10 +49,15 @@ build-release: build/Release/CMakeCache.txt
 	cmake --build build/Release -j $(NPROCS) --target allocation
 
 # Test
-.PHONY: test-debug test-release
-test-debug test-release: test-%: build-%
-	cmake --build build/$* -j $(NPROCS) --target allocation_unittest
-	cd build/$* && ((test -t 1 && GTEST_COLOR=1 PYTEST_ADDOPTS="--color=yes" ctest -V) || ctest -V)
+.PHONY: test-debug
+test-debug: build-debug
+	cmake --build build/Debug -j $(NPROCS) --target allocation_unittest
+	cd build/Debug && ((test -t 1 && GTEST_COLOR=1 PYTEST_ADDOPTS="--color=yes" ctest -V) || ctest -V)
+
+.PHONY: test-release
+test-release: build-release
+	cmake --build build/Release -j $(NPROCS) --target allocation_unittest
+	cd build/Release && ((test -t 1 && GTEST_COLOR=1 PYTEST_ADDOPTS="--color=yes" ctest -V) || ctest -V)
 # pycodestyle tests пока оставим, как перенесу часть тестов тогда будет разговор
 
 # Start the service (via testsuite service runner)
@@ -106,9 +104,9 @@ export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@servi
 # Internal hidden targets that are used only in docker environment
 --in-docker-start-debug --in-docker-start-release: --in-docker-start-%: install-%
 	psql ${DB_CONNECTION} -f ./postgresql/data/initial_data.sql
-	/home/user/.local/bin/allocation \
-		--config /home/user/.local/etc/allocation/static_config.yaml \
-		--config_vars /home/user/.local/etc/allocation/config_vars.docker.yaml
+	/home/user/.local/bin/allocation
+#--config /home/user/.local/etc/allocation/static_config.yaml Пока не умеет читать конфиг из файла
+#--config_vars /home/user/.local/etc/allocation/config_vars.docker.yaml
 
 # Build and run service in docker environment
 .PHONY: docker-start-debug docker-start-release

@@ -6,20 +6,16 @@ name: urealmedium Docker build
     pull_request:
     push:
         branches:
+          - main
           - master
           - develop
           - feature/**
-
-env:
-    CMAKE_OPTIONS: -DUserverGrpc_VERSION=1.51.0
 
 jobs:
     tests:
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v4
-            with:
-                submodules: true
 
           - name: Reuse ccache directory
             uses: actions/cache@v4
@@ -36,7 +32,7 @@ jobs:
                 sudo apt install --allow-downgrades -y docker-compose
 
           - name: Setup ccache
-            run: docker-compose run --rm realmedium-sample bash -c 'ccache -M 4.0GB && ccache -s'
+            run: docker-compose run --rm service-allocation bash -c 'ccache -M 4.0GB && ccache -s'
 
           - name: Cmake
             run: make docker-cmake-release

@@ -6,6 +6,7 @@ name: urealmedium CI
     pull_request:
     push:
         branches:
+          - main
           - develop
 
 env:
@@ -14,24 +15,22 @@ env:
 jobs:
     posix:
         strategy:
-            fail-fast: false
+            fail-fast: true
             matrix:
                 include:
                   - os: ubuntu-22.04
                     make: test-debug
-                    info: g++-11 + test-debug
+                    info: g++-13 + test-debug
 
                   - os: ubuntu-22.04
                     make: test-release
-                    info: g++-11 + test-release
+                    info: g++-13 + test-release
 
         name: '${{matrix.os}}: ${{matrix.info}}'
         runs-on: ${{matrix.os}}
 
         steps:
           - uses: actions/checkout@v4
-            with:
-                submodules: true
 
           - name: Reuse ccache directory
             uses: actions/cache@v4
