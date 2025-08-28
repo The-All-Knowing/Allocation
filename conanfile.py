@@ -9,7 +9,7 @@ class CompressorRecipe(ConanFile):
     generators = "CMakeDeps"
 
     def requirements(self):
-        self.requires("poco/1.13.3")
+        self.requires("poco/1.14.2")
         self.requires("gtest/1.16.0")
 
     def layout(self):
