@@ -37,19 +37,10 @@ jobs:
           - name: Install packages
             run: |
                 sudo apt update
-                sudo apt install -y build-essential cmake pipx pycodestyle postgresql ccache
+                sudo apt install -y build-essential cmake pipx pycodestyle postgresql
                 pipx ensurepath
                 pipx install conan
                 PATH="/root/.local/bin:${PATH}"
-                
-          - name: Reuse ccache directory
-            uses: actions/cache@v4
-            with:
-                path: ~/.cache/ccache
-                key: '${{matrix.os}} ${{matrix.info}} ccache-dir ${{github.ref}} run-${{github.run_number}}'
-                restore-keys: |
-                    ${{matrix.os}} ${{matrix.info}} ccache-dir ${{github.ref}} run-'
-                    ${{matrix.os}} ${{matrix.info}} ccache-
    
           - name: Install postgres 16
             run: |
@@ -59,11 +50,6 @@ jobs:
             run: |
                 sudo apt-get install redis
                 
-          - name: Setup ccache
-            run: |
-                ccache -M 2.0GB
-                ccache -s
-
           - name: Run postgresql
             if: matrix.make == 'test-release'
             run: |
