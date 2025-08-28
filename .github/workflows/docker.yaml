@@ -22,14 +22,11 @@ jobs:
                 sudo apt update
                 sudo apt install -y docker-compose
 
-          - name: Setup ccache
-            run: docker-compose run --rm service-allocation bash
-
           - name: Cmake
-            run: make cmake-release
+            run: make docker-cmake-release
 
           - name: Build
-            run: make build-release
+            run: make docker-build-release
 
           - name: Run tests
-            run: make test-release
+            run: make docker-test-release
