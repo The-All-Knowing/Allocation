@@ -111,7 +111,7 @@ export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@servi
 # Build and run service in docker environment
 .PHONY: docker-start-debug docker-start-release
 docker-start-debug docker-start-release: docker-start-%:
-	$(DOCKER_COMPOSE) run -p 8080:8080 --rm allocation make -- --in-docker-start-$*
+	$(DOCKER_COMPOSE) run -p 8080:8080 --rm service-allocation make -- --in-docker-start-$*
 
 .PHONY: docker-start-service-debug docker-start-service-release
 docker-start-service-debug docker-start-service-release: docker-start-service-%: docker-start-%
@@ -119,7 +119,7 @@ docker-start-service-debug docker-start-service-release: docker-start-service-%:
 # Start targets makefile in docker environment
 .PHONY: docker-cmake-debug docker-build-debug docker-test-debug docker-clean-debug docker-install-debug docker-cmake-release docker-build-release docker-test-release docker-clean-release docker-install-release
 docker-cmake-debug docker-build-debug docker-test-debug docker-clean-debug docker-install-debug docker-cmake-release docker-build-release docker-test-release docker-clean-release docker-install-release: docker-%:
-	$(DOCKER_COMPOSE) run --rm allocation make $*
+	$(DOCKER_COMPOSE) run --rm service-allocation make $*
 
 # Stop docker container and remove PG data
 .PHONY: docker-clean-data
