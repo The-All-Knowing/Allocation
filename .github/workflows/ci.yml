@@ -51,10 +51,9 @@ jobs:
                 pipx install conan
                 PATH="/root/.local/bin:${PATH}"
    
-          - name: Reinstall postgres 14
+          - name: Install postgres 16
             run: |
-                sudo apt purge libpq5 libpq-dev postgresql-*
-                sudo apt install -y postgresql-14 postgresql-client-14 postgresql-server-dev-14
+                sudo apt install -y postgresql-16 postgresql-client-16 postgresql-server-dev-16
 
           - name: Install Redis
             run: |
