@@ -1,4 +1,4 @@
-name: urealmedium Docker build
+name: allocation Docker build
 
 'on':
     schedule:

@@ -1,4 +1,4 @@
-name: urealmedium CI
+name: allocation CI
 
 'on':
     schedule:
@@ -15,16 +15,17 @@ env:
 jobs:
     posix:
         strategy:
-            fail-fast: true
+            fail-fast: false
             matrix:
-                include:
-                  - os: ubuntu-22.04
-                    make: test-debug
-                    info: g++-13 + test-debug
-
-                  - os: ubuntu-22.04
-                    make: test-release
-                    info: g++-13 + test-release
+              - os: ubuntu-24.04
+                make-target: test-debug
+                compiler: g++-14
+                description: "Debug build"
+              
+              - os: ubuntu-24.04
+                make-target: test-release
+                compiler: g++-14
+                description: "Release build"
 
         name: '${{matrix.os}}: ${{matrix.info}}'
         runs-on: ${{matrix.os}}
@@ -43,15 +44,24 @@ jobs:
 
           - name: Install packages
             run: |
-                (cd third_party && git clone -b develop --single-branch --depth 1 https://github.com/userver-framework/userver.git)
                 sudo apt update
-                sudo apt install --allow-downgrades -y pycodestyle postgresql $(cat third_party/userver/scripts/docs/en/deps/${{matrix.os}}.md | tr '\n' ' ')
+                sudo apt install -y build-essential cmake pipx pycodestyle postgresql
+                pipx ensurepath
+                pipx install conan
+                PATH="/root/.local/bin:${PATH}"
    
           - name: Reinstall postgres 14
             run: |
                 sudo apt purge libpq5 libpq-dev postgresql-*
                 sudo apt install -y postgresql-14 postgresql-client-14 postgresql-server-dev-14
 
+          - name: Install Redis
+            run: |
+                sudo apt install -y redis-server
+                sudo systemctl start redis.service
+                sudo systemctl status redis.service
+                redis-cli ping
+                
           - name: Setup ccache
             run: |
                 ccache -M 2.0GB
@@ -61,13 +71,13 @@ jobs:
             if: matrix.make == 'test-release'
             run: |
                 pg_lsclusters
-                sudo -u postgres psql --command="CREATE USER realmedium_sample_user PASSWORD 'password'" --command="\du"
-                sudo -u postgres createdb --owner=realmedium_sample_user realmedium_db-1
+                sudo -u postgres psql --command="CREATE USER allocation_user PASSWORD 'password'" --command="\du"
+                sudo -u postgres createdb --owner=allocation_user allocation_db-1
 
           - name: Run migrations
             if: matrix.make == 'test-release'
             run: |
-                PGPASSWORD=password psql 'postgresql://realmedium_sample_user@localhost:5432/realmedium_db-1' -f ./postgresql/schemas/db-1.sql
+                PGPASSWORD=password psql 'postgresql://allocation@localhost:5432/allocation_db-1' -f ./postgresql/schemas/db-1.sql
 
           - name: Run ${{matrix.make}}
             run: |
@@ -79,21 +89,21 @@ jobs:
                 make dist-clean
                 make install PREFIX=`pwd`/local_installation/
 
-          - name: Test run after install
-            if: matrix.make == 'test-release'
-            run: |
-               ./local_installation/bin/realmedium_sample \
-                   --config=./local_installation/etc/realmedium_sample/config.yaml \
-                   --config_vars=./local_installation/etc/realmedium_sample/config_vars.yaml \
-                   &
+#          - name: Test run after install
+#            if: matrix.make == 'test-release'
+#            run: |
+#               ./local_installation/bin/realmedium_sample \
+#                   --config=./local_installation/etc/realmedium_sample/config.yaml \
+#                   --config_vars=./local_installation/etc/realmedium_sample/config_vars.yaml \
+#                   &
 
           - name: Check work run service
             if: matrix.make == 'test-release'
             run: |
-                ps aux | grep realmedium_sample | grep config && curl http://localhost:8080/ping -v
+                ps aux | grep allocation | grep config && curl http://localhost:8080/ping -v
 
           - name: Stop all
             if: matrix.make == 'test-release'
             run: |
-                killall realmedium_sample
+                killall allocation
 

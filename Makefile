@@ -29,11 +29,11 @@ conan-release: conan-profile
 
 .PHONY: cmake-debug
 cmake-debug: conan-debug
-	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=build/Debug/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -B build/Debug -S .
+	cmake -DCMAKE_TOOLCHAIN_FILE=build/Debug/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Debug -B build/Debug -S .
 
 .PHONY: cmake-release
 cmake-release: conan-release
-	cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -B build/Release -S .
+	cmake -DCMAKE_TOOLCHAIN_FILE=build/Release/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -B build/Release -S .
 
 build/Debug/CMakeCache.txt:
 	$(MAKE) cmake-debug

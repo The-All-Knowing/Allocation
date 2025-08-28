@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 project(allocation LANGUAGES CXX)
 
+SET(CMAKE_CXX_STANDARD 23)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(Poco REQUIRED)
 find_package(GTest REQUIRED)
 

@@ -49,8 +49,7 @@ services:
       ports:
         - 8080:8080
       working_dir: /allocation
-      entrypoint:
-        - ./tests/run_as_user.sh
+      # entrypoint: /bin/bash
       depends_on:
         - postgres
         - redis
