@@ -23,12 +23,12 @@ jobs:
                 sudo apt install -y docker-compose
 
           - name: Cmake
-            run: make docker-cmake-release
+            run: |
+                make docker-cmake-release
+                sudo make dist-clean
 
           - name: Build
-            run: |
-                rm -rf build/*
-                make docker-build-release
+            run: make docker-build-release
 
 #          - name: Run tests
 #            run: make docker-test-release
