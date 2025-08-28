@@ -23,8 +23,8 @@ services:
         networks:
           - allocation
 
-    allocation:
-      container_name: service-allocation
+    service-allocation:
+      container_name: allocation
       build:
         context: .
         dockerfile: Dockerfile
@@ -49,7 +49,6 @@ services:
       ports:
         - 8080:8080
       working_dir: /allocation
-      # entrypoint: /bin/bash
       depends_on:
         - postgres
         - redis
