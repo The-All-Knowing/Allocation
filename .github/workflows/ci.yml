@@ -34,6 +34,14 @@ jobs:
         steps:
           - uses: actions/checkout@v4
 
+          - name: Install packages
+            run: |
+                sudo apt update
+                sudo apt install -y build-essential cmake pipx pycodestyle postgresql ccache
+                pipx ensurepath
+                pipx install conan
+                PATH="/root/.local/bin:${PATH}"
+                
           - name: Reuse ccache directory
             uses: actions/cache@v4
             with:
@@ -42,14 +50,6 @@ jobs:
                 restore-keys: |
                     ${{matrix.os}} ${{matrix.info}} ccache-dir ${{github.ref}} run-'
                     ${{matrix.os}} ${{matrix.info}} ccache-
-
-          - name: Install packages
-            run: |
-                sudo apt update
-                sudo apt install -y build-essential cmake pipx pycodestyle postgresql
-                pipx ensurepath
-                pipx install conan
-                PATH="/root/.local/bin:${PATH}"
    
           - name: Install postgres 16
             run: |
