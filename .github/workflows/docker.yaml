@@ -20,10 +20,7 @@ jobs:
           - name: Install docker-compose
             run: |
                 sudo apt update
-                sudo apt install --allow-downgrades -y docker-compose
-
-          - name: Setup ccache
-            run: docker-compose run --rm service-allocation bash
+                sudo apt install -y docker-compose
 
           - name: Cmake
             run: make docker-cmake-release
