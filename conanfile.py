@@ -17,7 +17,7 @@ class CompressorRecipe(ConanFile):
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.variables["CMAKE_CXX_STANDARD"] = 20
+        tc.variables["CMAKE_CXX_STANDARD"] = 23
         tc.variables["CMAKE_EXPORT_COMPILE_COMMANDS"] = True
         tc.variables["CMAKE_CXX_STANDARD_REQUIRED"] = True
         tc.variables["CMAKE_CXX_FLAGS_RELEASE"] = "-O2"
