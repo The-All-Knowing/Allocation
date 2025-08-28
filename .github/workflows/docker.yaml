@@ -27,7 +27,7 @@ jobs:
 
           - name: Build
             run: |
-                rm -rf build 
+                rm -rf build/*
                 make docker-build-release
 
 #          - name: Run tests
