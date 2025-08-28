@@ -17,15 +17,16 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-              - os: ubuntu-24.04
-                make-target: test-debug
-                compiler: g++-14
-                description: "Debug build"
-              
-              - os: ubuntu-24.04
-                make-target: test-release
-                compiler: g++-14
-                description: "Release build"
+                include:
+                  - os: ubuntu-24.04
+                    make-target: test-debug
+                    compiler: g++-14
+                    description: "Debug build"
+                  
+                  - os: ubuntu-24.04
+                    make-target: test-release
+                    compiler: g++-14
+                    description: "Release build"
 
         name: '${{matrix.os}}: ${{matrix.info}}'
         runs-on: ${{matrix.os}}
@@ -106,4 +107,5 @@ jobs:
             if: matrix.make == 'test-release'
             run: |
                 killall allocation
+
 
