@@ -1,10 +1,9 @@
 #include "Server.hpp"
 
-#include "Adapters/Database/DbTables.hpp"
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "HandlerFactory.hpp"
 #include "Infrastructure/Redis/RedisListenerModule.hpp"
-#include "Services/Loggers/PocoLogger.hpp"
+#include "Infrastructure/Services/Loggers/PocoLogger.hpp"
 
 
 namespace Allocation::Infrastructure::Server
@@ -90,8 +89,5 @@ namespace Allocation::Infrastructure::Server
 
         Adapters::Database::SessionPool::Instance().Configure(config);
         Poco::Data::PostgreSQL::Connector::registerConnector();
-
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
-        Adapters::Database::InitDatabase(session);
     }
 }

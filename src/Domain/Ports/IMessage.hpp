@@ -5,16 +5,25 @@
 
 namespace Allocation::Domain
 {
+    /// @brief Интерфейс сообщения.
     struct IMessage
     {
+        /// @brief Тип сообщения.
         enum class Type : int
         {
             Event,
             Command
         };
 
+        /// @brief Деструктор интерфейса сообщения.
         virtual ~IMessage() = default;
+
+        /// @brief Получить имя сообщения.
+        /// @return Имя сообщения.
         [[nodiscard]] virtual std::string Name() const = 0;
+
+        /// @brief Получить тип сообщения.
+        /// @return Тип сообщения.
         [[nodiscard]] virtual Type GetType() const = 0;
     };
 

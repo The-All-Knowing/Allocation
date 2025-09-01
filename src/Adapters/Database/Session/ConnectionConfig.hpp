@@ -5,6 +5,7 @@
 
 namespace Allocation::Adapters::Database
 {
+    /// @brief Конфигурация подключения к базе данных.
     struct ConnectionConfig
     {
         std::string connector;

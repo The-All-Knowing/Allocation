@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Domain/Product/OrderLine.hpp"
 #include "Precompile.hpp"
+
+#include "Domain/Product/OrderLine.hpp"
 
 
 namespace Allocation::Adapters::Database::Mapper

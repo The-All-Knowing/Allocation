@@ -1,22 +1,41 @@
 #pragma once
 
-#include "Domain/Ports/IRepository.hpp"
 #include "Precompile.hpp"
+
+#include "Domain/Ports/IRepository.hpp"
 
 
 namespace Allocation::Adapters::Repository
 {
+    /// @brief SQL реализация репозитория.
     class SqlRepository final : public Domain::IRepository
     {
     public:
-        SqlRepository(Poco::Data::Session& session);
-        void Add(std::shared_ptr<Domain::Product> product) override;
-        [[nodiscard]] std::shared_ptr<Domain::Product> Get(std::string_view SKU) override;
-        [[nodiscard]] std::shared_ptr<Domain::Product> GetByBatchRef(std::string_view ref) override;
+        /// @brief Конструктор.
+        /// @param session Сессия базы данных.
+        explicit SqlRepository(std::shared_ptr<Poco::Data::Session> session);
 
-        void UpdateVersion(std::string_view SKU, size_t old, size_t newVersion);
+        /// @brief Добавляет продукт в репозиторий.
+        /// @param product Продукт для добавления.
+        void Add(const Domain::Product& product) override;
+
+        /// @brief Получает продукт по его артикулу.
+        /// @param SKU Артикул продукта.
+        /// @return Найденный продукт или nullptr.
+        [[nodiscard]] Domain::ProductPtr Get(std::string_view SKU) override;
+
+        /// @brief Получает продукт по ссылке партии.
+        /// @param batchRef Ссылка на партию.
+        /// @return Найденный продукт или пустой nullptr.
+        [[nodiscard]] Domain::ProductPtr GetByBatchRef(std::string_view batchRef) override;
+
+        /// @brief Обновляет версию продукта.
+        /// @param SKU Артикул продукта.
+        /// @param oldVersion Старая версия продукта.
+        /// @param newVersion Новая версия продукта.
+        void UpdateVersion(std::string_view SKU, size_t oldVersion, size_t newVersion);
 
     private:
-        Poco::Data::Session& _session;
+        std::shared_ptr<Poco::Data::Session> _session;
     };
 }

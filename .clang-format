@@ -15,9 +15,18 @@ FixNamespaceComments: false
 NamespaceIndentation: All
 BraceWrapping:
   AfterNamespace: false 
-IncludeCategories: 
-  - Regex: 'catch_amalgamated.hpp'
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<gtest/gtest\.h>$'
     Priority: 1
+  - Regex: '^<gmock/gmock\.h>$'
+    Priority: 2
+  - Regex: '^"([^"]*/)?Precompile\.hpp"$'
+    Priority: 3
+  - Regex: '^<.*>$' # все прочие системные
+    Priority: 4
+  - Regex: '^".*"$' # все прочие локальные
+    Priority: 5
 IndentCaseLabels: true
 IndentPPDirectives: None
 IndentWidth: 4

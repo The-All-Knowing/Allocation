@@ -5,15 +5,15 @@ namespace Allocation::Adapters::Repository
 {
     TrackingRepository::TrackingRepository(Domain::IRepository& repo) : _repo(repo){};
 
-    void TrackingRepository::Add(std::shared_ptr<Domain::Product> product)
+    void TrackingRepository::Add(const Domain::Product& product)
     {
         _repo.Add(product);
-        if (!_seen.contains(product->GetSKU()))
-            _seenObjByOldVersion[product->GetSKU()] = product->GetVersion();
-        _seen[product->GetSKU()] = product;
+        if (!_seen.contains(product.GetSKU()))
+            _seenObjByOldVersion[product.GetSKU()] = product.GetVersion();
+        _seen[product.GetSKU()] = std::make_shared<Domain::Product>(product);
     }
 
-    std::shared_ptr<Domain::Product> TrackingRepository::Get(std::string_view SKU)
+    Domain::ProductPtr TrackingRepository::Get(std::string_view SKU)
     {
         auto product = _repo.Get(SKU);
         if (product)
@@ -25,9 +25,9 @@ namespace Allocation::Adapters::Repository
         return product;
     }
 
-    std::shared_ptr<Domain::Product> TrackingRepository::GetByBatchRef(std::string_view ref)
+    Domain::ProductPtr TrackingRepository::GetByBatchRef(std::string_view batchRef)
     {
-        auto product = _repo.GetByBatchRef(ref);
+        auto product = _repo.GetByBatchRef(batchRef);
         if (product)
         {
             _seen[product->GetSKU()] = product;
@@ -37,9 +37,9 @@ namespace Allocation::Adapters::Repository
         return product;
     }
 
-    std::vector<std::shared_ptr<Domain::Product>> TrackingRepository::GetSeen() const noexcept
+    std::vector<Domain::ProductPtr> TrackingRepository::GetSeen() const noexcept
     {
-        std::vector<std::shared_ptr<Domain::Product>> result;
+        std::vector<Domain::ProductPtr> result;
         result.reserve(_seen.size());
         for (const auto& [_, product] : _seen)
             result.push_back(product);

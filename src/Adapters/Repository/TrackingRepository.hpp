@@ -1,21 +1,40 @@
 #pragma once
 
-#include "Domain/Ports/IRepository.hpp"
 #include "Precompile.hpp"
+
+#include "Domain/Ports/IRepository.hpp"
 
 
 namespace Allocation::Adapters::Repository
 {
+    /// @brief Репозиторий для отслеживания изменений продуктов.
     class TrackingRepository final : public Domain::IRepository
     {
     public:
+        /// @brief Конструктор.
+        /// @param repo Отслеживаемый репозиторий.
         TrackingRepository(Domain::IRepository& repo);
 
-        void Add(std::shared_ptr<Domain::Product> product) override;
-        [[nodiscard]] std::shared_ptr<Domain::Product> Get(std::string_view SKU) override;
-        [[nodiscard]] std::shared_ptr<Domain::Product> GetByBatchRef(std::string_view ref) override;
+        /// @brief Добавляет продукт в репозиторий и отслеживает его.
+        /// @param product Продукт для добавления.
+        void Add(const Domain::Product& product) override;
 
-        [[nodiscard]] std::vector<std::shared_ptr<Domain::Product>> GetSeen() const noexcept;
+        /// @brief Получает продукт по его SKU.
+        /// @param SKU Артикул продукта.
+        /// @return Найденный продукт или nullptr.
+        [[nodiscard]] Domain::ProductPtr Get(std::string_view SKU) override;
+
+        /// @brief Получает продукт по ссылке партии.
+        /// @param batchRef Ссылка на партию.
+        /// @return Найденный продукт или пустой nullptr.
+        [[nodiscard]] Domain::ProductPtr GetByBatchRef(std::string_view batchRef) override;
+
+        /// @brief Получает все продукты, которые были добавлены в репозиторий.
+        /// @return Список всех добавленных продуктов.
+        [[nodiscard]] std::vector<Domain::ProductPtr> GetSeen() const noexcept;
+
+        /// @brief Получает все измененные версии продуктов.
+        /// @return Список кортежей с информацией об измененных версиях.
         [[nodiscard]] std::vector<std::tuple<std::string, size_t, size_t>> GetChangedVersions()
             const noexcept;
 

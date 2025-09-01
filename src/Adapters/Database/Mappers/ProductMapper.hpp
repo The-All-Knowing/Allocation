@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Domain/Product/Product.hpp"
 #include "Precompile.hpp"
+
+#include "Domain/Product/Product.hpp"
 
 
 namespace Allocation::Adapters::Database::Mapper

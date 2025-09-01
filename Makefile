@@ -96,7 +96,7 @@ install-release: build-release
 .PHONY: format
 format:
 	find src -name '*pp' -type f | xargs $(CLANG_FORMAT) -i
-#find tests -name '*.py' -type f | xargs autopep8 -i пока нет кода на python
+	find tests -name '*.py' -type f | xargs autopep8 -i
 
 # Set environment for --in-docker-start
 export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@service-postgres:5432/${POSTGRES_DB}

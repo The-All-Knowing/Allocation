@@ -5,13 +5,25 @@
 
 namespace Allocation::Domain
 {
+    /// @brief Интерфейс репозитория для работы с продуктами.
     class IRepository
     {
     public:
+        /// @brief Деструктор.
         virtual ~IRepository() = default;
 
-        virtual void Add(std::shared_ptr<Product> product) = 0;
-        [[nodiscard]] virtual std::shared_ptr<Product> Get(std::string_view SKU) = 0;
-        [[nodiscard]] virtual std::shared_ptr<Product> GetByBatchRef(std::string_view ref) = 0;
+        /// @brief Добавляет продукт в репозиторий.
+        /// @param product Продукт для добавления.
+        virtual void Add(const Product& product) = 0;
+
+        /// @brief Получает продукт из репозитория.
+        /// @param SKU Артикул продукта.
+        /// @return Продукт с заданным артикулом.
+        [[nodiscard]] virtual Domain::ProductPtr Get(std::string_view SKU) = 0;
+
+        /// @brief Получает продукт из репозитория по ссылке партии.
+        /// @param batchRef Ссылка на партию.
+        /// @return Продукт с заданной ссылкой партии.
+        [[nodiscard]] virtual Domain::ProductPtr GetByBatchRef(std::string_view batchRef) = 0;
     };
 }

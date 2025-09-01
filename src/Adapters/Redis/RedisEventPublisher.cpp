@@ -1,6 +1,6 @@
 #include "RedisEventPublisher.hpp"
 
-#include "Services/Loggers/ILogger.hpp"
+#include "Infrastructure/Services/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Adapters::Redis

@@ -5,28 +5,30 @@
 
 namespace Allocation::Adapters::Repository
 {
-    SqlRepository::SqlRepository(Poco::Data::Session& session) : _session(session) {}
+    SqlRepository::SqlRepository(std::shared_ptr<Poco::Data::Session> session) : _session(session)
+    {
+    }
 
-    void SqlRepository::Add(std::shared_ptr<Domain::Product> product)
+    void SqlRepository::Add(const Domain::Product& product)
     {
         Database::Mapper::ProductMapper mapper(_session);
 
-        if (mapper.IsExists(product->GetSKU()))
+        if (mapper.IsExists(product.GetSKU()))
             mapper.Update(product);
         else
             mapper.Insert(product);
     }
 
-    std::shared_ptr<Domain::Product> SqlRepository::Get(std::string_view SKU)
+    Domain::ProductPtr SqlRepository::Get(std::string_view SKU)
     {
         Database::Mapper::ProductMapper mapper(_session);
         return mapper.FindBySKU(std::string(SKU));
     }
 
-    std::shared_ptr<Domain::Product> SqlRepository::GetByBatchRef(std::string_view ref)
+    Domain::ProductPtr SqlRepository::GetByBatchRef(std::string_view batchRef)
     {
         Database::Mapper::ProductMapper mapper(_session);
-        return mapper.FindByBatchRef(std::string(ref));
+        return mapper.FindByBatchRef(std::string(batchRef));
     }
 
     void SqlRepository::UpdateVersion(std::string_view SKU, size_t old, size_t newVersion)
