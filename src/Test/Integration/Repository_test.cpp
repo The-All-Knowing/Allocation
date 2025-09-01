@@ -21,8 +21,8 @@ namespace Allocation::Tests
         Domain::Product p2("sku2", {b3});
         repo.Add(p1);
         repo.Add(p2);
-        EXPECT_EQ(repo.Get("b2", true), p1);
-        EXPECT_EQ(repo.Get("b3", true), p2);
+        EXPECT_EQ(*repo.GetByBatchRef("b2"), p1);
+        EXPECT_EQ(*repo.GetByBatchRef("b3"), p2);
         session.rollback();
     }
 }

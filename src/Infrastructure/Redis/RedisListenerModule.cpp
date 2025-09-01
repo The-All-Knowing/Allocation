@@ -1,10 +1,10 @@
 #include "RedisListenerModule.hpp"
 
 #include "Domain/Commands/ChangeBatchQuantity.hpp"
+#include "Infrastructure/Services/Loggers/ILogger.hpp"
+#include "Infrastructure/Services/MessageBus/MessageBus.hpp"
+#include "Infrastructure/Services/UoW/SqlUnitOfWork.hpp"
 #include "RedisConfig.hpp"
-#include "Services/Loggers/ILogger.hpp"
-#include "Services/MessageBus/MessageBus.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
 
 
 namespace Allocation::Infrastructure::Redis
@@ -67,10 +67,8 @@ namespace Allocation::Infrastructure::Redis
                 std::string batchRef = json->getValue<std::string>("batchref");
                 int qty = json->getValue<int>("qty");
 
-                auto command =
-                    std::make_shared<Domain::Commands::ChangeBatchQuantity>(batchRef, qty);
                 Services::MessageBus::Instance().Handle(
-                    Allocation::Services::UoW::SqlUowFactory, command);
+                    std::make_shared<Domain::Commands::ChangeBatchQuantity>(batchRef, qty));
             }
             catch (const Poco::Exception& ex)
             {

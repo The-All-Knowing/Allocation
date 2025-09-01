@@ -64,26 +64,26 @@ namespace Allocation::Adapters::Database::Mapper
         return result;
     }
 
-    void ProductMapper::Update(std::shared_ptr<Domain::Product> product)
+    void ProductMapper::Update(const Domain::Product& product)
     {
         BatchMapper _batchMapper(_session);
-        auto batches = product->GetBatches();
+        auto batches = product.GetBatches();
 
-        _batchMapper.Update(batches, product->GetSKU());
+        _batchMapper.Update(batches, product.GetSKU());
     }
 
-    void ProductMapper::Insert(std::shared_ptr<Domain::Product> product)
+    void ProductMapper::Insert(const Domain::Product& product)
     {
         BatchMapper _batchMapper(_session);
 
-        std::string sku = product->GetSKU();
-        int version = product->GetVersion();
+        std::string sku = product.GetSKU();
+        int version = product.GetVersion();
 
         _session << R"(INSERT INTO public.products (sku, version_number) VALUES ($1, $2))",
             Poco::Data::Keywords::use(sku), Poco::Data::Keywords::use(version),
             Poco::Data::Keywords::now;
 
-        _batchMapper.Insert(product->GetBatches());
+        _batchMapper.Insert(product.GetBatches());
     }
 
     bool ProductMapper::UpdateVersion(std::string SKU, size_t oldVersion, size_t newVersion)

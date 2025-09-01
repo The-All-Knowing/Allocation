@@ -9,7 +9,7 @@ public:
     void SetUp() override
     {
         Allocation::Services::Loggers::InitializeLogger(
-            std::make_shared<Allocation::Services::Loggers::FakeLogger>());
+            std::make_shared<Allocation::Tests::FakeLogger>());
     }
 };
 

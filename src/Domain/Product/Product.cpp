@@ -44,7 +44,7 @@ namespace Allocation::Domain
             batch.Allocate(line);
             _versionNumber++;
             _messages.push_back(std::make_shared<Events::Allocated>(
-                line.reference, line.SKU, line.quantity, batch.GetReference()));
+                line.reference, line.SKU, line.quantity, std::string(batch.GetReference())));
             return std::string(batch.GetReference());
         }
 
@@ -60,7 +60,7 @@ namespace Allocation::Domain
         auto& batch = it->second;
         batch.SetPurchasedQuantity(newQty);
 
-        while(batch.GetAvailableQuantity() < 0)
+        while (batch.GetAvailableQuantity() < 0)
         {
             auto order = batch.DeallocateOne();
             _messages.push_back(

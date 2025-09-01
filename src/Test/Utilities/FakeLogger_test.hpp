@@ -7,7 +7,7 @@ namespace Allocation::Tests
 {
 
     /// @brief Фейковый реализация логгера для тестирования.
-    struct FakeLogger : public ILogger
+    struct FakeLogger : public Services::Loggers::ILogger
     {
         /// @brief Логирует сообщение уровня Debug.
         /// @param message Сообщение для логирования.

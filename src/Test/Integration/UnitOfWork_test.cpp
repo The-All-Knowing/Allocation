@@ -60,7 +60,7 @@ namespace Allocation::Tests
         try
         {
             Services::UoW::SqlUnitOfWork uow;
-            InsertBatch(uow.GetSession(), "batch1", "LARGE-FORK", 100);
+            InsertBatch(uow.GetSession().value(), "batch1", "LARGE-FORK", 100);
 
             throw std::exception();
         }
