@@ -28,8 +28,8 @@ namespace Allocation::Adapters::Database
         void Reconfigure(const ConnectionConfig& config);
 
         /// @brief Получает сессию из пула.
-        /// @return Указатель на сессию.
-        std::shared_ptr<Poco::Data::Session> GetSession();
+        /// @return Сессию БД.
+        Poco::Data::Session GetSession();
 
     private:
         SessionPool() = default;

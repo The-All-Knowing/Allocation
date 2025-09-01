@@ -35,16 +35,14 @@ namespace Allocation::Services::Handlers
     void Reallocate(Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Events::Deallocated> event);
 
     /// @brief Отправляет уведомление по электронной почте, когда товара нет на складе.
-    /// @param uow Единица работы.
     /// @param event Событие "нет на складе".
     void SendOutOfStockNotification(
-        Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Events::OutOfStock> event);
+        Domain::IUnitOfWork& , std::shared_ptr<Domain::Events::OutOfStock> event);
 
     /// @brief Публикует событие "товар выделен".
-    /// @param uow Единица работы.
     /// @param event Событие "товар выделен".
     void PublishAllocatedEvent(
-        Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Events::Allocated> event);
+        Domain::IUnitOfWork&, std::shared_ptr<Domain::Events::Allocated> event);
 
     /// @brief Добавляет выделение в модель чтения.
     /// @param uow Единица работы.

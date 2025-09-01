@@ -7,8 +7,8 @@ namespace Allocation::Services::Views
         std::string orderid, Domain::IUnitOfWork& uow)
     {
         std::vector<std::pair<std::string, std::string>> results;
-        auto session = uow.GetSession().lock();
-        if (!session)
+        auto session = uow.GetSession();
+        if (!session.has_value())
             throw results;
 
         Poco::Data::Statement select(*session);

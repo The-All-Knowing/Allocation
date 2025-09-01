@@ -65,8 +65,8 @@ namespace Allocation::Services::Handlers
     void AddAllocationToReadModel(
         Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Events::Allocated> event)
     {
-        auto session = uow.GetSession().lock();
-        if (!session)
+        auto session = uow.GetSession();
+        if (!session.has_value())
             return;
 
         (*session) << R"(
@@ -81,8 +81,8 @@ namespace Allocation::Services::Handlers
     void RemoveAllocationFromReadModel(
         Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Events::Deallocated> event)
     {
-        auto session = uow.GetSession().lock();
-        if (!session)
+        auto session = uow.GetSession();
+        if (!session.has_value())
             return;
 
         (*session) << R"(

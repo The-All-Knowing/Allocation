@@ -1,9 +1,9 @@
 #include "AllocateHandler.hpp"
 
 #include "Domain/Commands/Allocate.hpp"
-#include "Services/Loggers/ILogger.hpp"
-#include "Services/MessageBus/MessageBus.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "Infrastructure/Services/Loggers/ILogger.hpp"
+#include "Infrastructure/Services/MessageBus/MessageBus.hpp"
+#include "Infrastructure/Services/UoW/SqlUnitOfWork.hpp"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
@@ -19,21 +19,18 @@ namespace Allocation::Infrastructure::Server::Handlers
         Poco::Dynamic::Var result = parser.parse(body.str());
         Poco::JSON::Object::Ptr json = result.extract<Poco::JSON::Object::Ptr>();
 
-        std::string orderid = json->getValue<std::string>("orderid");
-        std::string sku = json->getValue<std::string>("sku");
-        int qty = json->getValue<int>("qty");
-
         try
         {
-            auto event = std::make_shared<Domain::Commands::Allocate>(orderid, sku, qty);
-            auto result = Services::MessageBus::Instance().Handle(
-                Allocation::Services::UoW::SqlUowFactory, event);
-            std::string batchRef = result.back();
+            /// @todo: Добавить валидатор.
+            std::string orderid = json->getValue<std::string>("orderid");
+            std::string sku = json->getValue<std::string>("sku");
+            int qty = json->getValue<int>("qty");
+
+            Services::MessageBus::Instance().Handle(
+                std::make_shared<Domain::Commands::Allocate>(orderid, sku, qty));
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
             response.setContentType("application/json");
-            std::ostream& ostr = response.send();
-            ostr << "{\"batchref\": \"" << batchRef << "\"}";
             return;
         }
         catch (const Poco::Exception& ex)

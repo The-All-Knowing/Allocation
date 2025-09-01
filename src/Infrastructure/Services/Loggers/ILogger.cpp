@@ -5,22 +5,25 @@ namespace Allocation::Services::Loggers
 {
     namespace Internal
     {
+        /// @brief Хранит экземпляр логгера.
         class LoggerHolder
         {
         public:
+            /// @brief Устанавливает экземпляр логгера.
+            /// @param logger Указатель на логгер.
             static void SetLogger(ILoggerPtr logger)
             {
                 std::lock_guard<std::mutex> lock(mutex_);
                 instance_ = logger;
             }
 
+            /// @brief Получает экземпляр логгера.
+            /// @return Указатель на логгер.
             static ILoggerPtr GetLogger()
             {
                 std::lock_guard<std::mutex> lock(mutex_);
                 if (!instance_)
-                {
                     throw std::runtime_error("Logger not initialized");
-                }
                 return instance_;
             }
 

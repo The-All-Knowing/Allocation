@@ -3,14 +3,14 @@
 
 namespace Allocation
 {
-    std::chrono::year_month_day Convert(Poco::DateTime date)
+    std::chrono::year_month_day Convert(Poco::DateTime date) noexcept
     {
         return std::chrono::year_month_day{std::chrono::year{date.year()},
             std::chrono::month{static_cast<unsigned>(date.month())},
             std::chrono::day{static_cast<unsigned>(date.day())}};
     }
 
-    Poco::DateTime Convert(std::chrono::year_month_day date)
+    Poco::DateTime Convert(std::chrono::year_month_day date) noexcept
     {
         int year = int(date.year());
         int month = static_cast<unsigned>(date.month());
@@ -20,13 +20,13 @@ namespace Allocation
     }
 
     std::chrono::year_month_day operator+(
-        const std::chrono::year_month_day& ymd, const std::chrono::days& days)
+        const std::chrono::year_month_day& ymd, const std::chrono::days& days) noexcept
     {
         return std::chrono::sys_days(ymd) + days;
     }
 
     std::chrono::year_month_day operator+(
-        const std::chrono::days& days, const std::chrono::year_month_day& ymd)
+        const std::chrono::days& days, const std::chrono::year_month_day& ymd) noexcept
     {
         return ymd + days;
     }

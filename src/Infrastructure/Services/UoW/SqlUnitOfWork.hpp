@@ -22,7 +22,7 @@ namespace Allocation::Services::UoW
 
         /// @brief Получение сессии базы данных.
         /// @return Сессию базы данных.
-        [[nodiscard]] std::weak_ptr<Poco::Data::Session> GetSession() noexcept override;
+        [[nodiscard]] std::optional<Poco::Data::Session> GetSession() noexcept override;
 
         /// @brief Подтверждение изменений.
         void Commit() override;

@@ -1,7 +1,7 @@
-#include "FakeRepository.hpp"
+#include "FakeRepository_test.hpp"
 
 
-namespace Allocation::Adapters::Repository
+namespace Allocation::Tests
 {
     FakeRepository::FakeRepository(const std::vector<Domain::Product>& init)
     {
@@ -23,18 +23,15 @@ namespace Allocation::Adapters::Repository
         return nullptr;
     }
 
-    Domain::ProductPtr FakeRepository::Get(std::string_view batchRef, bool byBatch)
+    Domain::ProductPtr FakeRepository::GetByBatchRef(std::string_view batchRef)
     {
-        if (byBatch)
+        for (const auto& [_, product] : _skuByProduct)
         {
-            for (const auto& [_, product] : _skuByProduct)
+            const auto& batches = product->GetBatches();
+            if (std::any_of(batches.begin(), batches.end(),
+                    [batchRef](const auto& batch) { return batch.GetReference() == batchRef; }))
             {
-                const auto& batches = product->GetBatches();
-                if (std::any_of(batches.begin(), batches.end(),
-                        [batchRef](const auto& batch) { return batch.GetReference() == batchRef; }))
-                {
-                    return product;
-                }
+                return product;
             }
         }
         return nullptr;

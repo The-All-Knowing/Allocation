@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "Infrastructure/Services/Loggers/FakeLogger.hpp"
+#include "Test/Utilities/FakeLogger_test.hpp"
 
 
 class MyTestEnvironment : public testing::Environment

@@ -5,7 +5,7 @@
 
 namespace Allocation::Adapters::Repository
 {
-    SqlRepository::SqlRepository(std::shared_ptr<Poco::Data::Session> session) : _session(session)
+    SqlRepository::SqlRepository(Poco::Data::Session session) : _session(session)
     {
     }
 

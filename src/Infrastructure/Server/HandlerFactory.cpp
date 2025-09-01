@@ -4,7 +4,7 @@
 #include "Handlers/AllocateHandler.hpp"
 #include "Handlers/AllocationsViewHandler.hpp"
 #include "Handlers/NotFoundHandler.hpp"
-#include "Services/Loggers/ILogger.hpp"
+#include "Infrastructure/Services/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Infrastructure::Server
@@ -15,7 +15,7 @@ namespace Allocation::Infrastructure::Server
         Services::Loggers::GetLogger()->Information(
             std::format("Request: {} {}", request.getMethod(), request.getURI()));
 
-        if (request.getMethod() == "POST")
+        if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_POST)
         {
             if (request.getURI() == "/allocate")
                 return new Handlers::AllocateHandler;
@@ -27,12 +27,9 @@ namespace Allocation::Infrastructure::Server
         if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_GET)
         {
             if (request.getURI().find("/allocations/") == 0)
-            {
                 return new Handlers::AllocationsViewHandler;
-            }
         }
 
         return new Handlers::NotFoundHandler;
     }
-
 }

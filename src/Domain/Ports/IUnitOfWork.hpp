@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Precompile.hpp"
+
 #include "IMessage.hpp"
 #include "IRepository.hpp"
 
@@ -24,7 +26,7 @@ namespace Allocation::Domain
 
         /// @brief Получение сессии базы данных.
         /// @return Сессию базы данных.
-        [[nodiscard]] virtual std::weak_ptr<Poco::Data::Session> GetSession() noexcept = 0;
+        [[nodiscard]] virtual std::optional<Poco::Data::Session> GetSession() noexcept = 0;
 
         /// @brief Получение репозитория продуктов.
         /// @return Репозиторий продуктов.

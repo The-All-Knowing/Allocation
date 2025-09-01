@@ -35,12 +35,12 @@ namespace Allocation::Adapters::Database
             config.minSessions, config.maxSessions, config.idleTime, config.connTimeout);
     }
 
-    std::shared_ptr<Poco::Data::Session> SessionPool::GetSession()
+    Poco::Data::Session SessionPool::GetSession()
     {
         std::shared_lock lock(_mutex);
         if (!_pool)
             throw std::runtime_error("SessionPool is not configured");
 
-        return std::make_shared<Poco::Data::Session>(_pool->get());
+        return _pool->get();
     }
 }

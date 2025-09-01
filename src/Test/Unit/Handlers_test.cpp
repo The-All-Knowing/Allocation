@@ -5,10 +5,9 @@
 #include "Domain/Commands/CreateBatch.hpp"
 #include "Domain/Events/OutOfStock.hpp"
 #include "Infrastructure/Services/Exceptions/Errors.hpp"
-#include "Infrastructure/Services/Loggers/FakeLogger.hpp"
 #include "Infrastructure/Services/MessageBus/MessageBus.hpp"
-#include "Infrastructure/Services/UoW/FakeUnitOfWork.hpp"
 #include "Test/Utilities/Common_test.hpp"
+#include "Test/Utilities/FakeUnitOfWork_test.hpp"
 
 
 namespace Allocation::Tests
@@ -35,6 +34,57 @@ namespace Allocation::Tests
         auto references =
             batches | std::views::transform([](const auto& b) { return b.GetReference(); });
         EXPECT_NE(std::ranges::find(references, "b2"), references.end());
+    }
+
+    TEST(TestAllocate, test_allocates)
+    {
+        Services::UoW::FakeUnitOfWork uow;
+        auto& messagebus = Services::MessageBus::Instance();
+        messagebus.Handle(
+            std::make_shared<Domain::Commands::CreateBatch>("batch1", "COMPLICATED-LAMP", 100),
+            uow);
+        messagebus.Handle(
+            std::make_shared<Domain::Commands::Allocate>("o1", "COMPLICATED-LAMP", 10), uow);
+        auto batches = uow.GetProductRepository().Get("COMPLICATED-LAMP")->GetBatches();
+        EXPECT_EQ(batches.size(), 1);
+        EXPECT_EQ(batches[0].GetAvailableQuantity(), 90);
+    }
+
+    TEST(TestAllocate, test_errors_for_invalid_sku)
+    {
+        Services::UoW::FakeUnitOfWork uow;
+        auto& messagebus = Services::MessageBus::Instance();
+        messagebus.Handle(
+            std::make_shared<Domain::Commands::CreateBatch>("batch1", "COMPLICATED-LAMP", 100),
+            uow);
+
+        EXPECT_TRUE(ThrowsWithMessage<Services::Exceptions::InvalidSku>(
+            [&]()
+            {
+                messagebus.Handle(
+                    std::make_shared<Domain::Commands::Allocate>("o1", "NONEXISTENTSKU", 10), uow);
+            },
+            "Invalid sku NONEXISTENTSKU"));
+    }
+
+    TEST(TestAllocate, test_commits)
+    {
+        Services::UoW::FakeUnitOfWork uow;
+        auto& messagebus = Services::MessageBus::Instance();
+        messagebus.Handle(
+            std::make_shared<Domain::Commands::CreateBatch>("b1", "OMINOUS-MIRROR", 100), uow);
+        messagebus.Handle(
+            std::make_shared<Domain::Commands::Allocate>("o1", "OMINOUS-MIRROR", 10), uow);
+        EXPECT_TRUE(uow.IsCommited());
+    }
+
+    TEST(TestAllocate, test_sends_email_on_out_of_stock_error)
+    {
+        Services::UoW::FakeUnitOfWork uow;
+        auto& messagebus = Services::MessageBus::Instance();
+        messagebus.SubscribeToEvent<Domain::Events::OutOfStock>()
+    {
+        
     }
 
     TEST(Handlers, test_returns_allocation)

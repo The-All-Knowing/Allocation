@@ -9,7 +9,7 @@ namespace Allocation::Services::UoW
 {
     struct SqlUnitOfWork::Impl
     {
-        std::shared_ptr<Poco::Data::Session> session;
+        Poco::Data::Session session;
         Adapters::Repository::TrackingRepository tracking;
         Adapters::Repository::SqlRepository repository;
 
@@ -18,8 +18,8 @@ namespace Allocation::Services::UoW
               repository(session),
               tracking(repository)
         {
-            session->setTransactionIsolation(Poco::Data::Session::TRANSACTION_REPEATABLE_READ);
-            session->begin();
+            session.setTransactionIsolation(Poco::Data::Session::TRANSACTION_REPEATABLE_READ);
+            session.begin();
         }
 
         void commit()
@@ -27,10 +27,10 @@ namespace Allocation::Services::UoW
             for (auto& [sku, old, newVersion] : tracking.GetChangedVersions())
                 repository.UpdateVersion(sku, old, newVersion);
 
-            session->commit();
+            session.commit();
         }
 
-        void rollback() { session->rollback(); }
+        void rollback() { session.rollback(); }
         Domain::IRepository& getRepo() { return tracking; }
     };
 
@@ -43,9 +43,9 @@ namespace Allocation::Services::UoW
         AbstractUnitOfWork::Commit();
     }
 
-    std::weak_ptr<Poco::Data::Session> SqlUnitOfWork::GetSession() noexcept
+    std::optional<Poco::Data::Session> SqlUnitOfWork::GetSession() noexcept
     {
-        return std::weak_ptr<Poco::Data::Session>(_impl->session);
+        return _impl->session;
     }
 
     void SqlUnitOfWork::RollBack()

@@ -28,6 +28,5 @@ namespace Allocation::Infrastructure::Server
         void initDatabase();
 
         bool _helpRequested{false};
-        Poco::Util::Path
     };
 }

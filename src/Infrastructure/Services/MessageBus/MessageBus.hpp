@@ -13,6 +13,7 @@ namespace Allocation::Services
     class MessageBus
     {
         using EventHandler = std::function<void(Domain::IUnitOfWork&, Domain::Events::EventPtr)>;
+        using NotificationHandler = std::function<void(Domain::Events::EventPtr)>;
         using CommandHandler =
             std::function<void(Domain::IUnitOfWork&, Domain::Commands::CommandPtr)>;
 
@@ -23,17 +24,25 @@ namespace Allocation::Services
 
         /// @brief Подписывает обработчик на событие конкретного типа.
         /// @tparam T Тип события, производный от Domain::Events::AbstractEvent.
-        /// @param handler Функция-обработчик, принимающая два аргумента:
-        ///        - ссылку на Domain::IUnitOfWork для взаимодействия с хранилищем
-        ///        - умный указатель на событие типа T
-        template <typename T>
+        /// @tparam F Тип функции-обработчика.
+        /// @param handler Функция-обработчик.
+        template <typename T, typename F>
             requires std::derived_from<T, Domain::Events::AbstractEvent>
-        void SubscribeToEvent(auto&& handler) noexcept
+        void SubscribeToEvent(F&& handler) noexcept
         {
             auto& handlers = _eventHandlers[typeid(T)];
-            handlers.emplace_back([h = std::forward<decltype(handler)>(handler)](
-                                      Domain::IUnitOfWork& uow, Domain::Events::EventPtr event)
-                { h(uow, std::static_pointer_cast<T>(event)); });
+            handlers.emplace_back(
+                [h = std::forward<F>(handler)](
+                    Domain::IUnitOfWork& uow, Domain::Events::EventPtr event)
+                {
+                    if constexpr (std::is_invocable_v<F, Domain::IUnitOfWork&, std::shared_ptr<T>>)
+                        h(uow, std::static_pointer_cast<T>(event));
+                    else if constexpr (std::is_invocable_v<F, std::shared_ptr<T>>)
+                        h(std::static_pointer_cast<T>(event));
+                    else
+                        static_assert([] { return false; }(),
+                            "Handler must accept (IUnitOfWork&, shared_ptr<T>) or (shared_ptr<T>)");
+                });
         }
 
         /// @brief Устанавливает обработчик для команды конкретного типа.

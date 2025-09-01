@@ -1,8 +1,8 @@
 #include "AllocationsViewHandler.hpp"
 
-#include "Services/Loggers/ILogger.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
-#include "Services/Views.hpp"
+#include "Infrastructure/Services/Loggers/ILogger.hpp"
+#include "Infrastructure/Services/UoW/SqlUnitOfWork.hpp"
+#include "Infrastructure/Services/Views.hpp"
 
 
 namespace Allocation::Infrastructure::Server::Handlers
@@ -20,12 +20,10 @@ namespace Allocation::Infrastructure::Server::Handlers
                 response.send() << "Invalid URL";
                 return;
             }
-
             std::string orderid = uri.substr(prefix.size());
 
-            auto uow = std::make_shared<Services::UoW::SqlUnitOfWork>();
+            Services::UoW::SqlUnitOfWork uow;
             auto results = Services::Views::Allocations(orderid, uow);
-
             if (results.empty())
             {
                 response.setStatus(Poco::Net::HTTPResponse::HTTP_NOT_FOUND);
@@ -36,12 +34,11 @@ namespace Allocation::Infrastructure::Server::Handlers
             Poco::JSON::Array jsonArray;
             for (const auto& [sku, batchref] : results)
             {
-                Poco::JSON::Object::Ptr obj = new Poco::JSON::Object;
+                auto obj = new Poco::JSON::Object;
                 obj->set("sku", sku);
                 obj->set("batchref", batchref);
                 jsonArray.add(obj);
             }
-
             response.setContentType("application/json");
             response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
             std::ostream& out = response.send();

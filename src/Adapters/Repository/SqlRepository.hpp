@@ -13,7 +13,7 @@ namespace Allocation::Adapters::Repository
     public:
         /// @brief Конструктор.
         /// @param session Сессия базы данных.
-        explicit SqlRepository(std::shared_ptr<Poco::Data::Session> session);
+        explicit SqlRepository(Poco::Data::Session session);
 
         /// @brief Добавляет продукт в репозиторий.
         /// @param product Продукт для добавления.
@@ -36,6 +36,6 @@ namespace Allocation::Adapters::Repository
         void UpdateVersion(std::string_view SKU, size_t oldVersion, size_t newVersion);
 
     private:
-        std::shared_ptr<Poco::Data::Session> _session;
+        Poco::Data::Session _session;
     };
 }

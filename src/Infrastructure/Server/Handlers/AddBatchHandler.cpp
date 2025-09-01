@@ -1,9 +1,9 @@
 #include "AddBatchHandler.hpp"
 
 #include "Domain/Commands/CreateBatch.hpp"
-#include "Services/Loggers/ILogger.hpp"
-#include "Services/MessageBus/MessageBus.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "Infrastructure/Services/Loggers/ILogger.hpp"
+#include "Infrastructure/Services/MessageBus/MessageBus.hpp"
+#include "Infrastructure/Services/UoW/SqlUnitOfWork.hpp"
 #include "Utilities/Common.hpp"
 
 
@@ -15,23 +15,22 @@ namespace Allocation::Infrastructure::Server::Handlers
         std::istream& bodyStream = request.stream();
         std::ostringstream body;
         body << bodyStream.rdbuf();
-
         Poco::JSON::Parser parser;
         Poco::Dynamic::Var result = parser.parse(body.str());
-        Poco::JSON::Object::Ptr json = result.extract<Poco::JSON::Object::Ptr>();
-
-        std::string ref = json->getValue<std::string>("ref");
-        std::string sku = json->getValue<std::string>("sku");
-        int qty = json->getValue<int>("qty");
-        std::optional<std::chrono::year_month_day> eta;
-        if (json->has("eta") && !json->isNull("eta"))
-            eta = Convert(json->getValue<Poco::DateTime>("eta"));
+        auto json = result.extract<Poco::JSON::Object::Ptr>();
 
         try
         {
-            auto event = std::make_shared<Domain::Commands::CreateBatch>(ref, sku, qty);
+            /// @todo: Добавить валидатор.
+            std::string ref = json->getValue<std::string>("ref");
+            std::string sku = json->getValue<std::string>("sku");
+            int qty = json->getValue<int>("qty");
+            std::optional<std::chrono::year_month_day> eta;
+            if (json->has("eta") && !json->isNull("eta"))
+                eta = Convert(json->getValue<Poco::DateTime>("eta"));
+
             Services::MessageBus::Instance().Handle(
-                Allocation::Services::UoW::SqlUowFactory, event);
+                std::make_shared<Domain::Commands::CreateBatch>(ref, sku, qty, eta));
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_CREATED);
             response.setContentType("application/json");

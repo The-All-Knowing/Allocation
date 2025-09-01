@@ -15,6 +15,7 @@ services:
           - ./.pgdata:/var/lib/postgresql/data
         networks:
           - allocation
+          
     redis:
         container_name: service-redis
         image: redis:alpine

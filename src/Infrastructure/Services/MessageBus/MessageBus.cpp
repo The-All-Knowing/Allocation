@@ -12,11 +12,9 @@ namespace Allocation::Services
     {
         SubscribeToEvent<Allocation::Domain::Events::Allocated>(Handlers::PublishAllocatedEvent);
         SubscribeToEvent<Allocation::Domain::Events::Allocated>(Handlers::AddAllocationToReadModel);
-        SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
-            Handlers::RemoveAllocationFromReadModel);
+        SubscribeToEvent<Allocation::Domain::Events::Deallocated>(Handlers::RemoveAllocationFromReadModel);
         SubscribeToEvent<Allocation::Domain::Events::Deallocated>(Handlers::Reallocate);
-        SubscribeToEvent<Allocation::Domain::Events::OutOfStock>(
-            Handlers::SendOutOfStockNotification);
+        SubscribeToEvent<Allocation::Domain::Events::OutOfStock>(Handlers::SendOutOfStockNotification);
 
         SetCommandHandler<Allocation::Domain::Commands::Allocate>(Handlers::Allocate);
         SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(Handlers::AddBatch);

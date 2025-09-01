@@ -6,7 +6,7 @@
 #include "Domain/Product/Product.hpp"
 
 
-namespace Allocation::Adapters::Repository
+namespace Allocation::Tests
 {
     /// @brief Фейковый репозиторий для тестирования
     class FakeRepository final : public Domain::IRepository
@@ -30,9 +30,8 @@ namespace Allocation::Adapters::Repository
 
         /// @brief Получает продукт из репозитория по ссылке партии.
         /// @param batchRef Ссылка на партию.
-        /// @param byBatch Флаг, указывающий, нужно ли искать по партии.
         /// @return Продукт с заданной ссылкой партии.
-        [[nodiscard]] Domain::ProductPtr Get(std::string_view batchRef, bool byBatch) override;
+        [[nodiscard]] virtual Domain::ProductPtr GetByBatchRef(std::string_view batchRef) override;
 
     private:
         std::unordered_map<std::string, Domain::ProductPtr> _skuByProduct;

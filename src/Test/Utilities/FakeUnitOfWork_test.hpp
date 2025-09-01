@@ -2,25 +2,19 @@
 
 #include "Precompile.hpp"
 
-#include "AbstractUnitOfWork.hpp"
-#include "Adapters/Repository/FakeRepository.hpp"
 #include "Adapters/Repository/TrackingRepository.hpp"
+#include "FakeRepository_test.hpp"
+#include "Infrastructure/Services/UoW/AbstractUnitOfWork.hpp"
 
 
-namespace Allocation::Services::UoW
+namespace Allocation::Tests
 {
-    class FakeUnitOfWork final : public AbstractUnitOfWork
+    class FakeUnitOfWork final : public Services::UoW::AbstractUnitOfWork
     {
     public:
-        FakeUnitOfWork()
-            : _repo(std::make_shared<Adapters::Repository::FakeRepository>()), _tracking(*_repo)
-        {
-        }
+        FakeUnitOfWork() : _tracking(_repo) {}
 
-        FakeUnitOfWork(std::shared_ptr<Adapters::Repository::FakeRepository> repo)
-            : _repo(repo), _tracking(*_repo)
-        {
-        }
+        std::optional<Poco::Data::Session> GetSession() noexcept { return std::nullopt; }
 
         [[nodiscard]] Domain::IRepository& GetProductRepository() { return _tracking; }
 
@@ -39,7 +33,7 @@ namespace Allocation::Services::UoW
         }
 
     private:
-        std::shared_ptr<Adapters::Repository::FakeRepository> _repo;
+        FakeRepository _repo;
         Adapters::Repository::TrackingRepository _tracking;
     };
 }

@@ -65,3 +65,20 @@ paths:
           description: Batch has been successfully added
         '400':
           description: Bad request - invalid input
+
+  /allocations/{orderUID}:
+    get:
+      summary: Get allocation details for an order
+      description: Retrieve allocation details for a specific order
+      parameters:
+        - name: orderUID
+          in: path
+          description: The unique identifier of the order
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+        '404':
+          description: Order not found
