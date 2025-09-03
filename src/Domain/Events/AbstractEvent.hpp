@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Precompile.hpp"
+
 #include "Domain/Ports/IMessage.hpp"
 
 
@@ -17,4 +19,17 @@ namespace Allocation::Domain::Events
     };
 
     using EventPtr = std::shared_ptr<AbstractEvent>;
+    using EventAttribute = std::pair<std::string, std::string>;
+
+    /// @brief Читает аттрибуты события.
+    /// @tparam Event Тип события.
+    /// @param event Событие.
+    /// @return Атрибуты события: название - значение.
+    template <typename Event>
+        requires std::derived_from<Event, Domain::Events::AbstractEvent>
+    std::vector<EventAttribute> GetAttributes(EventPtr event)
+    {
+        static_assert(sizeof(Event) == 0, "GetAttributes not implemented for this Event type");
+        return {};
+    }
 }

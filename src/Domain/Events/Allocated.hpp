@@ -28,4 +28,15 @@ namespace Allocation::Domain::Events
         size_t qty;
         std::string batchref;
     };
+
+    /// @brief Читает аттрибуты события.
+    /// @param event Событие.
+    /// @return Атрибуты события: название - значение.
+    template <>
+    inline std::vector<EventAttribute> GetAttributes<Allocated>(EventPtr event)
+    {
+        auto p = std::static_pointer_cast<Allocated>(event);
+        return {{"orderid", p->orderid}, {"SKU", p->SKU}, {"qty", std::to_string(p->qty)},
+            {"batchref", p->batchref}};
+    };
 }

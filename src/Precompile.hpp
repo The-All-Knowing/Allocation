@@ -44,6 +44,7 @@
 #include <Poco/Redis/Command.h>
 #include <Poco/Redis/Redis.h>
 #include <Poco/Redis/Type.h>
+#include <Poco/Redis/PoolableConnectionFactory.h>
 #include <Poco/StreamCopier.h>
 #include <Poco/URI.h>
 #include <Poco/UUIDGenerator.h>

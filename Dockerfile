@@ -9,9 +9,11 @@ RUN apt-get update && apt-get install -y \
   git \
   sudo \
   pycodestyle \
+  clang-format \
   && \
   pipx ensurepath && \
   pipx install conan && \
+  pipx install autopep8 && \
   rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/root/.local/bin:${PATH}"
