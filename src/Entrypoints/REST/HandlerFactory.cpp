@@ -7,7 +7,7 @@
 #include "Services/Loggers/ILogger.hpp"
 
 
-namespace Allocation::Infrastructure::Server
+namespace Allocation::Entrypoints::Rest
 {
     Poco::Net::HTTPRequestHandler* HandlerFactory::createRequestHandler(
         const Poco::Net::HTTPServerRequest& request)

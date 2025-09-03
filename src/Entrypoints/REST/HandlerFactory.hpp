@@ -2,8 +2,9 @@
 
 #include "Precompile.hpp"
 
+#include "Domain/Commands/AbstractCommand.hpp"
 
-namespace Allocation::Infrastructure::Server
+namespace Allocation::Entrypoints::Rest
 {
     /// @brief Фабрика обработчиков REST запросов.
     class HandlerFactory : public Poco::Net::HTTPRequestHandlerFactory

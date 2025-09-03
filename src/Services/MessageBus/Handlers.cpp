@@ -1,8 +1,7 @@
 #include "Handlers.hpp"
 
 #include "Domain/Product/Product.hpp"
-#include "Infrastructure/Redis/RedisConfig.hpp"
-#include "Infrastructure/Services/Exceptions/Errors.hpp"
+#include "Services/Exceptions.hpp"
 
 
 namespace Allocation::Services::Handlers

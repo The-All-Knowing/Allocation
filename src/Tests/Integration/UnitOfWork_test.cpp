@@ -3,8 +3,8 @@
 #include "Precompile.hpp"
 
 #include "Adapters/Database/Session/SessionPool.hpp"
-#include "Infrastructure/Services/UoW/SqlUnitOfWork.hpp"
-#include "Test/Utilities/Common_test.hpp"
+#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "Tests/Utilities/Common_test.hpp"
 #include "Utilities/Common.hpp"
 
 
@@ -39,7 +39,7 @@ namespace Allocation::Tests
         {
             {
                 Services::UoW::SqlUnitOfWork uow;
-                InsertBatch(uow.GetSession(), "batch1", "MEDIUM-PLINTH-TEST", 100);
+                InsertBatch(uow.GetSession().value(), "batch1", "MEDIUM-PLINTH-TEST", 100);
             }
 
             auto session = Adapters::Database::SessionPool::Instance().GetSession();

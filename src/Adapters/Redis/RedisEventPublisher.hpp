@@ -2,6 +2,7 @@
 
 #include "Precompile.hpp"
 
+#include "ClientFactory.hpp"
 #include "Domain/Events/AbstractEvent.hpp"
 #include "Services/Loggers/ILogger.hpp"
 
@@ -14,7 +15,7 @@ namespace Allocation::Adapters::Redis
     {
     public:
         /// @brief Конструктор.
-        RedisEventPublisher() {}
+        RedisEventPublisher() : _client(ClientFactory::Instance().Create()) {}
         RedisEventPublisher(RedisEventPublisher&&) = default;
         RedisEventPublisher(const RedisEventPublisher&) = default;
 
@@ -23,9 +24,6 @@ namespace Allocation::Adapters::Redis
         /// @param event Событие для публикации.
         void operator()(std::string channel, std::shared_ptr<T> event) const
         {
-            Services::Loggers::GetLogger()->Debug(
-                std::format("publishing: channel={}, event={}", channel, event->Name()));
-
             Poco::JSON::Object json;
             for (auto& [name, value] : GetAttributes<T>(event))
                 json.set(name, value);
@@ -33,8 +31,7 @@ namespace Allocation::Adapters::Redis
             std::stringstream ss;
             json.stringify(ss);
             Poco::Redis::Command publish("PUBLISH");
-            publish.add(channel);
-            publish.add(ss.str());
+            publish << channel << ss.str();
 
             try
             {

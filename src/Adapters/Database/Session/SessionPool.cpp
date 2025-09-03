@@ -3,13 +3,13 @@
 
 namespace Allocation::Adapters::Database
 {
-    SessionPool& SessionPool::Instance()
+    SessionPool& SessionPool::Instance() noexcept
     {
         static SessionPool instance;
         return instance;
     }
 
-    bool SessionPool::IsConfigured()
+    bool SessionPool::IsConfigured() const noexcept
     {
         std::shared_lock lock(_mutex);
         return static_cast<bool>(_pool);

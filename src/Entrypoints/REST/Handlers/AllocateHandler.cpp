@@ -6,7 +6,7 @@
 #include "Services/UoW/SqlUnitOfWork.hpp"
 
 
-namespace Allocation::Infrastructure::Server::Handlers
+namespace Allocation::Entrypoints::Rest::Handlers
 {
     void AllocateHandler::handleRequest(
         Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)

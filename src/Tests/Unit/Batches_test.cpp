@@ -3,7 +3,7 @@
 #include "Precompile.hpp"
 
 #include "Domain/Product/Batch.hpp"
-#include "Test/Utilities/Common_test.hpp"
+#include "Tests/Utilities/Common_test.hpp"
 
 
 namespace Allocation::Tests

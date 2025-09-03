@@ -1,19 +1,17 @@
 #include "Server.hpp"
 
 #include "Adapters/Database/Session/SessionPool.hpp"
-#include "HandlerFactory.hpp"
-#include "Redis/RedisListenerModule.hpp"
+#include "Entrypoints/REST/HandlerFactory.hpp"
 #include "Services/Loggers/PocoLogger.hpp"
 
 
-namespace Allocation::Infrastructure::Server
+namespace Allocation
 {
     void ServerApp::initialize(Application& self)
     {
         Services::Loggers::InitializeLogger(std::make_shared<Services::Loggers::PocoLogger>());
         loadConfiguration();
-        initDatabase();
-        addSubsystem(new Redis::RedisListenerModule());
+        InitDatabase();
         ServerApplication::initialize(self);
     }
 
@@ -21,11 +19,10 @@ namespace Allocation::Infrastructure::Server
     {
         ServerApplication::defineOptions(options);
 
-        options.addOption(
-            Poco::Util::Option("help", "h", "Show help")
+        options.addOption(Poco::Util::Option("help", "h", "Show help")
                 .required(false)
                 .repeatable(false)
-                .callback(Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::handleHelp)));
+                .callback(Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandleHelp)));
     }
 
     int ServerApp::main(const std::vector<std::string>&)
@@ -33,11 +30,11 @@ namespace Allocation::Infrastructure::Server
         if (_helpRequested)
             return Application::EXIT_OK;
 
-        setupAndRunServer();
+        SetupAndRunServer();
         return Application::EXIT_OK;
     };
 
-    void ServerApp::handleHelp(const std::string& name, const std::string& value)
+    void ServerApp::HandleHelp(const std::string& name, const std::string& value)
     {
         Poco::Util::HelpFormatter helpFormatter(options());
         helpFormatter.setCommand(commandName());
@@ -48,7 +45,7 @@ namespace Allocation::Infrastructure::Server
         _helpRequested = true;
     }
 
-    void ServerApp::setupAndRunServer()
+    void ServerApp::SetupAndRunServer()
     {
         const auto& cfg = config();
 
@@ -59,7 +56,7 @@ namespace Allocation::Infrastructure::Server
         pParams->setMaxKeepAliveRequests(cfg.getInt("server.max_connections", 100));
 
         Poco::Net::ServerSocket serverSocket(port);
-        Poco::Net::HTTPServer server(new HandlerFactory, serverSocket, pParams);
+        Poco::Net::HTTPServer server(new Entrypoints::Rest::HandlerFactory, serverSocket, pParams);
 
         Services::Loggers::GetLogger()->Information("The server is running");
         server.start();
@@ -68,8 +65,9 @@ namespace Allocation::Infrastructure::Server
         Services::Loggers::GetLogger()->Information("The server is stopped");
     }
 
-    void ServerApp::initDatabase()
+    void ServerApp::InitDatabase()
     {
+        Poco::Data::PostgreSQL::Connector::registerConnector();
         const auto& cfg = config();
 
         Adapters::Database::ConnectionConfig config;
@@ -88,6 +86,5 @@ namespace Allocation::Infrastructure::Server
         config.connectionString = oss.str();
 
         Adapters::Database::SessionPool::Instance().Configure(config);
-        Poco::Data::PostgreSQL::Connector::registerConnector();
     }
 }

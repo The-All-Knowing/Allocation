@@ -3,7 +3,7 @@
 #include "Precompile.hpp"
 
 
-namespace Allocation::Infrastructure::Server::Handlers
+namespace Allocation::Entrypoints::Rest::Handlers
 {
     class AddBatchHandler final : public Poco::Net::HTTPRequestHandler
     {

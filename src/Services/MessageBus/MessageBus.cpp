@@ -2,8 +2,8 @@
 
 #include "Domain/Events/OutOfStock.hpp"
 #include "Handlers.hpp"
-#include "Infrastructure/Services/Loggers/ILogger.hpp"
-#include "Infrastructure/Services/UoW/SqlUnitOfWork.hpp"
+#include "Services/Loggers/ILogger.hpp"
+#include "Services/UoW/SqlUnitOfWork.hpp"
 
 
 namespace Allocation::Services

@@ -1,7 +1,7 @@
 #include "NotFoundHandler.hpp"
 
 
-namespace Allocation::Infrastructure::Server::Handlers
+namespace Allocation::Entrypoints::Rest::Handlers
 {
     void NotFoundHandler::handleRequest(
         Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)

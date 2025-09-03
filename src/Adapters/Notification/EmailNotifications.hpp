@@ -2,6 +2,8 @@
 
 #include "Precompile.hpp"
 
+#include "Services/Loggers/ILogger.hpp"
+
 
 namespace Allocation::Adapters::Notification
 {
@@ -10,7 +12,8 @@ namespace Allocation::Adapters::Notification
     public:
         void operator()(std::string to, std::string message) const
         {
-            std::cout << std::format("Sending email to {}: {}", to, message) << std::endl;
+            Services::Loggers::GetLogger()->Debug(
+                std::format("Sending email to {}: {}", to, message));
         }
     };
 }

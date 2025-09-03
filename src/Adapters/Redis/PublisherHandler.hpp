@@ -21,6 +21,8 @@ namespace Allocation::Adapters::Redis
 
         void operator()(std::shared_ptr<Message> event) const
         {
+            Services::Loggers::GetLogger()->Debug(
+                std::format("publishing: channel={}, event={}", "line_allocated", event->Name()));
             _publisher("line_allocated", event);
         }
 

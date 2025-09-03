@@ -6,7 +6,7 @@
 
 #include "Domain/Events/Allocated.hpp"
 #include "Domain/Events/OutOfStock.hpp"
-#include "Test/Utilities/Common_test.hpp"
+#include "Tests/Utilities/Common_test.hpp"
 #include "Utilities/Common.hpp"
 
 

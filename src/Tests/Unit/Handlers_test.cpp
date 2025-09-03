@@ -5,10 +5,10 @@
 #include "Domain/Commands/ChangeBatchQuantity.hpp"
 #include "Domain/Commands/CreateBatch.hpp"
 #include "Domain/Events/OutOfStock.hpp"
-#include "Infrastructure/Services/Exceptions/Errors.hpp"
-#include "Infrastructure/Services/MessageBus/MessageBus.hpp"
-#include "Test/Utilities/Common_test.hpp"
-#include "Test/Utilities/FakeUnitOfWork_test.hpp"
+#include "Services/Exceptions.hpp"
+#include "Services/MessageBus/MessageBus.hpp"
+#include "Tests/Utilities/Common_test.hpp"
+#include "Tests/Utilities/FakeUnitOfWork_test.hpp"
 
 
 namespace Allocation::Tests

@@ -2,8 +2,10 @@
 
 #include "Precompile.hpp"
 
+#include "Entrypoints/Redis/RedisListener.hpp"
 
-namespace Allocation::Infrastructure::Server
+
+namespace Allocation
 {
     /// @brief Серверное приложение, использующее Poco::Util::ServerApplication.
     class ServerApp : public Poco::Util::ServerApplication
@@ -23,10 +25,12 @@ namespace Allocation::Infrastructure::Server
         int main(const std::vector<std::string>&) override;
 
     private:
-        void handleHelp(const std::string& name, const std::string& value);
-        void setupAndRunServer();
-        void initDatabase();
+        void HandleHelp(const std::string& name, const std::string& value);
+        void SetupAndRunServer();
+        void InitDatabase();
+        void InitRedis();
 
         bool _helpRequested{false};
+        Entrypoints::Redis::RedisListener RedisListener;
     };
 }

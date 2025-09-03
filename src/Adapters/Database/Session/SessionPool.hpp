@@ -13,11 +13,11 @@ namespace Allocation::Adapters::Database
     public:
         /// @brief Получает экземпляр пула сессий.
         /// @return Ссылка на экземпляр пула сессий.
-        static SessionPool& Instance();
+        static SessionPool& Instance() noexcept;
 
         /// @brief Проверяет, сконфигурирован ли пул сессий.
         /// @return true, если пул сессий сконфигурирован; в противном случае - false.
-        bool IsConfigured();
+        bool IsConfigured() const noexcept;
 
         /// @brief Конфигурирует пул сессий.
         /// @param config Конфигурация подключения к базе данных.
@@ -38,6 +38,6 @@ namespace Allocation::Adapters::Database
         SessionPool& operator=(const SessionPool&) = delete;
 
         std::unique_ptr<Poco::Data::SessionPool> _pool;
-        std::shared_mutex _mutex;
+        mutable std::shared_mutex _mutex;
     };
 }

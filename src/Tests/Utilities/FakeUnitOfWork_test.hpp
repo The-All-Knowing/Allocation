@@ -4,7 +4,7 @@
 
 #include "Adapters/Repository/TrackingRepository.hpp"
 #include "FakeRepository_test.hpp"
-#include "Infrastructure/Services/UoW/AbstractUnitOfWork.hpp"
+#include "Services/UoW/AbstractUnitOfWork.hpp"
 
 
 namespace Allocation::Tests

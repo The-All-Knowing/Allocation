@@ -10,6 +10,8 @@ namespace Allocation::Tests
             Domain::OrderLine("order-123", SKU, lineQty)};
     }
 
+    void DeleteProduct(Poco::Data::Session session, const std::string& sku) {}
+
     int InsertBatch(
         Poco::Data::Session session, std::string batchRef, std::string sku, int qty, int version)
     {
