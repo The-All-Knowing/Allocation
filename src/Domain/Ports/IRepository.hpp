@@ -14,7 +14,7 @@ namespace Allocation::Domain
 
         /// @brief Добавляет продукт в репозиторий.
         /// @param product Продукт для добавления.
-        virtual void Add(const Product& product) = 0;
+        virtual void Add(Domain::ProductPtr product) = 0;
 
         /// @brief Получает продукт из репозитория.
         /// @param SKU Артикул продукта.

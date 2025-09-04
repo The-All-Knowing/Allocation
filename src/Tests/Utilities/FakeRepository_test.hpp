@@ -17,11 +17,11 @@ namespace Allocation::Tests
 
         /// @brief Конструктор.
         /// @param init Инициализирующий список продуктов.
-        FakeRepository(const std::vector<Domain::Product>& init);
+        FakeRepository(const std::vector<Domain::ProductPtr>& init);
 
         /// @brief Добавляет продукт в репозиторий.
         /// @param product Продукт для добавления.
-        void Add(const Domain::Product& product) override;
+        void Add(Domain::ProductPtr product) override;
 
         /// @brief Получает продукт из репозитория.
         /// @param SKU Артикул продукта.

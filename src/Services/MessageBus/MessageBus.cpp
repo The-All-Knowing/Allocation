@@ -8,20 +8,6 @@
 
 namespace Allocation::Services
 {
-    MessageBus::MessageBus()
-    {
-        SubscribeToEvent<Allocation::Domain::Events::Allocated>(Handlers::PublishAllocatedEvent());
-        SubscribeToEvent<Allocation::Domain::Events::Allocated>(Handlers::AddAllocationToReadModel);
-        SubscribeToEvent<Allocation::Domain::Events::Deallocated>(Handlers::RemoveAllocationFromReadModel);
-        SubscribeToEvent<Allocation::Domain::Events::Deallocated>(Handlers::Reallocate);
-        SubscribeToEvent<Allocation::Domain::Events::OutOfStock>(Handlers::SendOutOfStockNotification());
-
-        SetCommandHandler<Allocation::Domain::Commands::Allocate>(Handlers::Allocate);
-        SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(Handlers::AddBatch);
-        SetCommandHandler<Allocation::Domain::Commands::ChangeBatchQuantity>(
-            Handlers::ChangeBatchQuantity);
-    }
-
     MessageBus& MessageBus::Instance()
     {
         static MessageBus messageBus;
@@ -38,22 +24,20 @@ namespace Allocation::Services
         {
             auto message = queue.front();
             queue.pop();
-            if (message->GetType() == Domain::IMessage::Type::Event &&
-                _eventHandlers.contains(typeid(*message)))
+            if (message->GetType() == Domain::IMessage::Type::Command)
             {
-                HandleEvent(
-                    uow, std::static_pointer_cast<Domain::Events::AbstractEvent>(message), queue);
-            }
-            else if (message->GetType() == Domain::IMessage::Type::Command &&
-                     _commandHandlers.contains(typeid(*message)))
-            {
+                if (!_commandHandlers.contains(typeid(*message)))
+                    throw std::runtime_error(
+                        std::format("The {} command doesn`t have a handler", message->Name()));
+
                 HandleCommand(uow,
                     std::static_pointer_cast<Domain::Commands::AbstractCommand>(message), queue);
             }
-            else
+            else if (message->GetType() == Domain::IMessage::Type::Event &&
+                     _eventHandlers.contains(typeid(*message)))
             {
-                throw std::runtime_error(
-                    std::format("{} was not an Event or Command", message->Name()));
+                HandleEvent(
+                    uow, std::static_pointer_cast<Domain::Events::AbstractEvent>(message), queue);
             }
         }
     }

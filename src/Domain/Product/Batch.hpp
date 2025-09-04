@@ -19,6 +19,11 @@ namespace Allocation::Domain
         Batch(std::string_view reference, std::string_view SKU, size_t quantity,
             std::optional<std::chrono::year_month_day> ETA = std::nullopt);
 
+        /// @brief Оператор присвоения.
+        /// @param other Другой объект.
+        /// @return Текущий объект.
+        Batch& operator=(const Batch& other) = default;
+
         /// @brief Устанавливает количество приобретенных товаров в партии.
         /// @param newQty Новое количество.
         void SetPurchasedQuantity(size_t newQty) noexcept;

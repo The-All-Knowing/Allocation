@@ -58,10 +58,12 @@ namespace Allocation::Services::UoW
 
     std::vector<Domain::IMessagePtr> SqlUnitOfWork::GetNewMessages() noexcept
     {
+        _newMessages.clear();
         for (const auto& product : _impl->tracking.GetSeen())
         {
             auto& messages = product->Messages();
             _newMessages.insert(messages.begin(), messages.end());
+            product->ClearMessages();
         }
 
         return std::vector<Domain::IMessagePtr>(_newMessages.begin(), _newMessages.end());

@@ -3,16 +3,16 @@
 
 namespace Allocation::Tests
 {
-    FakeRepository::FakeRepository(const std::vector<Domain::Product>& init)
+    FakeRepository::FakeRepository(const std::vector<Domain::ProductPtr>& init)
     {
         for (const auto& prod : init)
-            _skuByProduct.insert({prod.GetSKU(), std::make_shared<Domain::Product>(prod)});
+            _skuByProduct.insert({prod->GetSKU(), prod});
     }
 
-    void FakeRepository::Add(const Domain::Product& product)
+    void FakeRepository::Add(Domain::ProductPtr product)
     {
         _skuByProduct.insert_or_assign(
-            product.GetSKU(), std::make_shared<Domain::Product>(product));
+            product->GetSKU(), product);
     }
 
     Domain::ProductPtr FakeRepository::Get(std::string_view SKU)

@@ -3,6 +3,8 @@
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "Entrypoints/REST/HandlerFactory.hpp"
 #include "Services/Loggers/PocoLogger.hpp"
+#include "Services/MessageBus/Handlers.hpp"
+#include "Services/MessageBus/MessageBus.hpp"
 
 
 namespace Allocation
@@ -10,6 +12,28 @@ namespace Allocation
     void ServerApp::initialize(Application& self)
     {
         Services::Loggers::InitializeLogger(std::make_shared<Services::Loggers::PocoLogger>());
+
+        {
+            auto& messagebus = Services::MessageBus::Instance();
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::Allocated>(
+                Services::Handlers::PublishAllocatedEvent());
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::Allocated>(
+                Services::Handlers::AddAllocationToReadModel);
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
+                Services::Handlers::RemoveAllocationFromReadModel);
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
+                Services::Handlers::Reallocate);
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::OutOfStock>(
+                Services::Handlers::SendOutOfStockNotification());
+
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
+                Services::Handlers::Allocate);
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
+                Services::Handlers::AddBatch);
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::ChangeBatchQuantity>(
+                Services::Handlers::ChangeBatchQuantity);
+        }
+
         loadConfiguration();
         InitDatabase();
         ServerApplication::initialize(self);

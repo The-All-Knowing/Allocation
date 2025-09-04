@@ -1,3 +1,5 @@
+#include "Services/MessageBus/Handlers.hpp"
+
 #include <gtest/gtest.h>
 
 #include "Adapters/Notification/NotificationHandler.hpp"
@@ -13,7 +15,18 @@
 
 namespace Allocation::Tests
 {
-    TEST(TestAddBatch, test_for_new_product)
+    class Handlers_TestAddBatch : public testing::Test
+    {
+    protected:
+        void SetUp() override
+        {
+            Services::MessageBus::Instance()
+                .SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
+                    Services::Handlers::AddBatch);
+        }
+    };
+
+    TEST_F(Handlers_TestAddBatch, test_for_new_product)
     {
         FakeUnitOfWork uow;
         Services::MessageBus::Instance().Handle(
@@ -22,7 +35,7 @@ namespace Allocation::Tests
         EXPECT_TRUE(uow.IsCommited());
     }
 
-    TEST(TestAddBatch, test_for_existing_product)
+    TEST_F(Handlers_TestAddBatch, test_for_existing_product)
     {
         FakeUnitOfWork uow;
         auto& messagebus = Services::MessageBus::Instance();
@@ -37,7 +50,20 @@ namespace Allocation::Tests
         EXPECT_NE(std::ranges::find(references, "b2"), references.end());
     }
 
-    TEST(TestAllocate, test_allocates)
+    class Handlers_TestAllocate : public testing::Test
+    {
+    protected:
+        void SetUp() override
+        {
+            auto& messagebus = Services::MessageBus::Instance();
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
+                Services::Handlers::AddBatch);
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
+                Services::Handlers::Allocate);
+        }
+    };
+
+    TEST_F(Handlers_TestAllocate, test_allocates)
     {
         FakeUnitOfWork uow;
         auto& messagebus = Services::MessageBus::Instance();
@@ -51,7 +77,7 @@ namespace Allocation::Tests
         EXPECT_EQ(batches.front().GetAvailableQuantity(), 90);
     }
 
-    TEST(TestAllocate, test_errors_for_invalid_sku)
+    TEST_F(Handlers_TestAllocate, test_errors_for_invalid_sku)
     {
         FakeUnitOfWork uow;
         auto& messagebus = Services::MessageBus::Instance();
@@ -65,10 +91,10 @@ namespace Allocation::Tests
                 messagebus.Handle(
                     std::make_shared<Domain::Commands::Allocate>("o1", "NONEXISTENTSKU", 10), uow);
             },
-            "Invalid sku NONEXISTENTSKU"));
+            "Invalid SKU: NONEXISTENTSKU"));
     }
 
-    TEST(TestAllocate, test_commits)
+    TEST_F(Handlers_TestAllocate, test_commits)
     {
         FakeUnitOfWork uow;
         auto& messagebus = Services::MessageBus::Instance();
@@ -79,7 +105,7 @@ namespace Allocation::Tests
         EXPECT_TRUE(uow.IsCommited());
     }
 
-    TEST(TestAllocate, test_sends_email_on_out_of_stock_error)
+    TEST_F(Handlers_TestAllocate, test_sends_email_on_out_of_stock_error)
     {
         std::unordered_map<std::string, std::vector<std::string>> sentEmails;
         auto mockEmailSender = [&sentEmails](std::string to, std::string message)
@@ -93,16 +119,34 @@ namespace Allocation::Tests
         auto& messagebus = Services::MessageBus::Instance();
         messagebus.SubscribeToEvent<Domain::Events::OutOfStock>(FakeNotifications(mockEmailSender));
         messagebus.Handle(
-            std::make_shared<Domain::Commands::CreateBatch>("b1", "POPULAR-CURTAINS", 9));
+            std::make_shared<Domain::Commands::CreateBatch>("b1", "POPULAR-CURTAINS", 9), uow);
         messagebus.Handle(
-            std::make_shared<Domain::Commands::Allocate>("o1", "POPULAR-CURTAINS", 10));
+            std::make_shared<Domain::Commands::Allocate>("o1", "POPULAR-CURTAINS", 10), uow);
 
         ASSERT_TRUE(sentEmails.contains("stock@made.com"));
         EXPECT_EQ(sentEmails["stock@made.com"],
             std::vector<std::string>{"Out of stock for POPULAR-CURTAINS"});
     }
 
-    TEST(TestChangeBatchQuantity, test_changes_available_quantity)
+    class Handlers_TestChangeBatchQuantity : public testing::Test
+    {
+    protected:
+        void SetUp() override
+        {
+            auto& messagebus = Services::MessageBus::Instance();
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
+                Services::Handlers::Allocate);
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
+                Services::Handlers::AddBatch);
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::ChangeBatchQuantity>(
+                Services::Handlers::ChangeBatchQuantity);
+
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
+                Services::Handlers::Reallocate);
+        }
+    };
+
+    TEST_F(Handlers_TestChangeBatchQuantity, test_changes_available_quantity)
     {
         FakeUnitOfWork uow;
         auto& messagebus = Services::MessageBus::Instance();
@@ -114,11 +158,12 @@ namespace Allocation::Tests
 
         messagebus.Handle(
             std::make_shared<Domain::Commands::ChangeBatchQuantity>("batch1", 50), uow);
+        batches = uow.GetProductRepository().Get("ADORABLE-SETTEE")->GetBatches();
         EXPECT_EQ(batches.size(), 1);
         EXPECT_EQ(batches.front().GetAvailableQuantity(), 50);
     }
 
-    TEST(TestChangeBatchQuantity, test_reallocates_if_necessary)
+    TEST_F(Handlers_TestChangeBatchQuantity, test_reallocates_if_necessary)
     {
         using namespace std::chrono;
         const year_month_day today{2007y, October, 18d};
@@ -133,17 +178,15 @@ namespace Allocation::Tests
         };
         for (auto& command : history)
             messagebus.Handle(command, uow);
-        auto batches = uow.GetProductRepository().Get("INDIFFERENT-TABLE")->GetBatches();
-        EXPECT_EQ(batches.size(), 2);
-        EXPECT_EQ(batches[0].GetAvailableQuantity(), 10);
-        EXPECT_EQ(batches[1].GetAvailableQuantity(), 50);
+        auto product = uow.GetProductRepository().Get("INDIFFERENT-TABLE");
+        EXPECT_EQ(product->GetBatch("batch1").value().GetAvailableQuantity(), 10);
+        EXPECT_EQ(product->GetBatch("batch2").value().GetAvailableQuantity(), 50);
 
         messagebus.Handle(
             std::make_shared<Domain::Commands::ChangeBatchQuantity>("batch1", 25), uow);
 
-        batches = uow.GetProductRepository().Get("INDIFFERENT-TABLE")->GetBatches();
-        EXPECT_EQ(batches.size(), 2);
-        EXPECT_EQ(batches[0].GetAvailableQuantity(), 5);
-        EXPECT_EQ(batches[1].GetAvailableQuantity(), 30);
+        product = uow.GetProductRepository().Get("INDIFFERENT-TABLE");
+        EXPECT_EQ(product->GetBatch("batch1").value().GetAvailableQuantity(), 5);
+        EXPECT_EQ(product->GetBatch("batch2").value().GetAvailableQuantity(), 30);
     }
 }

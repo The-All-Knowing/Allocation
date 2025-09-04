@@ -17,7 +17,7 @@ namespace Allocation::Adapters::Repository
 
         /// @brief Добавляет продукт в репозиторий и отслеживает его.
         /// @param product Продукт для добавления.
-        void Add(const Domain::Product& product) override;
+        void Add(Domain::ProductPtr product) override;
 
         /// @brief Получает продукт по его SKU.
         /// @param SKU Артикул продукта.
@@ -40,7 +40,7 @@ namespace Allocation::Adapters::Repository
 
     private:
         Domain::IRepository& _repo;
-        std::unordered_map<std::string, std::shared_ptr<Domain::Product>> _seen;
+        std::unordered_map<std::string, Domain::ProductPtr> _seen;
         std::unordered_map<std::string, size_t> _seenObjByOldVersion;
     };
 }

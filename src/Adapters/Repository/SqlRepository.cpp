@@ -9,14 +9,14 @@ namespace Allocation::Adapters::Repository
     {
     }
 
-    void SqlRepository::Add(const Domain::Product& product)
+    void SqlRepository::Add(Domain::ProductPtr product)
     {
         Database::Mapper::ProductMapper mapper(_session);
 
-        if (mapper.IsExists(product.GetSKU()))
-            mapper.Update(product);
+        if (mapper.IsExists(product->GetSKU()))
+            mapper.Update(*product);
         else
-            mapper.Insert(product);
+            mapper.Insert(*product);
     }
 
     Domain::ProductPtr SqlRepository::Get(std::string_view SKU)

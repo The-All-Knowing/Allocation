@@ -14,7 +14,7 @@ namespace Allocation::Services::Handlers
 
         product->AddBatch(
             Allocation::Domain::Batch(message->ref, message->sku, message->qty, message->eta));
-        uow.GetProductRepository().Add(*product);
+        uow.GetProductRepository().Add(product);
         uow.Commit();
     }
 
@@ -26,7 +26,7 @@ namespace Allocation::Services::Handlers
             throw Exceptions::InvalidSku(command->sku);
 
         auto ref = product->Allocate(line);
-        uow.GetProductRepository().Add(*product);
+        uow.GetProductRepository().Add(product);
         uow.Commit();
     }
 
@@ -41,7 +41,7 @@ namespace Allocation::Services::Handlers
     {
         auto product = uow.GetProductRepository().GetByBatchRef(command->ref);
         product->ChangeBatchQuantity(command->ref, command->qty);
-        uow.GetProductRepository().Add(*product);
+        uow.GetProductRepository().Add(product);
         uow.Commit();
     }
 

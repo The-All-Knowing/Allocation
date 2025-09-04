@@ -18,7 +18,7 @@ namespace Allocation::Tests
     const auto tomorrow = today + days(1);
     const auto later = tomorrow + days(10);
 
-    TEST(Domain, test_prefers_warehouse_batches_to_shipments)
+    TEST(Product, test_prefers_warehouse_batches_to_shipments)
     {
         Domain::Batch inStockBatch("in-stock-batch", "RETRO-CLOCK", 100);
         Domain::Batch shipmentBatch("shipment-batch", "RETRO-CLOCK", 100, tomorrow);
@@ -27,11 +27,13 @@ namespace Allocation::Tests
 
         product.Allocate(line);
 
-        EXPECT_EQ(product.GetBatches()[0].GetAvailableQuantity(), 90);
-        EXPECT_EQ(product.GetBatches()[1].GetAvailableQuantity(), 100);
+        inStockBatch = product.GetBatch("in-stock-batch").value();
+        shipmentBatch = product.GetBatch("shipment-batch").value();
+        EXPECT_EQ(inStockBatch.GetAvailableQuantity(), 90);
+        EXPECT_EQ(shipmentBatch.GetAvailableQuantity(), 100);
     }
 
-    TEST(Domain, test_prefers_earlier_batches)
+    TEST(Product, test_prefers_earlier_batches)
     {
         Domain::Batch earliest("speedy-batch", "MINIMALIST-SPOON", 100, today);
         Domain::Batch medium("normal-batch", "MINIMALIST-SPOON", 100, tomorrow);
@@ -41,13 +43,15 @@ namespace Allocation::Tests
 
         product.Allocate(line);
 
-        auto batches = product.GetBatches();
-        EXPECT_EQ(batches.at(0).GetAvailableQuantity(), 100);
-        EXPECT_EQ(batches.at(1).GetAvailableQuantity(), 90);
-        EXPECT_EQ(batches.at(2).GetAvailableQuantity(), 100);
+        earliest = product.GetBatch("speedy-batch").value();
+        medium = product.GetBatch("normal-batch").value();
+        latest = product.GetBatch("slow-batch").value();
+        EXPECT_EQ(earliest.GetAvailableQuantity(), 90);
+        EXPECT_EQ(medium.GetAvailableQuantity(), 100);
+        EXPECT_EQ(latest.GetAvailableQuantity(), 100);
     }
 
-    TEST(Domain, test_returns_allocated_batch_ref)
+    TEST(Product, test_returns_allocated_batch_ref)
     {
         Domain::Batch inStockBatch("in-stock-batch-ref", "HIGHBROW-POSTER", 100);
         Domain::Batch shipmentBatch("shipment-batch-ref", "HIGHBROW-POSTER", 100, tomorrow);
@@ -57,7 +61,7 @@ namespace Allocation::Tests
         EXPECT_EQ(allocation, inStockBatch.GetReference());
     }
 
-    TEST(Domain, test_outputs_allocated_event)
+    TEST(Product, test_outputs_allocated_event)
     {
         Domain::Batch batch("batchref", "RETRO-LAMPSHADE", 100);
         Domain::OrderLine line("oref", "RETRO-LAMPSHADE", 10);
@@ -76,13 +80,13 @@ namespace Allocation::Tests
         EXPECT_EQ(event->qty, line.quantity);
     }
 
-    TEST(Domain, test_records_out_of_stock_event_if_cannot_allocate)
+    TEST(Product, test_records_out_of_stock_event_if_cannot_allocate)
     {
         Domain::Batch batch("batch1", "SMALL-FORK", 10, today);
         Domain::Product product("SMALL-FORK", {batch});
         product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
         auto allocation = product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
-        
+
         EXPECT_FALSE(product.Messages().empty());
         EXPECT_EQ(product.Messages().back()->Name(), "OutOfStock");
         auto event =
@@ -92,7 +96,7 @@ namespace Allocation::Tests
         EXPECT_EQ(allocation, std::nullopt);
     }
 
-    TEST(Domain, test_increments_version_number)
+    TEST(Product, test_increments_version_number)
     {
         Domain::OrderLine line("oref", "SCANDI-PEN", 10);
         Domain::Product product("SCANDI-PEN", {Domain::Batch("b1", "SCANDI-PEN", 100)}, 7);

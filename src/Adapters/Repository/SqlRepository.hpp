@@ -17,7 +17,7 @@ namespace Allocation::Adapters::Repository
 
         /// @brief Добавляет продукт в репозиторий.
         /// @param product Продукт для добавления.
-        void Add(const Domain::Product& product) override;
+        void Add(Domain::ProductPtr product) override;
 
         /// @brief Получает продукт по его артикулу.
         /// @param SKU Артикул продукта.

@@ -77,6 +77,14 @@ namespace Allocation::Domain
         return result;
     }
 
+    std::optional<Batch> Product::GetBatch(const std::string& reference) const noexcept
+    {
+        if (auto it = _referenceByBatches.find(reference); it != _referenceByBatches.end())
+            return it->second;
+
+        return std::nullopt;
+    }
+
     size_t Product::GetVersion() const noexcept { return _versionNumber; }
 
     std::string Product::GetSKU() const noexcept { return _sku; }
@@ -97,5 +105,13 @@ namespace Allocation::Domain
         std::sort(lhsBatches.begin(), lhsBatches.end());
         std::sort(rhsBatches.begin(), rhsBatches.end());
         return std::equal(lhsBatches.begin(), lhsBatches.end(), rhsBatches.begin());
+    }
+
+    bool operator==(const ProductPtr& lhs, const ProductPtr& rhs) noexcept
+    {
+        if (!lhs || !rhs)
+            return false;
+
+        return *lhs == *rhs; 
     }
 }

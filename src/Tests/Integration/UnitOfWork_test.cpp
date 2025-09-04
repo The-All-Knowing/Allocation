@@ -19,7 +19,7 @@ namespace Allocation::Tests
             auto product = uow.GetProductRepository().Get("HIPSTER-WORKBENCH-TEST");
             Domain::OrderLine line("o1", "HIPSTER-WORKBENCH-TEST", 10);
             product->Allocate(line);
-            uow.GetProductRepository().Add(*product);
+            uow.GetProductRepository().Add(product);
             uow.Commit();
 
             auto batchRef = GetAllocatedBatchRef(session, "o1", "HIPSTER-WORKBENCH-TEST");
@@ -85,7 +85,7 @@ namespace Allocation::Tests
             Services::UoW::SqlUnitOfWork uow;
             auto product = uow.GetProductRepository().Get(sku);
             product->Allocate(line);
-            uow.GetProductRepository().Add(*product);
+            uow.GetProductRepository().Add(product);
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             uow.Commit();
         }

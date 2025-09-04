@@ -41,6 +41,11 @@ namespace Allocation::Domain
         /// @return Список партий продукта.
         [[nodiscard]] std::vector<Batch> GetBatches() const noexcept;
 
+        /// @brief Получает партию продукта.
+        /// @param reference Ссылка на партию.
+        /// @return Партий продукта.
+        [[nodiscard]] std::optional<Batch> GetBatch(const std::string& reference) const noexcept;
+
         /// @brief Получает номер версии продукта.
         /// @return Номер версии продукта.
         [[nodiscard]] size_t GetVersion() const noexcept;
@@ -63,7 +68,13 @@ namespace Allocation::Domain
         size_t _versionNumber;
     };
 
+    using ProductPtr = std::shared_ptr<Product>;
+
     bool operator==(const Product& lhs, const Product& rhs) noexcept;
 
-    using ProductPtr = std::shared_ptr<Product>;
+    /// @brief Оператор проверки на равенство, если хотя бы один аргумент nullptr - false
+    /// @param lhs 
+    /// @param rhs 
+    /// @return 
+    bool operator==(const ProductPtr& lhs, const ProductPtr& rhs) noexcept;
 }

@@ -11,6 +11,7 @@ compile_commands.json
 cmake-build-*
 Testing/
 .DS_Store
+.conan_cache
 bin/
 etc/
 CMakeFiles/

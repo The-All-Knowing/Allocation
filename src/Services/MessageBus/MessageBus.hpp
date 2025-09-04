@@ -70,7 +70,7 @@ namespace Allocation::Services
 
     private:
         /// @brief Конструктор по умолчанию.
-        MessageBus();
+        MessageBus() = default;
 
         /// @brief Конструктор копирования.
         /// @param other Экземпляр MessageBus, который нужно скопировать.

@@ -3,14 +3,16 @@
 
 namespace Allocation::Adapters::Repository
 {
-    TrackingRepository::TrackingRepository(Domain::IRepository& repo) : _repo(repo){};
+    TrackingRepository::TrackingRepository(Domain::IRepository& repo) : _repo(repo) {}
 
-    void TrackingRepository::Add(const Domain::Product& product)
+    void TrackingRepository::Add(Domain::ProductPtr product)
     {
         _repo.Add(product);
-        if (!_seen.contains(product.GetSKU()))
-            _seenObjByOldVersion[product.GetSKU()] = product.GetVersion();
-        _seen[product.GetSKU()] = std::make_shared<Domain::Product>(product);
+        if (!_seen.contains(product->GetSKU()))
+        {
+            _seen.insert_or_assign(product->GetSKU(), product);
+            _seenObjByOldVersion.insert_or_assign(product->GetSKU(), product->GetVersion());
+        }
     }
 
     Domain::ProductPtr TrackingRepository::Get(std::string_view SKU)
@@ -18,10 +20,9 @@ namespace Allocation::Adapters::Repository
         auto product = _repo.Get(SKU);
         if (product)
         {
-            _seen[product->GetSKU()] = product;
-            _seenObjByOldVersion[product->GetSKU()] = product->GetVersion();
+            _seen.insert_or_assign(product->GetSKU(), product);
+            _seenObjByOldVersion.insert_or_assign(product->GetSKU(), product->GetVersion());
         }
-
         return product;
     }
 
@@ -30,10 +31,9 @@ namespace Allocation::Adapters::Repository
         auto product = _repo.GetByBatchRef(batchRef);
         if (product)
         {
-            _seen[product->GetSKU()] = product;
-            _seenObjByOldVersion[product->GetSKU()] = product->GetVersion();
+            _seen.insert_or_assign(product->GetSKU(), product);
+            _seenObjByOldVersion.insert_or_assign(product->GetSKU(), product->GetVersion());
         }
-
         return product;
     }
 
@@ -47,22 +47,18 @@ namespace Allocation::Adapters::Repository
         return result;
     }
 
-    std::vector<std::tuple<std::string, size_t, size_t>> TrackingRepository::GetChangedVersions()
-        const noexcept
+    std::vector<std::tuple<std::string, size_t, size_t>> TrackingRepository::GetChangedVersions() const noexcept
     {
         std::vector<std::tuple<std::string, size_t, size_t>> result;
 
-        for (auto& [sku, prod] : _seen)
+        for (const auto& [sku, product] : _seen)
         {
-            auto oldVersionIt = _seenObjByOldVersion.find(sku);
-            if (oldVersionIt == _seenObjByOldVersion.end())
+            size_t oldVersion = _seenObjByOldVersion.at(sku);
+            size_t newVersion = product->GetVersion();
+            if (newVersion == oldVersion)
                 continue;
 
-            size_t oldVersion = oldVersionIt->second;
-            if (prod->GetVersion() == oldVersion)
-                continue;
-
-            result.emplace_back(sku, oldVersion, prod->GetVersion());
+            result.emplace_back(sku, oldVersion, newVersion);
         }
 
         return result;
