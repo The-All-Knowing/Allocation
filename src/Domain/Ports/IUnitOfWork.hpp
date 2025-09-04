@@ -25,7 +25,7 @@ namespace Allocation::Domain
         [[nodiscard]] virtual bool IsCommited() const noexcept = 0;
 
         /// @brief Получение сессии базы данных.
-        /// @return Сессию базы данных.
+        /// @return Сессию базы данных если реализаия поддерживает, иначе std::nullopt.
         [[nodiscard]] virtual std::optional<Poco::Data::Session> GetSession() noexcept = 0;
 
         /// @brief Получение репозитория продуктов.

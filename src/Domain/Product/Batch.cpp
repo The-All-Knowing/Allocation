@@ -48,11 +48,11 @@ namespace Allocation::Domain
         return _purchasedQuantity - allocated;
     }
 
-    std::string_view Batch::GetReference() const noexcept { return _reference; }
+    std::string Batch::GetReference() const noexcept { return _reference; }
 
     std::optional<std::chrono::year_month_day> Batch::GetETA() const noexcept { return _ETA; }
 
-    std::string_view Batch::GetSKU() const noexcept { return _SKU; }
+    std::string Batch::GetSKU() const noexcept { return _SKU; }
 
     std::vector<OrderLine> Batch::GetAllocations() const noexcept
     {

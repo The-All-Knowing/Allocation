@@ -51,7 +51,7 @@ namespace Allocation::Domain
 
         /// @brief Получает ссылку на партию.
         /// @return Ссылка на партию.
-        [[nodiscard]] std::string_view GetReference() const noexcept;
+        [[nodiscard]] std::string GetReference() const noexcept;
 
         /// @brief Получает ожидаемую дату поставки.
         /// @return Ожидаемая дата поставки.
@@ -59,7 +59,7 @@ namespace Allocation::Domain
 
         /// @brief Получает артикул продукта.
         /// @return Артикул продукта.
-        [[nodiscard]] std::string_view GetSKU() const noexcept;
+        [[nodiscard]] std::string GetSKU() const noexcept;
 
         /// @brief Получает все выделенные линии заказа для данной партии.
         /// @return Вектор выделенных линий заказа.
