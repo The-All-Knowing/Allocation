@@ -5,7 +5,6 @@
 
 namespace Allocation::Tests
 {
-
     /// @brief Фейковый реализация логгера для тестирования.
     struct FakeLogger : public Services::Loggers::ILogger
     {

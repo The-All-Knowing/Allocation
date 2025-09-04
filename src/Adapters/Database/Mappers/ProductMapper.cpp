@@ -5,17 +5,7 @@
 
 namespace Allocation::Adapters::Database::Mapper
 {
-    ProductMapper::ProductMapper(Poco::Data::Session& session) : _session(session) {}
-
-    bool ProductMapper::IsExists(std::string SKU)
-    {
-        Poco::Nullable<int> dummy;
-        int rowsAffected = 0;
-        _session << "SELECT 1 FROM public.products WHERE sku = $1",
-            Poco::Data::Keywords::into(dummy), Poco::Data::Keywords::use(SKU),
-            Poco::Data::Keywords::now;
-        return !dummy.isNull();
-    }
+    ProductMapper::ProductMapper(const Poco::Data::Session& session) : _session(session) {}
 
     std::shared_ptr<Domain::Product> ProductMapper::FindBySKU(std::string SKU)
     {

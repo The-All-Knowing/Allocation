@@ -13,19 +13,39 @@ namespace Allocation::Adapters::Database::Mapper
     public:
         /// @brief Конструктор маппера.
         /// @param session Сессия базы данных.
-        explicit ProductMapper(Poco::Data::Session& session);
+        explicit ProductMapper(const Poco::Data::Session& session);
 
-        /// @brief Проверяет, существует ли продукт с заданным SKU.
-        /// @param SKU Идентификатор продукта.
-        /// @return true, если продукт существует, иначе false.
-        [[nodiscard]] bool IsExists(std::string SKU);
+        /// @brief Возвращает продукт по артикулу.
+        /// @param SKU Артикул.
+        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
+        /// запроса.
+        /// @return Найденный продукт или nullptr.
         [[nodiscard]] Domain::ProductPtr FindBySKU(std::string SKU);
+
+        /// @brief Получает продукт по ссылке партии.
+        /// @param ref Ссылка на партию.
+        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
+        /// запроса.
+        /// @return Найденный продукт или nullptr.
         [[nodiscard]] Domain::ProductPtr FindByBatchRef(std::string ref);
-        void Update(const Domain::Product& product);
-        void Insert(const Domain::Product& product);
-        [[nodiscard]] bool UpdateVersion(std::string SKU, size_t oldVersion, size_t newVersion);
+
+        /// @brief Обновляет продукт.
+        /// @param product Продукт для обновления.
+        /// @param oldVersion Прошлая версия продукта. Если указана, проверяет
+        /// версию для контроля конкуренции.
+        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
+        /// запроса.
+        /// @return true - успешное обновление, иначе false.
+        [[nodiscard]] bool Update(
+            Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt);
+
+        /// @brief Создаёт продукт.
+        /// @param product Продукт для создания.
+        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
+        /// запроса.
+        void Insert(Domain::ProductPtr product);
 
     private:
-        Poco::Data::Session& _session;
+        Poco::Data::Session _session;
     };
 }

@@ -16,8 +16,9 @@ namespace Allocation::Domain
         /// @param SKU Артикул продукта.
         /// @param batches Список партий продукта.
         /// @param versionNumber Номер версии продукта.
-        explicit Product(
-            std::string_view SKU, const std::vector<Batch>& batches = {}, size_t versionNumber = 0);
+        /// @param isNew Новый агрегат или уже существовал.
+        explicit Product(std::string_view SKU, const std::vector<Batch>& batches = {},
+            size_t versionNumber = 0, bool isNew = true);
 
         /// @brief Проверяет, был ли продукт изменён.
         /// @return true — если продукт изменён, иначе false.
@@ -25,7 +26,7 @@ namespace Allocation::Domain
 
         /// @brief Добавляет партию к продукту.
         /// @param batch Добавляемая партия.
-        /// @return true — если партия добавлена, иначе false. 
+        /// @return true — если партия добавлена, иначе false.
         bool AddBatch(const Batch& batch) noexcept;
 
         /// @brief Добавляет несколько партий к продукту.

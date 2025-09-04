@@ -8,8 +8,9 @@
 
 namespace Allocation::Domain
 {
-    Product::Product(std::string_view SKU, const std::vector<Batch>& batches, size_t versionNumber)
-        : _sku(SKU), _versionNumber(versionNumber)
+    Product::Product(
+        std::string_view SKU, const std::vector<Batch>& batches, size_t versionNumber, bool isNew)
+        : _sku(SKU), _versionNumber(versionNumber), _isModify(isNew)
     {
         for (const auto& batch : batches)
             _referenceByBatches.insert({batch.GetReference(), batch});

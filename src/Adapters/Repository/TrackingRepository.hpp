@@ -17,30 +17,34 @@ namespace Allocation::Adapters::Repository
 
         /// @brief Добавляет продукт в репозиторий и отслеживает его.
         /// @param product Продукт для добавления.
+        /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         void Add(Domain::ProductPtr product) override;
 
-        /// @brief Получает продукт по его SKU.
+        /// @brief Получает продукт из наблюдаемых по его SKU или загружает его.
         /// @param SKU Артикул продукта.
         /// @return Найденный продукт или nullptr.
-        [[nodiscard]] Domain::ProductPtr Get(std::string_view SKU) override;
+        [[nodiscard]] Domain::ProductPtr Get(const std::string& SKU) override;
 
-        /// @brief Получает продукт по ссылке партии.
+        /// @brief Получает продукт по ссылке партии из наблюдаемых или загружает его.
         /// @param batchRef Ссылка на партию.
-        /// @return Найденный продукт или пустой nullptr.
-        [[nodiscard]] Domain::ProductPtr GetByBatchRef(std::string_view batchRef) override;
+        /// @return Найденный продукт или nullptr.
+        [[nodiscard]] Domain::ProductPtr GetByBatchRef(const std::string& batchRef) override;
 
-        /// @brief Получает все продукты, которые были добавлены в репозиторий.
-        /// @return Список всех добавленных продуктов.
-        [[nodiscard]] std::vector<Domain::ProductPtr> GetSeen() const noexcept;
+        /// @brief Получает все продукты, которые отслеживались в репозиторий.
+        /// @return Отслеживаемые продукты и их изначальные версии.
+        [[nodiscard]] std::vector<std::pair<Domain::ProductPtr, int>> GetSeen() const noexcept;
 
-        /// @brief Получает все измененные версии продуктов.
-        /// @return Список кортежей с информацией об измененных версиях.
-        [[nodiscard]] std::vector<std::tuple<std::string, size_t, size_t>> GetChangedVersions()
-            const noexcept;
+        /// @brief Очищает все наблюдаемые продукты.
+        void Clear() noexcept;
 
     private:
+        /// @brief Обновляет продукт в репозиторий и отслеживает его.
+        /// @param product Продукт для добавления.
+        /// @param oldVersion Прошлая версия продукта.
+        virtual void Update(
+            Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt) override;
+
         Domain::IRepository& _repo;
-        std::unordered_map<std::string, Domain::ProductPtr> _seen;
-        std::unordered_map<std::string, size_t> _seenObjByOldVersion;
+        std::unordered_map<std::string, std::pair<Domain::ProductPtr, int>> _seenAndOldVersion;
     };
 }

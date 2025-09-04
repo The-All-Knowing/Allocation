@@ -8,7 +8,9 @@
 
 namespace Allocation::Tests
 {
-    /// @brief Фейковый репозиторий для тестирования
+    /// @brief Фейковый репозиторий для тестирования.
+    /// @note Метод Update предназначен для использования только TrackingRepository
+    /// и не должен вызываться извне.
     class FakeRepository final : public Domain::IRepository
     {
     public:
@@ -17,23 +19,49 @@ namespace Allocation::Tests
 
         /// @brief Конструктор.
         /// @param init Инициализирующий список продуктов.
-        FakeRepository(const std::vector<Domain::ProductPtr>& init);
+        FakeRepository(const std::vector<Domain::ProductPtr>& init)
+        {
+            for (const auto& prod : init)
+                _skuByProduct.insert({prod->GetSKU(), prod});
+        }
 
         /// @brief Добавляет продукт в репозиторий.
         /// @param product Продукт для добавления.
-        void Add(Domain::ProductPtr product) override;
+        void Add(Domain::ProductPtr product) override
+        {
+            _skuByProduct.insert_or_assign(product->GetSKU(), product);
+        }
 
         /// @brief Получает продукт из репозитория.
         /// @param SKU Артикул продукта.
         /// @return Продукт с заданным артикулом.
-        [[nodiscard]] Domain::ProductPtr Get(std::string_view SKU) override;
+        [[nodiscard]] Domain::ProductPtr Get(const std::string& SKU) override
+        {
+            auto it = _skuByProduct.find(std::string(SKU));
+            if (it != _skuByProduct.end())
+                return it->second;
+            return nullptr;
+        }
 
         /// @brief Получает продукт из репозитория по ссылке партии.
         /// @param batchRef Ссылка на партию.
         /// @return Продукт с заданной ссылкой партии.
-        [[nodiscard]] virtual Domain::ProductPtr GetByBatchRef(std::string_view batchRef) override;
+        [[nodiscard]] virtual Domain::ProductPtr GetByBatchRef(const std::string& batchRef) override
+        {
+            for (const auto& [_, product] : _skuByProduct)
+                if (product->GetBatch(batchRef) != std::nullopt)
+                    return product;
+            return nullptr;
+        }
 
     private:
+        /// @brief Обновляет продукт.
+        /// @param product Продукт для добавления.
+        virtual void Update(Domain::ProductPtr product, std::optional<int>) override
+        {
+            _skuByProduct.insert_or_assign(product->GetSKU(), product);
+        }
+
         std::unordered_map<std::string, Domain::ProductPtr> _skuByProduct;
     };
 }

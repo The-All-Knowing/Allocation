@@ -91,7 +91,7 @@ namespace Allocation::Tests
         auto rawEvent = actual.back();
         ASSERT_EQ(rawEvent->Name(), "OutOfStock");
         auto event = std::dynamic_pointer_cast<Domain::Events::OutOfStock>(rawEvent);
-        EXPECT_TRUE(event);
+        ASSERT_TRUE(event);
         EXPECT_EQ(event->SKU, batch.GetSKU());
     }
 
