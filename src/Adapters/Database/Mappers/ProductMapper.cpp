@@ -7,24 +7,6 @@ namespace Allocation::Adapters::Database::Mapper
 {
     ProductMapper::ProductMapper(const Poco::Data::Session& session) : _session(session) {}
 
-    std::shared_ptr<Domain::Product> ProductMapper::FindBySKU(std::string SKU)
-    {
-        BatchMapper _batchMapper(_session);
-        std::shared_ptr<Domain::Product> result;
-
-        Poco::Nullable<int> version;
-        _session << R"(SELECT version_number FROM public.products WHERE sku = $1)",
-            Poco::Data::Keywords::into(version), Poco::Data::Keywords::use(SKU),
-            Poco::Data::Keywords::now;
-
-        if (version.isNull())
-            return result;
-
-        auto batches = _batchMapper.GetBySKU(SKU);
-        result = std::make_shared<Domain::Product>(SKU, batches, version.value());
-        return result;
-    }
-
     std::shared_ptr<Domain::Product> ProductMapper::FindByBatchRef(std::string ref)
     {
         BatchMapper _batchMapper(_session);
@@ -54,7 +36,7 @@ namespace Allocation::Adapters::Database::Mapper
         return result;
     }
 
-    void ProductMapper::Update(const Domain::Product& product)
+    bool ProductMapper::Update(Domain::ProductPtr product, int oldVersion)
     {
         BatchMapper _batchMapper(_session);
         auto batches = product.GetBatches();
@@ -62,7 +44,7 @@ namespace Allocation::Adapters::Database::Mapper
         _batchMapper.Update(batches, product.GetSKU());
     }
 
-    void ProductMapper::Insert(const Domain::Product& product)
+    void ProductMapper::Insert(Domain::ProductPtr product)
     {
         BatchMapper _batchMapper(_session);
 
@@ -74,20 +56,5 @@ namespace Allocation::Adapters::Database::Mapper
             Poco::Data::Keywords::now;
 
         _batchMapper.Insert(product.GetBatches());
-    }
-
-    bool ProductMapper::UpdateVersion(std::string SKU, size_t oldVersion, size_t newVersion)
-    {
-        Poco::Nullable<int> actualVersion;
-        _session << "UPDATE public.products SET version_number = $1 WHERE sku = $2 AND "
-                    "version_number = $3 RETURNING version_number",
-            Poco::Data::Keywords::into(actualVersion), Poco::Data::Keywords::use(newVersion),
-            Poco::Data::Keywords::use(SKU), Poco::Data::Keywords::use(oldVersion),
-            Poco::Data::Keywords::now;
-
-        if (actualVersion.isNull() || (actualVersion.value() != newVersion))
-            return false;
-
-        return true;
     }
 }

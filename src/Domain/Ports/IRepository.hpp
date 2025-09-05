@@ -11,6 +11,7 @@ namespace Allocation::Adapters::Repository
 namespace Allocation::Domain
 {
     /// @brief Интерфейс репозитория для работы с продуктами.
+    /// @note Дочернии классы должны использоваться с TrackingRepository.
     class IRepository
     {
     public:
@@ -35,6 +36,7 @@ namespace Allocation::Domain
         /// @brief Обновляет продукт.
         /// @param product Продукт для добавления.
         /// @param oldVersion Прошлая версия продукта.
+        /// @note Необходимо реализовать для работы с TrackingRepository.
         virtual void Update(
             Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt) = 0;
 

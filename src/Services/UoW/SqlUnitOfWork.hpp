@@ -3,7 +3,8 @@
 #include "Precompile.hpp"
 
 #include "AbstractUnitOfWork.hpp"
-#include "Domain/Ports/IRepository.hpp"
+#include "Adapters/Database/Session/SessionPool.hpp"
+#include "Adapters/Repository/SqlRepository.hpp"
 
 
 namespace Allocation::Services::UoW
@@ -11,14 +12,9 @@ namespace Allocation::Services::UoW
     /// @brief SQL реализация единицы работы (Unit of Work).
     class SqlUnitOfWork final : public AbstractUnitOfWork
     {
-        struct Impl;
-
     public:
         /// @brief Конструктор.
         SqlUnitOfWork();
-
-        /// @brief Деструктор.
-        ~SqlUnitOfWork();
 
         /// @brief Получение сессии базы данных.
         /// @return Сессию базы данных.
@@ -30,16 +26,8 @@ namespace Allocation::Services::UoW
         /// @brief Откат изменений.
         void RollBack() override;
 
-        /// @brief Получение репозитория продуктов.
-        /// @return Ссылка на репозиторий продуктов.
-        [[nodiscard]] Domain::IRepository& GetProductRepository() override;
-
-        /// @brief Получение новых сообщений.
-        /// @return Вектор новых сообщений.
-        [[nodiscard]] std::vector<Domain::IMessagePtr> GetNewMessages() noexcept override;
-
     private:
-        std::unique_ptr<Impl> _impl;
-        std::unordered_set<Domain::IMessagePtr> _newMessages;
+        Poco::Data::Session _session{Adapters::Database::SessionPool::Instance().GetSession()};
+        Adapters::Repository::SqlRepository _repository{_session};
     };
 }

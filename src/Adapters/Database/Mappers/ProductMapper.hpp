@@ -31,13 +31,11 @@ namespace Allocation::Adapters::Database::Mapper
 
         /// @brief Обновляет продукт.
         /// @param product Продукт для обновления.
-        /// @param oldVersion Прошлая версия продукта. Если указана, проверяет
-        /// версию для контроля конкуренции.
+        /// @param oldVersion Прошлая версия продукта.
         /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
         /// запроса.
         /// @return true - успешное обновление, иначе false.
-        [[nodiscard]] bool Update(
-            Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt);
+        [[nodiscard]] bool Update(Domain::ProductPtr product, int oldVersion);
 
         /// @brief Создаёт продукт.
         /// @param product Продукт для создания.

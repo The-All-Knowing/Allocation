@@ -9,8 +9,6 @@
 namespace Allocation::Tests
 {
     /// @brief Фейковый репозиторий для тестирования.
-    /// @note Метод Update предназначен для использования только TrackingRepository
-    /// и не должен вызываться извне.
     class FakeRepository final : public Domain::IRepository
     {
     public:
@@ -25,7 +23,7 @@ namespace Allocation::Tests
                 _skuByProduct.insert({prod->GetSKU(), prod});
         }
 
-        /// @brief Добавляет продукт в репозиторий.
+        /// @brief Добавляет или обновляет продукт в репозиторий.
         /// @param product Продукт для добавления.
         void Add(Domain::ProductPtr product) override
         {
@@ -57,6 +55,7 @@ namespace Allocation::Tests
     private:
         /// @brief Обновляет продукт.
         /// @param product Продукт для добавления.
+        /// @note Реализовано для работы с TrackingRepository.
         virtual void Update(Domain::ProductPtr product, std::optional<int>) override
         {
             _skuByProduct.insert_or_assign(product->GetSKU(), product);

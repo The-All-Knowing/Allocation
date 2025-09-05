@@ -7,7 +7,7 @@ namespace Allocation::Adapters::Repository
 
     void TrackingRepository::Add(Domain::ProductPtr product)
     {
-        if(!product)
+        if (!product)
             throw std::invalid_argument("The nullptr product");
 
         if (auto it = _seenAndOldVersion.find(product->GetSKU()); it != _seenAndOldVersion.end())
@@ -60,7 +60,7 @@ namespace Allocation::Adapters::Repository
 
     void TrackingRepository::Clear() noexcept { _seenAndOldVersion.clear(); }
 
-    void TrackingRepository::Update(Domain::ProductPtr product, std::optional<int> oldVersion) 
+    void TrackingRepository::Update(Domain::ProductPtr product, std::optional<int> oldVersion)
     {
         _repo.Update(product, oldVersion);
     }
