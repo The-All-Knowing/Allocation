@@ -49,6 +49,10 @@ namespace Allocation::Domain
         /// @return Доступное количество продуктов.
         [[nodiscard]] int GetAvailableQuantity() const noexcept;
 
+        /// @brief Получает количество продуктов в партии.
+        /// @return Количество продуктов в партии.
+        [[nodiscard]] int GetPurchasedQuantity() const noexcept;
+
         /// @brief Получает ссылку на партию.
         /// @return Ссылка на партию.
         [[nodiscard]] std::string GetReference() const noexcept;

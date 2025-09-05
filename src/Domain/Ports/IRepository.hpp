@@ -15,6 +15,9 @@ namespace Allocation::Domain
     class IRepository
     {
     public:
+        /// @brief Конструктор.
+        IRepository() = default;
+
         /// @brief Деструктор.
         virtual ~IRepository() = default;
 
@@ -33,6 +36,18 @@ namespace Allocation::Domain
         [[nodiscard]] virtual Domain::ProductPtr GetByBatchRef(const std::string& batchRef) = 0;
 
     private:
+        /// @brief Удалённый конструктор копирования.
+        IRepository(const IRepository&) = delete;
+
+        /// @brief Удалённый конструктор перемещения.
+        IRepository(IRepository&&) = delete;
+
+        /// @brief Удалённый оператор присвоения копирования.
+        IRepository& operator=(const IRepository&) = delete;
+
+        /// @brief Удалённый оператор присвоения перемещения.
+        IRepository& operator=(IRepository&&) = delete;
+
         /// @brief Обновляет продукт.
         /// @param product Продукт для добавления.
         /// @param oldVersion Прошлая версия продукта.

@@ -21,20 +21,20 @@ namespace Allocation::Adapters::Repository
         /// @brief Добавляет новый продукт в репозитории.
         /// @param product Продукт для добавления или обновления.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
-        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
+        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
         /// запроса.
         void Add(Domain::ProductPtr product) override;
 
         /// @brief Получает продукт по его артикулу.
         /// @param SKU Артикул продукта.
-        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
+        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
         /// запроса.
         /// @return Продукт, если найден, иначе nullptr.
         [[nodiscard]] Domain::ProductPtr Get(const std::string& SKU) override;
 
         /// @brief Получает продукт по ссылке партии.
         /// @param batchRef Ссылка на партию.
-        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
+        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
         /// запроса.
         /// @return Найденный продукт или пустой nullptr.
         [[nodiscard]] Domain::ProductPtr GetByBatchRef(const std::string& batchRef) override;
@@ -47,7 +47,7 @@ namespace Allocation::Adapters::Repository
         /// @throw std::runtime_error Выбрасывается, если не удалось обновить продукт из-за
         /// конфликта версий.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
-        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
+        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
         /// запроса.
         virtual void Update(
             Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt) override;

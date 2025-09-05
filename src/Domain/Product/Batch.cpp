@@ -48,6 +48,8 @@ namespace Allocation::Domain
         return _purchasedQuantity - allocated;
     }
 
+    int Batch::GetPurchasedQuantity() const noexcept { return _purchasedQuantity; }
+
     std::string Batch::GetReference() const noexcept { return _reference; }
 
     std::optional<std::chrono::year_month_day> Batch::GetETA() const noexcept { return _ETA; }

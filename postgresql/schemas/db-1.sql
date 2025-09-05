@@ -28,6 +28,7 @@ CREATE TABLE allocation.allocations (
     id SERIAL PRIMARY KEY,
     orderline_id INTEGER REFERENCES order_lines(id),
     batch_id INTEGER REFERENCES batches(id)
+    ON DELETE CASCADE
 );
 
 -- Таблица/представление для аллокаций

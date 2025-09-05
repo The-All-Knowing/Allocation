@@ -14,17 +14,32 @@ namespace Allocation::Services::UoW
     {
     public:
         /// @brief Конструктор.
-        SqlUnitOfWork();
+        SqlUnitOfWork() : AbstractUnitOfWork(_repository) {}
 
         /// @brief Получение сессии базы данных.
         /// @return Сессию базы данных.
-        [[nodiscard]] std::optional<Poco::Data::Session> GetSession() noexcept override;
+        [[nodiscard]] std::optional<Poco::Data::Session> GetSession() noexcept override
+        {
+            return _session;
+        }
 
         /// @brief Подтверждение изменений.
-        void Commit() override;
+        /// @throw std::runtime_error Выбрасывается, если не удалось обновить продукт из-за
+        /// конфликта версий.
+        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
+        /// запроса.
+        void Commit() override
+        {
+            AbstractUnitOfWork::Commit();
+            _session.commit();
+        }
 
         /// @brief Откат изменений.
-        void RollBack() override;
+        void RollBack() override
+        {
+            _session.rollback();
+            AbstractUnitOfWork::RollBack();
+        }
 
     private:
         Poco::Data::Session _session{Adapters::Database::SessionPool::Instance().GetSession()};

@@ -1,7 +1,6 @@
 #include "MessageBus.hpp"
 
 #include "Domain/Events/OutOfStock.hpp"
-#include "Handlers.hpp"
 #include "Services/Loggers/ILogger.hpp"
 #include "Services/UoW/SqlUnitOfWork.hpp"
 

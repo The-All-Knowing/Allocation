@@ -5,7 +5,7 @@
 #include "Domain/Events/AbstractEvent.hpp"
 
 
-namespace Allocation::Adapters::Notification
+namespace Allocation::Services::Handlers
 {
     /// Концепция для отправителей уведомлений.
     template <typename T>

@@ -1,13 +1,13 @@
-#include "Services/MessageBus/Handlers.hpp"
+#include "Services/MessageBus/Handlers/Handlers.hpp"
 
 #include <gtest/gtest.h>
 
-#include "Adapters/Notification/NotificationHandler.hpp"
 #include "Domain/Commands/Allocate.hpp"
 #include "Domain/Commands/ChangeBatchQuantity.hpp"
 #include "Domain/Commands/CreateBatch.hpp"
 #include "Domain/Events/OutOfStock.hpp"
 #include "Services/Exceptions.hpp"
+#include "Services/MessageBus/Handlers/NotificationHandler.hpp"
 #include "Services/MessageBus/MessageBus.hpp"
 #include "Tests/Utilities/Common_test.hpp"
 #include "Tests/Utilities/FakeUnitOfWork_test.hpp"
@@ -112,7 +112,7 @@ namespace Allocation::Tests
         { sentEmails[to].emplace_back(std::move(message)); };
 
         using FakeNotifications =
-            Allocation::Adapters::Notification::NotificationHandler<Domain::Events::OutOfStock,
+            Allocation::Services::Handlers::NotificationHandler<Domain::Events::OutOfStock,
                 decltype(mockEmailSender)>;
 
         FakeUnitOfWork uow;

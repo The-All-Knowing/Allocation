@@ -8,12 +8,14 @@ namespace Allocation
     /// @brief Преобразует дату из формата Poco в формат std::chrono.
     /// @param date Дата в формате Poco.
     /// @return Дата в формате std::chrono.
-    [[nodiscard]] std::chrono::year_month_day Convert(Poco::DateTime date) noexcept;
+    [[nodiscard]] std::optional<std::chrono::year_month_day> Convert(
+        Poco::Nullable<Poco::DateTime> date) noexcept;
 
     /// @brief Преобразует дату из формата std::chrono в формат Poco.
     /// @param date Дата в формате std::chrono.
     /// @return Дата в формате Poco.
-    [[nodiscard]] Poco::DateTime Convert(std::chrono::year_month_day date) noexcept;
+    [[nodiscard]] Poco::Nullable<Poco::DateTime> Convert(
+        std::optional<std::chrono::year_month_day> date) noexcept;
 
     /// @brief Перегружает оператор + для добавления дней к дате.
     /// @param ymd Дата в формате std::chrono.

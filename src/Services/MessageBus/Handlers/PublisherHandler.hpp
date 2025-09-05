@@ -5,7 +5,7 @@
 #include "Domain/Events/AbstractEvent.hpp"
 
 
-namespace Allocation::Adapters::Redis
+namespace Allocation::Services::Handlers
 {
     template <typename T, typename Message>
     concept PublisherSender = requires(T t, std::string channel, std::shared_ptr<Message> event) {

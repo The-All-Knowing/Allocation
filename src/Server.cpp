@@ -3,7 +3,7 @@
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "Entrypoints/REST/HandlerFactory.hpp"
 #include "Services/Loggers/PocoLogger.hpp"
-#include "Services/MessageBus/Handlers.hpp"
+#include "Services/MessageBus/Handlers/Handlers.hpp"
 #include "Services/MessageBus/MessageBus.hpp"
 
 

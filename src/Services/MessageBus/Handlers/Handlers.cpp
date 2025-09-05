@@ -53,7 +53,7 @@ namespace Allocation::Services::Handlers
             return;
 
         (*session) << R"(
-            INSERT INTO allocations_view (orderid, sku, batchref)
+            INSERT INTO allocation.allocations_view (orderid, sku, batchref)
             VALUES ($1, $2, $3)
         )",
             Poco::Data::Keywords::use(event->orderid), Poco::Data::Keywords::use(event->SKU),
@@ -69,7 +69,7 @@ namespace Allocation::Services::Handlers
             return;
 
         (*session) << R"(
-            DELETE FROM allocations_view
+            DELETE FROM allocation.allocations_view
             WHERE orderid = $1 AND sku = $2
         )",
             Poco::Data::Keywords::use(event->orderid), Poco::Data::Keywords::use(event->SKU);

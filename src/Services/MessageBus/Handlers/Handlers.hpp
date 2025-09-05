@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Adapters/Notification/EmailNotifications.hpp"
-#include "Adapters/Notification/NotificationHandler.hpp"
-#include "Adapters/Redis/PublisherHandler.hpp"
 #include "Adapters/Redis/RedisEventPublisher.hpp"
 #include "Domain/Commands/Allocate.hpp"
 #include "Domain/Commands/ChangeBatchQuantity.hpp"
@@ -11,6 +9,8 @@
 #include "Domain/Events/Deallocated.hpp"
 #include "Domain/Events/OutOfStock.hpp"
 #include "Domain/Ports/IUnitOfWork.hpp"
+#include "NotificationHandler.hpp"
+#include "PublisherHandler.hpp"
 
 
 namespace Allocation::Services::Handlers
@@ -37,14 +37,12 @@ namespace Allocation::Services::Handlers
     void Reallocate(Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Events::Deallocated> event);
 
     /// @brief Отправляет уведомление по электронной почте, когда товара нет на складе.
-    using SendOutOfStockNotification =
-        Allocation::Adapters::Notification::NotificationHandler<Domain::Events::OutOfStock,
-            Allocation::Adapters::Notification::EmailSender>;
+    using SendOutOfStockNotification = NotificationHandler<Domain::Events::OutOfStock,
+        Allocation::Adapters::Notification::EmailSender>;
 
     /// @brief Публикует событие "товар выделен".
-    using PublishAllocatedEvent =
-        Allocation::Adapters::Redis::PublisherHandler<Domain::Events::Allocated,
-            Allocation::Adapters::Redis::RedisEventPublisher<Domain::Events::Allocated>>;
+    using PublishAllocatedEvent = PublisherHandler<Domain::Events::Allocated,
+        Allocation::Adapters::Redis::RedisEventPublisher<Domain::Events::Allocated>>;
 
     /// @brief Добавляет выделение в модель чтения.
     /// @param uow Единица работы.

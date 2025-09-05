@@ -5,7 +5,13 @@ namespace Allocation::Services::UoW
 {
     AbstractUnitOfWork::AbstractUnitOfWork(Domain::IRepository& repo) : _tracking(repo) {}
 
-    void AbstractUnitOfWork::Commit() { _isCommited = true; }
+    void AbstractUnitOfWork::Commit() 
+    {
+        for (const auto& [product, _] : _tracking.GetSeen())
+            if(product->IsModified())
+                _tracking.Add(product);
+        _isCommited = true; 
+    }
 
     void AbstractUnitOfWork::RollBack() { _isCommited = false; }
 
