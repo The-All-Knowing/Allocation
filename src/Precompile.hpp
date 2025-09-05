@@ -33,6 +33,7 @@
 #include <Poco/Data/StatementImpl.h>
 #include <Poco/Data/Transaction.h>
 #include <Poco/Delegate.h>
+#include <Poco/Environment.h>
 #include <Poco/File.h>
 #include <Poco/JSON/Object.h>
 #include <Poco/JSON/Parser.h>

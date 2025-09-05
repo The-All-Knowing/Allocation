@@ -2,18 +2,18 @@
 
 #include "Precompile.hpp"
 
-#include "Domain/Ports/IRepository.hpp"
+#include "Domain/Ports/IUpdatableRepository.hpp"
 
 
 namespace Allocation::Adapters::Repository
 {
     /// @brief Репозиторий для отслеживания изменений продуктов.
-    class TrackingRepository final : public Domain::IRepository
+    class TrackingRepository final : public Domain::IUpdatableRepository
     {
     public:
         /// @brief Конструктор.
         /// @param repo Отслеживаемый репозиторий.
-        TrackingRepository(Domain::IRepository& repo);
+        TrackingRepository(Domain::IUpdatableRepository& repo);
 
         /// @brief Добавляет продукт в репозиторий и отслеживает его.
         /// @param product Продукт для добавления.
@@ -37,14 +37,13 @@ namespace Allocation::Adapters::Repository
         /// @brief Очищает все наблюдаемые продукты.
         void Clear() noexcept;
 
-    private:
         /// @brief Обновляет продукт в репозиторий и отслеживает его.
         /// @param product Продукт для добавления.
         /// @param oldVersion Прошлая версия продукта.
-        virtual void Update(
+        void Update(
             Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt) override;
 
-        Domain::IRepository& _repo;
+        Domain::IUpdatableRepository& _repo;
         std::unordered_map<std::string, std::pair<Domain::ProductPtr, int>> _seenAndOldVersion;
     };
 }

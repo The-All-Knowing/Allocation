@@ -13,7 +13,7 @@ namespace Allocation::Services::UoW
         /// @brief Конструктор.
         /// @param repo Репозиторий продуктов, который будет обернут TrackingRepository
         /// для отслеживания изменений и версионности.
-        explicit AbstractUnitOfWork(Domain::IRepository& repo);
+        explicit AbstractUnitOfWork(Domain::IUpdatableRepository& repo);
 
         /// @brief Подтверждает все изменения.
         void Commit() override;

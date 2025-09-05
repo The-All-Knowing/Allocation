@@ -3,15 +3,10 @@
 #include "Domain/Product/Product.hpp"
 
 
-namespace Allocation::Adapters::Repository
-{
-    class TrackingRepository;
-}
-
 namespace Allocation::Domain
 {
     /// @brief Интерфейс репозитория для работы с продуктами.
-    /// @note Дочернии классы должны использоваться с TrackingRepository.
+    /// @note Необходимо использовать данный интерфейс при раборте с внешними системами.
     class IRepository
     {
     public:
@@ -47,14 +42,5 @@ namespace Allocation::Domain
 
         /// @brief Удалённый оператор присвоения перемещения.
         IRepository& operator=(IRepository&&) = delete;
-
-        /// @brief Обновляет продукт.
-        /// @param product Продукт для добавления.
-        /// @param oldVersion Прошлая версия продукта.
-        /// @note Необходимо реализовать для работы с TrackingRepository.
-        virtual void Update(
-            Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt) = 0;
-
-        friend Allocation::Adapters::Repository::TrackingRepository;
     };
 }

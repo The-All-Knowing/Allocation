@@ -3,7 +3,7 @@
 
 namespace Allocation::Adapters::Repository
 {
-    TrackingRepository::TrackingRepository(Domain::IRepository& repo) : _repo(repo) {}
+    TrackingRepository::TrackingRepository(Domain::IUpdatableRepository& repo) : _repo(repo) {}
 
     void TrackingRepository::Add(Domain::ProductPtr product)
     {
@@ -11,7 +11,7 @@ namespace Allocation::Adapters::Repository
             throw std::invalid_argument("The nullptr product");
 
         if (auto it = _seenAndOldVersion.find(product->GetSKU()); it != _seenAndOldVersion.end())
-            Update(it->second.first, it->second.second);
+            Update(product, it->second.second);
         else
         {
             _repo.Add(product);

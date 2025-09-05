@@ -22,7 +22,7 @@ namespace Allocation::Domain
             _allocations.insert(line);
     }
 
-    OrderLine Batch::DeallocateOne() noexcept
+    OrderLine Batch::DeallocateOne()
     {
         if (_allocations.empty())
             throw std::runtime_error("No allocations to deallocate");

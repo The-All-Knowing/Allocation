@@ -5,11 +5,14 @@
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "Adapters/Repository/SqlRepository.hpp"
 #include "Utilities/Common.hpp"
+#include "Tests/Utilities/InitDatabase_test.hpp"
 
 
 namespace Allocation::Tests
 {
-    TEST(Repository, test_get_by_batchref)
+    using Repository = InitDatabase;
+
+    TEST_F(Repository, test_get_by_batchref)
     {
         auto session = Adapters::Database::SessionPool::Instance().GetSession();
         Adapters::Repository::SqlRepository repo(session);

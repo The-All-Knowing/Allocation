@@ -17,8 +17,8 @@ namespace Allocation::Tests
 {
     class Handlers_TestAddBatch : public testing::Test
     {
-    protected:
-        void SetUp() override
+    public:
+        static void SetUpTestSuite()
         {
             Services::MessageBus::Instance()
                 .SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
@@ -52,8 +52,8 @@ namespace Allocation::Tests
 
     class Handlers_TestAllocate : public testing::Test
     {
-    protected:
-        void SetUp() override
+    public:
+        static void SetUpTestSuite()
         {
             auto& messagebus = Services::MessageBus::Instance();
             messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
@@ -130,8 +130,8 @@ namespace Allocation::Tests
 
     class Handlers_TestChangeBatchQuantity : public testing::Test
     {
-    protected:
-        void SetUp() override
+    public:
+        static void SetUpTestSuite()
         {
             auto& messagebus = Services::MessageBus::Instance();
             messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(

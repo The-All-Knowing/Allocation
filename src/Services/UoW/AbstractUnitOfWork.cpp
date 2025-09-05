@@ -3,7 +3,7 @@
 
 namespace Allocation::Services::UoW
 {
-    AbstractUnitOfWork::AbstractUnitOfWork(Domain::IRepository& repo) : _tracking(repo) {}
+    AbstractUnitOfWork::AbstractUnitOfWork(Domain::IUpdatableRepository& repo) : _tracking(repo) {}
 
     void AbstractUnitOfWork::Commit() 
     {

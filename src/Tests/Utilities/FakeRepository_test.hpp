@@ -2,14 +2,14 @@
 
 #include "Precompile.hpp"
 
-#include "Domain/Ports/IRepository.hpp"
+#include "Domain/Ports/IUpdatableRepository.hpp"
 #include "Domain/Product/Product.hpp"
 
 
 namespace Allocation::Tests
 {
     /// @brief Фейковый репозиторий для тестирования.
-    class FakeRepository final : public Domain::IRepository
+    class FakeRepository final : public Domain::IUpdatableRepository
     {
     public:
         /// @brief Конструктор.
@@ -52,7 +52,6 @@ namespace Allocation::Tests
             return nullptr;
         }
 
-    private:
         /// @brief Обновляет продукт.
         /// @param product Продукт для добавления.
         /// @note Реализовано для работы с TrackingRepository.

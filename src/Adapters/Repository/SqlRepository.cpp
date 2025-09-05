@@ -26,7 +26,7 @@ namespace Allocation::Adapters::Repository
     {
         if(!product)
             throw std::invalid_argument("The nullptr product");
-        if(_mapper.Update(product, oldVersion.value()));
+        if(!_mapper.Update(product, oldVersion.value()));
             std::runtime_error("Could not serialize access due to concurrent update");
     }
 }

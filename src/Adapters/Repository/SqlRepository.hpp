@@ -3,15 +3,15 @@
 #include "Precompile.hpp"
 
 #include "Adapters/Database/Mappers/ProductMapper.hpp"
-#include "Domain/Ports/IRepository.hpp"
+#include "Domain/Ports/IUpdatableRepository.hpp"
 
 
 namespace Allocation::Adapters::Repository
 {
     /// @brief SQL реализация репозитория.
-    /// @note Метод Update предназначен для использования только TrackingRepository
+    /// @note Метод Update предназначен для использования только с TrackingRepository
     /// и не должен вызываться извне.
-    class SqlRepository final : public Domain::IRepository
+    class SqlRepository final : public Domain::IUpdatableRepository
     {
     public:
         /// @brief Конструктор.
@@ -39,7 +39,6 @@ namespace Allocation::Adapters::Repository
         /// @return Найденный продукт или пустой nullptr.
         [[nodiscard]] Domain::ProductPtr GetByBatchRef(const std::string& batchRef) override;
 
-    private:
         /// @brief Обновляет продукт в репозитории.
         /// @param product Продукт для добавления или обновления.
         /// @param oldVersion Прошлая версия продукта. Если указана, репозиторий проверяет

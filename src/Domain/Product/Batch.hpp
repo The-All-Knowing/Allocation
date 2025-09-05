@@ -39,7 +39,8 @@ namespace Allocation::Domain
 
         /// @brief Освобождает линию заказа из партии.
         /// @return Освобожденная линия заказа.
-        [[nodiscard]] OrderLine DeallocateOne() noexcept;
+        /// @throw std::runtime_error Выбрасывается, если изъяты все строки заказов.
+        [[nodiscard]] OrderLine DeallocateOne();
 
         /// @brief Получает количество выделенных товаров в партии.
         /// @return Количество выделенных товаров.
