@@ -18,17 +18,18 @@ namespace Allocation::Adapters::Database::Mapper
             FROM allocation.batches
             WHERE sku = $1)",
             use(SKU);
-
         select.execute();
+
         Poco::Data::RecordSet rs(select);
         for (bool more = rs.moveFirst(); more; more = rs.moveNext())
         {
             int id = rs["id"].convert<int>();
             auto reference = rs["reference"].convert<std::string>();
             auto sku = rs["sku"].convert<std::string>();
-            auto qty = rs["_purchased_quantity "].convert<size_t>();
-            auto eta = Convert(rs["eta"].convert<Poco::DateTime>());
-
+            auto qty = rs["_purchased_quantity"].convert<size_t>();
+            std::optional<std::chrono::year_month_day> eta;
+            if (!rs["eta"].isEmpty())
+                auto eta = Convert(rs["eta"].convert<Poco::DateTime>());
             Domain::Batch batch(reference, sku, qty, eta);
 
             for (const auto& order : GetAllocations(id))
@@ -83,8 +84,8 @@ namespace Allocation::Adapters::Database::Mapper
             insertBatch.execute();
 
             auto orderLines = batch.GetAllocations();
-
-            InsertOrderLines(orderLines, id);
+            if (!orderLines.empty())
+                InsertOrderLines(orderLines, id);
         }
     }
 
@@ -114,6 +115,9 @@ namespace Allocation::Adapters::Database::Mapper
 
     void BatchMapper::InsertOrderLines(const std::vector<Domain::OrderLine>& orders, int batchPk)
     {
+        if (orders.empty())
+            return;
+            
         using sqlOrderLine = Poco::Tuple<std::string, int, std::string>;
         std::vector<sqlOrderLine> orderLines;
         std::vector<int> ids;

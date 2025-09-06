@@ -9,7 +9,7 @@
 namespace Allocation::Domain
 {
     Product::Product(
-        std::string_view SKU, const std::vector<Batch>& batches, size_t versionNumber, bool isNew)
+        const std::string& SKU, const std::vector<Batch>& batches, size_t versionNumber, bool isNew)
         : _sku(SKU), _versionNumber(versionNumber), _isModify(isNew)
     {
         for (const auto& batch : batches)
@@ -58,6 +58,9 @@ namespace Allocation::Domain
 
     std::optional<std::string> Product::Allocate(const OrderLine& line)
     {
+        if (_referenceByBatches.empty())
+            return std::nullopt;
+
         std::vector<Batch*> sortedBatches;
         sortedBatches.reserve(_referenceByBatches.size());
         for (auto& [_, batch] : _referenceByBatches)
@@ -133,16 +136,21 @@ namespace Allocation::Domain
 
     bool operator==(const Product& lhs, const Product& rhs) noexcept
     {
-        if (lhs.GetSKU() != rhs.GetSKU() || lhs.GetVersion() != rhs.GetVersion())
+        if (lhs.GetSKU() != rhs.GetSKU() || lhs.GetVersion() != rhs.GetVersion() ||
+            lhs.IsModified() != rhs.IsModified())
             return false;
         auto lhsBatches = lhs.GetBatches();
         auto rhsBatches = rhs.GetBatches();
         if (lhsBatches.size() != rhsBatches.size())
             return false;
 
-        std::sort(lhsBatches.begin(), lhsBatches.end());
-        std::sort(rhsBatches.begin(), rhsBatches.end());
-        return std::equal(lhsBatches.begin(), lhsBatches.end(), rhsBatches.begin());
+        for (const auto& lhsBatch : lhsBatches)
+        {
+            auto rhsBatch = rhs.GetBatch(lhsBatch.GetReference());
+            if (!rhsBatch.has_value() || lhsBatch != rhsBatch)
+                return false;
+        }
+        return true;
     }
 
     bool operator==(const ProductPtr& lhs, const ProductPtr& rhs) noexcept

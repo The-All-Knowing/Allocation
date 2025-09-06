@@ -14,7 +14,14 @@ namespace Allocation::Services::UoW
     {
     public:
         /// @brief Конструктор.
-        SqlUnitOfWork() : AbstractUnitOfWork(_repository) {}
+        /// @details При создании объекта открывает сессию и начинает транзакцию с уровнем
+        ///          изоляции REPEATABLE READ. Используется для работы с репозиторием внутри
+        ///          единицы работы (Unit of Work)
+        SqlUnitOfWork() : AbstractUnitOfWork(_repository)
+        {
+            _session.setTransactionIsolation(Poco::Data::Session::TRANSACTION_REPEATABLE_READ);
+            _session.begin();
+        }
 
         /// @brief Получение сессии базы данных.
         /// @return Сессию базы данных.

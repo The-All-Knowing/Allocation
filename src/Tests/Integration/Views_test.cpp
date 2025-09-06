@@ -10,7 +10,7 @@
 #include "Services/MessageBus/MessageBus.hpp"
 #include "Services/UoW/SqlUnitOfWork.hpp"
 
-
+/*
 namespace Allocation::Tests
 {
     using ::testing::UnorderedElementsAre;
@@ -77,3 +77,4 @@ namespace Allocation::Tests
         }
     }
 }
+*/

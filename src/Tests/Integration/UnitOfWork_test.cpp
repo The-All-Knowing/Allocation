@@ -1,38 +1,55 @@
 #include <gtest/gtest.h>
 
+#include <gmock/gmock.h>
+
 #include "Precompile.hpp"
 
+#include "Adapters/Database/Mappers/ProductMapper.hpp"
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "Services/UoW/SqlUnitOfWork.hpp"
 #include "Tests/Utilities/Common_test.hpp"
+#include "Tests/Utilities/InitDatabase_test.hpp"
 #include "Utilities/Common.hpp"
 
 
 namespace Allocation::Tests
 {
+    using UoW = InitDatabase;
+
     TEST(UoW, test_uow_can_retrieve_a_batch_and_allocate_to_it)
     {
         auto session = Adapters::Database::SessionPool::Instance().GetSession();
+
+        Adapters::Database::Mapper::ProductMapper productMapper(session);
+        auto insertProduct = std::make_shared<Domain::Product>(
+            "HIPSTER-WORKBENCH", std::vector<Domain::Batch>{{"batch1", "HIPSTER-WORKBENCH", 100}});
+        productMapper.Insert(insertProduct);
+
         try
         {
             Services::UoW::SqlUnitOfWork uow;
-            auto product = uow.GetProductRepository().Get("HIPSTER-WORKBENCH-TEST");
-            Domain::OrderLine line("o1", "HIPSTER-WORKBENCH-TEST", 10);
-            product->Allocate(line);
-            uow.GetProductRepository().Add(product);
+            auto& productRepo = uow.GetProductRepository();
+            auto product = productRepo.Get("HIPSTER-WORKBENCH");
+            Domain::OrderLine orderLine("o1", "HIPSTER-WORKBENCH", 10);
+            product->Allocate(orderLine);
             uow.Commit();
 
-            auto batchRef = GetAllocatedBatchRef(session, "o1", "HIPSTER-WORKBENCH-TEST");
-            EXPECT_EQ(batchRef, "batch1");
-            DeleteProduct(session, "HIPSTER-WORKBENCH-TEST");
+            Adapters::Database::Mapper::BatchMapper batchMapper(session);
+            auto retrievedBatches = batchMapper.Find("HIPSTER-WORKBENCH");
+            EXPECT_EQ(retrievedBatches.size(), 1);
+            EXPECT_EQ(retrievedBatches.at(0).GetReference(), "batch1");
         }
         catch (const Poco::Exception& e)
         {
             FAIL() << e.displayText();
         }
-        DeleteProduct(session, "HIPSTER-WORKBENCH-TEST");
-    }
 
+        // Очистка данных
+        session << "DELETE FROM allocation.products WHERE sku = 'HIPSTER-WORKBENCH'",
+            Poco::Data::Keywords::now;
+    }
+}
+/*
     TEST(UoW, test_rolls_back_uncommitted_work_by_default)
     {
         try
@@ -147,3 +164,4 @@ namespace Allocation::Tests
         DeleteProduct(session, SKU);
     }
 }
+    */

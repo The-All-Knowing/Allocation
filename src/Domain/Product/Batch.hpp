@@ -16,7 +16,7 @@ namespace Allocation::Domain
         /// @param SKU Артикул продукта.
         /// @param quantity Количество продукта в партии.
         /// @param ETA Ожидаемая дата поставки.
-        Batch(std::string_view reference, std::string_view SKU, size_t quantity,
+        Batch(const std::string& reference, const std::string& SKU, size_t quantity,
             std::optional<std::chrono::year_month_day> ETA = std::nullopt);
 
         /// @brief Оператор присвоения.

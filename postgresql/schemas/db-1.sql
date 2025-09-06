@@ -18,7 +18,7 @@ CREATE TABLE allocation.products (
 CREATE TABLE allocation.batches (
     id SERIAL PRIMARY KEY,
     reference VARCHAR(255),
-    sku VARCHAR(255) REFERENCES products(sku),
+    sku VARCHAR(255) REFERENCES allocation.products(sku) ON DELETE CASCADE,
     _purchased_quantity INTEGER NOT NULL,
     eta DATE
 );
@@ -26,8 +26,8 @@ CREATE TABLE allocation.batches (
 -- Таблица аллокаций
 CREATE TABLE allocation.allocations (
     id SERIAL PRIMARY KEY,
-    orderline_id INTEGER REFERENCES order_lines(id),
-    batch_id INTEGER REFERENCES batches(id)
+    orderline_id INTEGER REFERENCES allocation.order_lines(id),
+    batch_id INTEGER REFERENCES allocation.batches(id)
     ON DELETE CASCADE
 );
 

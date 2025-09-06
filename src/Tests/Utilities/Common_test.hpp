@@ -6,8 +6,6 @@
 #include "gtest/gtest-assertion-result.h"
 
 
-// Привет!
-
 namespace Allocation::Tests
 {
     /// @brief Создаёт партию и строку заказа.

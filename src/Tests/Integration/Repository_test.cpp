@@ -4,8 +4,8 @@
 
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "Adapters/Repository/SqlRepository.hpp"
-#include "Utilities/Common.hpp"
 #include "Tests/Utilities/InitDatabase_test.hpp"
+#include "Utilities/Common.hpp"
 
 
 namespace Allocation::Tests
@@ -14,8 +14,7 @@ namespace Allocation::Tests
 
     TEST_F(Repository, test_get_by_batchref)
     {
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
-        Adapters::Repository::SqlRepository repo(session);
+        Adapters::Repository::SqlRepository repo(_session);
         Domain::Batch b1("b1", "sku1", 100);
         Domain::Batch b2("b2", "sku1", 100);
         Domain::Batch b3("b3", "sku2", 100);

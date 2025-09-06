@@ -28,7 +28,7 @@ namespace Allocation::Adapters::Database::Mapper
             return nullptr;
 
         auto batches = _batchMapper.Find(SKU);
-        return std::make_shared<Domain::Product>(SKU, batches, version);
+        return std::make_shared<Domain::Product>(SKU, batches, version, false);
     }
 
     Domain::ProductPtr ProductMapper::FindByBatchRef(std::string ref) const
@@ -51,7 +51,7 @@ namespace Allocation::Adapters::Database::Mapper
             return nullptr;
 
         auto batches = _batchMapper.Find(SKU);
-        return std::make_shared<Domain::Product>(SKU, batches, version);
+        return std::make_shared<Domain::Product>(SKU, batches, version, false);
     }
 
     bool ProductMapper::Update(Domain::ProductPtr product, int oldVersion)

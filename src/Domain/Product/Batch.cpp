@@ -3,7 +3,7 @@
 
 namespace Allocation::Domain
 {
-    Batch::Batch(std::string_view reference, std::string_view SKU, size_t quantity,
+    Batch::Batch(const std::string& reference, const std::string& SKU, size_t quantity,
         std::optional<std::chrono::year_month_day> ETA)
         : _reference(reference), _SKU(SKU), _purchasedQuantity(quantity), _ETA(ETA)
     {

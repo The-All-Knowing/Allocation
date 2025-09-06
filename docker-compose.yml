@@ -28,6 +28,8 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
       - POSTGRES_DB=allocation
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
