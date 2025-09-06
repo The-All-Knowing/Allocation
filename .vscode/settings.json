@@ -71,6 +71,7 @@
       "cinttypes": "cpp",
       "typeindex": "cpp",
       "*.cpp_": "cpp",
-      "csignal": "cpp"
+      "csignal": "cpp",
+      "barrier": "cpp"
     }
 }

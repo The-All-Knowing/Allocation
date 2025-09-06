@@ -4,13 +4,13 @@
 
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "Adapters/Repository/SqlRepository.hpp"
-#include "Tests/Utilities/InitDatabase_test.hpp"
+#include "Tests/Utilities/DatabaseFixture_test.hpp"
 #include "Utilities/Common.hpp"
 
 
 namespace Allocation::Tests
 {
-    using Repository = InitDatabase;
+    using Repository = Database_Fixture;
 
     TEST_F(Repository, test_get_by_batchref)
     {

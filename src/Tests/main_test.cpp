@@ -3,7 +3,7 @@
 #include "Tests/Utilities/FakeLogger_test.hpp"
 
 
-class MyTestEnvironment : public testing::Environment
+class TestEnvironment : public testing::Environment
 {
 public:
     void SetUp() override
@@ -16,7 +16,7 @@ public:
 int main(int argc, char** argv)
 {
     testing::InitGoogleTest(&argc, argv);
-    testing::AddGlobalTestEnvironment(new MyTestEnvironment);
+    testing::AddGlobalTestEnvironment(new TestEnvironment);
 
     return RUN_ALL_TESTS();
 }

@@ -29,7 +29,7 @@ namespace Allocation::Adapters::Database::Mapper
             auto qty = rs["_purchased_quantity"].convert<size_t>();
             std::optional<std::chrono::year_month_day> eta;
             if (!rs["eta"].isEmpty())
-                auto eta = Convert(rs["eta"].convert<Poco::DateTime>());
+                eta = Convert(rs["eta"].convert<Poco::DateTime>());
             Domain::Batch batch(reference, sku, qty, eta);
 
             for (const auto& order : GetAllocations(id))
@@ -98,9 +98,8 @@ namespace Allocation::Adapters::Database::Mapper
             FROM allocation.order_lines l
             JOIN allocation.allocations o ON l.id = o.orderline_id
             WHERE o.batch_id = $1)",
-            Poco::Data::Keywords::use(batchPk);
+            use(batchPk), now;
 
-        select.execute();
         Poco::Data::RecordSet rs(select);
         for (bool more = rs.moveFirst(); more; more = rs.moveNext())
         {
@@ -117,31 +116,31 @@ namespace Allocation::Adapters::Database::Mapper
     {
         if (orders.empty())
             return;
-            
+
         using sqlOrderLine = Poco::Tuple<std::string, int, std::string>;
         std::vector<sqlOrderLine> orderLines;
         std::vector<int> ids;
-        Poco::Data::Statement insertLines(_session);
-        insertLines << R"(
-            INSERT INTO allocation.order_lines (sku, qty, orderid)
-            VALUES ($, $, $)
-            RETURNING id
-        )",
-            use(orderLines), into(ids);
 
         for (const auto& line : orders)
             orderLines.emplace_back(line.SKU, line.quantity, line.reference);
-        insertLines.execute();
+
+        Poco::Data::Statement insertLines(_session);
+        insertLines << R"(
+            INSERT INTO allocation.order_lines (sku, qty, orderid)
+            VALUES ($1, $2, $3)
+            RETURNING id
+        )",
+            use(orderLines), into(ids), now;
 
         std::vector<Poco::Tuple<int, int>> allocations;
+        for (int id : ids)
+            allocations.emplace_back(id, batchPk);
+
         Poco::Data::Statement insertAllocations(_session);
         insertAllocations << R"(
             INSERT INTO allocation.allocations (orderline_id, batch_id)
-            VALUES ($, $, $)
+            VALUES ($1, $2)
         )",
-            use(allocations);
-        for (int id : ids)
-            allocations.emplace_back(id, batchPk);
-        insertAllocations.execute();
+            use(allocations), now;
     }
 }

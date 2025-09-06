@@ -136,8 +136,7 @@ namespace Allocation::Domain
 
     bool operator==(const Product& lhs, const Product& rhs) noexcept
     {
-        if (lhs.GetSKU() != rhs.GetSKU() || lhs.GetVersion() != rhs.GetVersion() ||
-            lhs.IsModified() != rhs.IsModified())
+        if (lhs.GetSKU() != rhs.GetSKU() || lhs.GetVersion() != rhs.GetVersion())
             return false;
         auto lhsBatches = lhs.GetBatches();
         auto rhsBatches = rhs.GetBatches();

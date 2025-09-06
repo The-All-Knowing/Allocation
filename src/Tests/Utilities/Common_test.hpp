@@ -43,21 +43,6 @@ namespace Allocation::Tests
         }
     }
 
-    /// @brief Удаляет продукт из базы данных.
-    /// @param session Сессия базы данных.
-    /// @param sku Артикул продукта.
-    void DeleteProduct(Poco::Data::Session session, const std::string& sku);
-
-    /// @brief Записывает партию в базу данных.
-    /// @param session Сессия базы данных.
-    /// @param batchRef Ссылка на партию.
-    /// @param sku Артикул продукта.
-    /// @param qty Количество в партии.
-    /// @param version Номер версии продукта.
-    /// @return
-    int InsertBatch(Poco::Data::Session session, std::string batchRef,
-        std::string sku = "GENERIC-SOFA", int qty = 100, int version = 0);
-
     /// @brief Генерирует случайный артикул.
     /// @param name Имя для генерации.
     /// @return Случайный артикул.
@@ -72,12 +57,4 @@ namespace Allocation::Tests
     /// @param name Имя для генерации.
     /// @return Случайный идентификатор заказа.
     std::string RandomOrderId(const std::string& name = "");
-
-    /// @brief Получает ссылку на выделенную партию для строки заказа.
-    /// @param session Сессия базы данных.
-    /// @param orderid Идентификатор заказа.
-    /// @param sku Артикул продукта.
-    /// @return Ссылка на выделенную партию.
-    std::string GetAllocatedBatchRef(
-        Poco::Data::Session session, std::string orderid, std::string sku);
 }
