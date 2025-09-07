@@ -10,9 +10,7 @@
 
 namespace Allocation::Tests
 {
-    using Repository = Database_Fixture;
-
-    TEST_F(Repository, test_get_by_batchref)
+    TEST_F(Database_Fixture, test_get_by_batchref)
     {
         Adapters::Repository::SqlRepository repo(_session);
         Domain::Batch b1("b1", "sku1", 100);

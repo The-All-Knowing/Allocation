@@ -17,20 +17,23 @@ namespace Allocation::ServiceLayer::UoW
         /// @details При создании объекта открывает сессию и начинает транзакцию с уровнем
         ///          изоляции REPEATABLE READ. Используется для работы с репозиторием внутри
         ///          единицы работы (Unit of Work)
-        SqlUnitOfWork() : AbstractUnitOfWork(_repository)
+        SqlUnitOfWork()
+            : _session(Adapters::Database::SessionPool::Instance().GetSession()),
+              _repository(_session),
+              AbstractUnitOfWork(_repository)
         {
             _session.setTransactionIsolation(Poco::Data::Session::TRANSACTION_REPEATABLE_READ);
             _session.begin();
         }
 
-        /// @brief Получение сессии базы данных.
-        /// @return Сессию базы данных.
+        /// @brief Возвращает сессию базы данных.
+        /// @return Сессия базы данных.
         [[nodiscard]] std::optional<Poco::Data::Session> GetSession() noexcept override
         {
             return _session;
         }
 
-        /// @brief Подтверждение изменений.
+        /// @brief Подтверждает изменения.
         /// @throw std::runtime_error Выбрасывается, если не удалось обновить продукт из-за
         /// конфликта версий.
         /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
@@ -42,7 +45,7 @@ namespace Allocation::ServiceLayer::UoW
             _session.begin();
         }
 
-        /// @brief Откат изменений.
+        /// @brief Откатывает изменения.
         void RollBack() override
         {
             _session.rollback();
@@ -50,7 +53,7 @@ namespace Allocation::ServiceLayer::UoW
         }
 
     private:
-        Poco::Data::Session _session{Adapters::Database::SessionPool::Instance().GetSession()};
-        Adapters::Repository::SqlRepository _repository{_session};
+        Poco::Data::Session _session;
+        Adapters::Repository::SqlRepository _repository;
     };
 }

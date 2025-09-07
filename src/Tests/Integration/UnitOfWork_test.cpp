@@ -15,17 +15,16 @@
 namespace Allocation::Tests
 {
     using namespace Poco::Data::Keywords;
-    using UoW = UoW_Fixture;
 
-    TEST_F(UoW, test_uow_can_retrieve_a_batch_and_allocate_to_it)
+    TEST_F(UoW_Fixture, test_uow_can_retrieve_a_batch_and_allocate_to_it)
     {
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
-        Adapters::Database::Mapper::ProductMapper productMapper(session);
-
         {
+            auto session = Adapters::Database::SessionPool::Instance().GetSession();
+            Adapters::Database::Mapper::ProductMapper productMapper(session);
             auto product = std::make_shared<Domain::Product>("HIPSTER-WORKBENCH",
                 std::vector<Domain::Batch>{{"batch1", "HIPSTER-WORKBENCH", 100}});
             productMapper.Insert(product);
+            session.commit();
         }
 
         ServiceLayer::UoW::SqlUnitOfWork uow;
@@ -50,10 +49,10 @@ namespace Allocation::Tests
             EXPECT_EQ(allocationCount, 1);
         }
 
-        productMapper.Delete(product);
+        CleanupForSku("HIPSTER-WORKBENCH");
     }
 
-    TEST_F(UoW, test_rolls_back_uncommitted_work_by_default)
+    TEST_F(UoW_Fixture, test_rolls_back_uncommitted_work_by_default)
     {
         {
             ServiceLayer::UoW::SqlUnitOfWork uow;
@@ -71,7 +70,7 @@ namespace Allocation::Tests
         EXPECT_EQ(count, 0);
     }
 
-    TEST_F(UoW, test_rolls_back_on_error)
+    TEST_F(UoW_Fixture, test_rolls_back_on_error)
     {
         try
         {
@@ -116,7 +115,7 @@ namespace Allocation::Tests
         }
     }
 
-    TEST_F(UoW, test_concurrent_updates_to_version_are_not_allowed)
+    TEST_F(UoW_Fixture, test_concurrent_updates_to_version_are_not_allowed)
     {
         auto session = Adapters::Database::SessionPool::Instance().GetSession();
         Adapters::Database::Mapper::ProductMapper productMapper(session);
@@ -163,6 +162,6 @@ namespace Allocation::Tests
 
         EXPECT_EQ(orderCount, 1);
 
-        productMapper.Delete(productMapper.FindBySKU(SKU));
+        CleanupForSku(SKU);
     }
 }

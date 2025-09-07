@@ -24,10 +24,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
 
 # Unit-тесты
 enable_testing()
-add_executable(${PROJECT_NAME}_unittest ${UNIT_TEST_SOURCES})
-target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs GTest::gtest_main GTest::gmock)
+add_executable(${PROJECT_NAME}_test ${UNIT_TEST_SOURCES})
+target_link_libraries(${PROJECT_NAME}_test PRIVATE ${PROJECT_NAME}_objs GTest::gtest_main GTest::gmock)
 include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME}_unittest)
+gtest_discover_tests(${PROJECT_NAME}_test)
 
 # Установка
 include(GNUInstallDirs)

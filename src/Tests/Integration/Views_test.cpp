@@ -23,11 +23,7 @@ namespace Allocation::Tests
 
     TEST_F(Views_Fixture, test_allocations_view)
     {
-        auto cleanupViewSku1 = CleanupForReference("sku1batch");
-        auto cleanupViewSku2 = CleanupForReference("sku2batch");
-
         auto& messageBus = ServiceLayer::MessageBus::Instance();
-
         messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>("sku1batch", "sku1", 50));
         messageBus.Handle(
             std::make_shared<Domain::Commands::CreateBatch>("sku2batch", "sku2", 50, today));
@@ -46,18 +42,14 @@ namespace Allocation::Tests
             views, UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "sku1batch"),
                        std::pair<std::string, std::string>("sku2", "sku2batch")));
         
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
-        Adapters::Database::Mapper::ProductMapper productMapper(session);
-        productMapper.Delete(productMapper.FindBySKU("sku1"));
-        productMapper.Delete(productMapper.FindBySKU("sku2"));
+        CleanupForReference("sku1batch");
+        CleanupForReference("sku2batch");
+        CleanupForSku("sku1");
+        CleanupForSku("sku2");
     }
 
     TEST_F(Views_Fixture, test_deallocation)
     {
-        auto cleanupViewB1 = CleanupForReference("b1");
-        auto cleanupViewB2 = CleanupForReference("b2");
-
-        using namespace std::chrono;
         const year_month_day today(2020y, January, 31d);
         auto& messageBus = ServiceLayer::MessageBus::Instance();
 
@@ -72,8 +64,9 @@ namespace Allocation::Tests
         EXPECT_THAT(views, UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "b1"),
                                std::pair<std::string, std::string>("sku1", "b2")));
 
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
-        Adapters::Database::Mapper::ProductMapper productMapper(session);
-        productMapper.Delete(productMapper.FindBySKU("sku1"));
+
+        CleanupForReference("b1");
+        CleanupForReference("b2");
+        CleanupForSku("sku1");
     }
 }

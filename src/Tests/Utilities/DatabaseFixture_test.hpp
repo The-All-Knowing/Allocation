@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include "Adapters/Database/Mappers/ProductMapper.hpp"
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "ServiceLayer/MessageBus/Handlers/Handlers.hpp"
 #include "ServiceLayer/MessageBus/MessageBus.hpp"
@@ -14,8 +15,7 @@ namespace Allocation::Tests
     class Database_Fixture : public testing::Test
     {
     public:
-        /// @brief Настройка пула сессий и регистрация PostgreSQL коннектора. Выполняется один раз
-        /// для всего набора тестов.
+        /// @brief Настройка пула сессий и регистрация PostgreSQL коннектора.
         static void SetUpTestSuite()
         {
             if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
@@ -49,8 +49,21 @@ namespace Allocation::Tests
     };
 
     /// @brief Фикстура для работы с Unit of Work с поддержкой автоматической очистки продуктов.
-    class UoW_Fixture : public Database_Fixture
+    class UoW_Fixture : public testing::Test
     {
+    public:
+        /// @brief Настройка пула сессий и регистрация PostgreSQL коннектора.
+        static void SetUpTestSuite()
+        {
+            if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
+                !sessionPool.IsConfigured())
+            {
+                auto config = ReadSystemDatabaseConfigs();
+                sessionPool.Configure(config);
+                Poco::Data::PostgreSQL::Connector::registerConnector();
+            }
+        }
+
     protected:
         /// @brief RAII-хелпер для удаления продукта из БД по SKU.
         class ProductCleanup
@@ -65,8 +78,9 @@ namespace Allocation::Tests
                 try
                 {
                     auto session = Adapters::Database::SessionPool::Instance().GetSession();
-                    session << "DELETE FROM allocation.products WHERE sku = $1",
-                        Poco::Data::Keywords::use(_sku), Poco::Data::Keywords::now;
+                    Adapters::Database::Mapper::ProductMapper productMapper(session);
+                    productMapper.Delete(productMapper.FindBySKU(_sku));
+                    session.commit();
                 }
                 catch (...)
                 {
@@ -80,17 +94,31 @@ namespace Allocation::Tests
         /// @brief Создаёт RAII-объект для удаления продукта по SKU.
         /// @param sku Артикул продукта.
         /// @return RAII-объект, который удалит продукт при уничтожении.
-        [[nodiscard]] ProductCleanup CleanupForSku(const std::string& sku) const
-        {
-            return ProductCleanup(sku);
-        }
+        ProductCleanup CleanupForSku(const std::string& sku) const { return ProductCleanup(sku); }
     };
 
     class Views_Fixture : public UoW_Fixture
     {
     public:
+        /// @brief Настройка тестового окружения.
+        ///
+        /// Выполняется один раз для всего набора тестов:
+        /// 1. Настройка пула соединений с базой данных и регистрация PostgreSQL-коннектора.
+        /// 2. Инициализация шины сообщений:
+        ///    - Подписка на события аллокаций (Allocated, Deallocated) с обработчиками для
+        ///    обновления read-model.
+        ///    - Настройка командных обработчиков для бизнес-команд (Allocate, CreateBatch,
+        ///    ChangeBatchQuantity).
         static void SetUpTestSuite()
         {
+            if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
+                !sessionPool.IsConfigured())
+            {
+                auto config = ReadSystemDatabaseConfigs();
+                sessionPool.Configure(config);
+                Poco::Data::PostgreSQL::Connector::registerConnector();
+            }
+
             auto& messagebus = ServiceLayer::MessageBus::Instance();
             messagebus.SubscribeToEvent<Allocation::Domain::Events::Allocated>(
                 ServiceLayer::Handlers::AddAllocationToReadModel);
@@ -123,6 +151,7 @@ namespace Allocation::Tests
                     auto session = Adapters::Database::SessionPool::Instance().GetSession();
                     session << "DELETE FROM allocation.allocations_view WHERE batchref = $1",
                         Poco::Data::Keywords::use(_reference), Poco::Data::Keywords::now;
+                    session.commit();
                 }
                 catch (...)
                 {
@@ -136,7 +165,7 @@ namespace Allocation::Tests
         /// @brief Создаёт RAII-объект для удаления записей read-model по reference.
         /// @param reference Ссылка на удаляемую партию.
         /// @return RAII-объект, который удалит записи read-model при уничтожении.
-        [[nodiscard]] ViewCleanup CleanupForReference(const std::string& reference) const
+        ViewCleanup CleanupForReference(const std::string& reference) const
         {
             return ViewCleanup(reference);
         }
