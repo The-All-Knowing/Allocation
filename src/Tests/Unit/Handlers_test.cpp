@@ -1,4 +1,4 @@
-#include "Services/MessageBus/Handlers/Handlers.hpp"
+#include "ServiceLayer/MessageBus/Handlers/Handlers.hpp"
 
 #include <gtest/gtest.h>
 
@@ -6,9 +6,9 @@
 #include "Domain/Commands/ChangeBatchQuantity.hpp"
 #include "Domain/Commands/CreateBatch.hpp"
 #include "Domain/Events/OutOfStock.hpp"
-#include "Services/Exceptions.hpp"
-#include "Services/MessageBus/Handlers/NotificationHandler.hpp"
-#include "Services/MessageBus/MessageBus.hpp"
+#include "ServiceLayer/Exceptions.hpp"
+#include "ServiceLayer/MessageBus/Handlers/NotificationHandler.hpp"
+#include "ServiceLayer/MessageBus/MessageBus.hpp"
 #include "Tests/Utilities/Common_test.hpp"
 #include "Tests/Utilities/FakeUnitOfWork_test.hpp"
 
@@ -20,16 +20,16 @@ namespace Allocation::Tests
     public:
         static void SetUpTestSuite()
         {
-            Services::MessageBus::Instance()
+            ServiceLayer::MessageBus::Instance()
                 .SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
-                    Services::Handlers::AddBatch);
+                    ServiceLayer::Handlers::AddBatch);
         }
     };
 
     TEST_F(Handlers_TestAddBatch, test_for_new_product)
     {
         FakeUnitOfWork uow;
-        Services::MessageBus::Instance().Handle(
+        ServiceLayer::MessageBus::Instance().Handle(
             std::make_shared<Domain::Commands::CreateBatch>("b1", "CRUNCHY-ARMCHAIR", 100), uow);
         EXPECT_TRUE(uow.GetProductRepository().Get("CRUNCHY-ARMCHAIR"));
         EXPECT_TRUE(uow.IsCommited());
@@ -38,7 +38,7 @@ namespace Allocation::Tests
     TEST_F(Handlers_TestAddBatch, test_for_existing_product)
     {
         FakeUnitOfWork uow;
-        auto& messagebus = Services::MessageBus::Instance();
+        auto& messagebus = ServiceLayer::MessageBus::Instance();
         messagebus.Handle(
             std::make_shared<Domain::Commands::CreateBatch>("b1", "GARISH-RUG", 100), uow);
         messagebus.Handle(
@@ -55,18 +55,18 @@ namespace Allocation::Tests
     public:
         static void SetUpTestSuite()
         {
-            auto& messagebus = Services::MessageBus::Instance();
+            auto& messagebus = ServiceLayer::MessageBus::Instance();
             messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
-                Services::Handlers::AddBatch);
+                ServiceLayer::Handlers::AddBatch);
             messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
-                Services::Handlers::Allocate);
+                ServiceLayer::Handlers::Allocate);
         }
     };
 
     TEST_F(Handlers_TestAllocate, test_allocates)
     {
         FakeUnitOfWork uow;
-        auto& messagebus = Services::MessageBus::Instance();
+        auto& messagebus = ServiceLayer::MessageBus::Instance();
         messagebus.Handle(
             std::make_shared<Domain::Commands::CreateBatch>("batch1", "COMPLICATED-LAMP", 100),
             uow);
@@ -80,12 +80,12 @@ namespace Allocation::Tests
     TEST_F(Handlers_TestAllocate, test_errors_for_invalid_sku)
     {
         FakeUnitOfWork uow;
-        auto& messagebus = Services::MessageBus::Instance();
+        auto& messagebus = ServiceLayer::MessageBus::Instance();
         messagebus.Handle(
             std::make_shared<Domain::Commands::CreateBatch>("batch1", "COMPLICATED-LAMP", 100),
             uow);
 
-        EXPECT_TRUE(ThrowsWithMessage<Services::Exceptions::InvalidSku>(
+        EXPECT_TRUE(ThrowsWithMessage<ServiceLayer::Exceptions::InvalidSku>(
             [&]()
             {
                 messagebus.Handle(
@@ -97,7 +97,7 @@ namespace Allocation::Tests
     TEST_F(Handlers_TestAllocate, test_commits)
     {
         FakeUnitOfWork uow;
-        auto& messagebus = Services::MessageBus::Instance();
+        auto& messagebus = ServiceLayer::MessageBus::Instance();
         messagebus.Handle(
             std::make_shared<Domain::Commands::CreateBatch>("b1", "OMINOUS-MIRROR", 100), uow);
         messagebus.Handle(
@@ -112,11 +112,11 @@ namespace Allocation::Tests
         { sentEmails[to].emplace_back(std::move(message)); };
 
         using FakeNotifications =
-            Allocation::Services::Handlers::NotificationHandler<Domain::Events::OutOfStock,
+            Allocation::ServiceLayer::Handlers::NotificationHandler<Domain::Events::OutOfStock,
                 decltype(mockEmailSender)>;
 
         FakeUnitOfWork uow;
-        auto& messagebus = Services::MessageBus::Instance();
+        auto& messagebus = ServiceLayer::MessageBus::Instance();
         messagebus.SubscribeToEvent<Domain::Events::OutOfStock>(FakeNotifications(mockEmailSender));
         messagebus.Handle(
             std::make_shared<Domain::Commands::CreateBatch>("b1", "POPULAR-CURTAINS", 9), uow);
@@ -133,23 +133,23 @@ namespace Allocation::Tests
     public:
         static void SetUpTestSuite()
         {
-            auto& messagebus = Services::MessageBus::Instance();
+            auto& messagebus = ServiceLayer::MessageBus::Instance();
             messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
-                Services::Handlers::Allocate);
+                ServiceLayer::Handlers::Allocate);
             messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
-                Services::Handlers::AddBatch);
+                ServiceLayer::Handlers::AddBatch);
             messagebus.SetCommandHandler<Allocation::Domain::Commands::ChangeBatchQuantity>(
-                Services::Handlers::ChangeBatchQuantity);
+                ServiceLayer::Handlers::ChangeBatchQuantity);
 
             messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
-                Services::Handlers::Reallocate);
+                ServiceLayer::Handlers::Reallocate);
         }
     };
 
     TEST_F(Handlers_TestChangeBatchQuantity, test_changes_available_quantity)
     {
         FakeUnitOfWork uow;
-        auto& messagebus = Services::MessageBus::Instance();
+        auto& messagebus = ServiceLayer::MessageBus::Instance();
         messagebus.Handle(
             std::make_shared<Domain::Commands::CreateBatch>("batch1", "ADORABLE-SETTEE", 100), uow);
         auto batches = uow.GetProductRepository().Get("ADORABLE-SETTEE")->GetBatches();
@@ -168,7 +168,7 @@ namespace Allocation::Tests
         using namespace std::chrono;
         const year_month_day today{2007y, October, 18d};
         FakeUnitOfWork uow;
-        auto& messagebus = Services::MessageBus::Instance();
+        auto& messagebus = ServiceLayer::MessageBus::Instance();
         std::vector<Domain::Commands::CommandPtr> history{
             std::make_shared<Domain::Commands::CreateBatch>("batch1", "INDIFFERENT-TABLE", 50),
             std::make_shared<Domain::Commands::CreateBatch>(

@@ -42,27 +42,25 @@ namespace Allocation::Adapters::Database::Mapper
 
     void BatchMapper::Delete(std::vector<std::string> batchRefs)
     {
-        Poco::Data::Statement deleteOrderLines(_session);
-        deleteOrderLines << R"(
-            DELETE FROM allocation.order_lines p
-            USING allocation.allocations l, allocation.batches k
-            WHERE p.id = l.orderline_id
-             AND l.batch_id = k.id
-             AND k.reference = $1
-        )",
-            use(batchRefs), now;
+        if (batchRefs.empty())
+            return;
+
+        DeleteOrderLines(batchRefs);
 
         Poco::Data::Statement deleteBatch(_session);
         deleteBatch << R"(
             DELETE FROM allocation.batches
-            WHERE reference = $1
+            WHERE reference IN ($1)
         )",
             use(batchRefs), now;
     }
 
     void BatchMapper::Insert(const std::vector<Domain::Batch>& batches)
     {
-        int id;
+        if (batches.empty())
+            return;
+
+        int batchPk = -1;
         std::string reference;
         std::string sku;
         Poco::Nullable<Poco::DateTime> eta;
@@ -73,7 +71,7 @@ namespace Allocation::Adapters::Database::Mapper
             VALUES ($1, $2, $3, $4)
             RETURNING id
         )",
-            use(reference), use(sku), use(qty), use(eta), into(id);
+            use(reference), use(sku), use(qty), use(eta), into(batchPk);
 
         for (const auto& batch : batches)
         {
@@ -85,7 +83,7 @@ namespace Allocation::Adapters::Database::Mapper
 
             auto orderLines = batch.GetAllocations();
             if (!orderLines.empty())
-                InsertOrderLines(orderLines, id);
+                InsertOrderLines(orderLines, batchPk);
         }
     }
 
@@ -114,7 +112,7 @@ namespace Allocation::Adapters::Database::Mapper
 
     void BatchMapper::InsertOrderLines(const std::vector<Domain::OrderLine>& orders, int batchPk)
     {
-        if (orders.empty())
+        if (orders.empty() || batchPk == -1)
             return;
 
         using sqlOrderLine = Poco::Tuple<std::string, int, std::string>;
@@ -142,5 +140,32 @@ namespace Allocation::Adapters::Database::Mapper
             VALUES ($1, $2)
         )",
             use(allocations), now;
+    }
+
+    void BatchMapper::DeleteOrderLines(std::vector<std::string> batchRefs)
+    {
+        if (batchRefs.empty())
+            return;
+
+        std::vector<int> removedOrderLinesId;
+        Poco::Data::Statement deleteAllocations(_session);
+        deleteAllocations << R"(
+            DELETE FROM allocation.allocations l
+            USING allocation.batches b
+            WHERE l.batch_id = b.id
+             AND b.reference IN ($1)
+            RETURNING l.orderline_id
+        )",
+            use(batchRefs), into(removedOrderLinesId), now;
+
+        if (removedOrderLinesId.empty())
+            return;
+
+        Poco::Data::Statement deleteOrderLines(_session);
+        deleteOrderLines << R"(
+            DELETE FROM allocation.order_lines
+            WHERE id IN ($1)
+        )",
+            use(removedOrderLinesId), now;
     }
 }

@@ -3,7 +3,7 @@
 #include "Precompile.hpp"
 
 
-namespace Allocation::Services::Exceptions
+namespace Allocation::ServiceLayer::Exceptions
 {
     /// @brief Исключение для недопустимого SKU
     class InvalidSku : public std::exception

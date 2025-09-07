@@ -1,4 +1,4 @@
-#include "Services/Views.hpp"
+#include "ServiceLayer/Views.hpp"
 
 #include <gtest/gtest.h>
 
@@ -7,74 +7,73 @@
 #include "Domain/Commands/Allocate.hpp"
 #include "Domain/Commands/ChangeBatchQuantity.hpp"
 #include "Domain/Commands/CreateBatch.hpp"
-#include "Services/MessageBus/MessageBus.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "ServiceLayer/MessageBus/Handlers/Handlers.hpp"
+#include "ServiceLayer/MessageBus/MessageBus.hpp"
+#include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
+#include "Tests/Utilities/DatabaseFixture_test.hpp"
+#include "Adapters/Database/Mappers/ProductMapper.hpp"
+#include "Adapters/Database/Session/SessionPool.hpp"
 
-/*
+
 namespace Allocation::Tests
 {
     using ::testing::UnorderedElementsAre;
     using namespace std::chrono;
     const year_month_day today(2020y, January, 31d);
 
-    TEST(Views, test_allocations_view)
+    TEST_F(Views_Fixture, test_allocations_view)
     {
-        try
-        {
-            auto& messageBus = Services::MessageBus::Instance();
+        auto cleanupViewSku1 = CleanupForReference("sku1batch");
+        auto cleanupViewSku2 = CleanupForReference("sku2batch");
 
-            messageBus.Handle(
-                std::make_shared<Domain::Commands::CreateBatch>("sku1batch", "sku1", 50));
-            messageBus.Handle(
-                std::make_shared<Domain::Commands::CreateBatch>("sku2batch", "sku2", 50, today));
-            messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("order1", "sku1", 20));
-            messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("order1", "sku2", 20));
+        auto& messageBus = ServiceLayer::MessageBus::Instance();
 
-            messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>(
-                "sku1batch-later", "sku1", 50, today));
-            messageBus.Handle(
-                std::make_shared<Domain::Commands::Allocate>("otherorder", "sku1", 30));
-            messageBus.Handle(
-                std::make_shared<Domain::Commands::Allocate>("otherorder", "sku2", 10));
+        messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>("sku1batch", "sku1", 50));
+        messageBus.Handle(
+            std::make_shared<Domain::Commands::CreateBatch>("sku2batch", "sku2", 50, today));
+        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("order1", "sku1", 20));
+        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("order1", "sku2", 20));
 
-            Services::UoW::SqlUnitOfWork uow;
-            auto views = Services::Views::Allocations("order1", uow);
+        messageBus.Handle(
+            std::make_shared<Domain::Commands::CreateBatch>("sku1batch-later", "sku1", 50, today));
+        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("otherorder", "sku1", 30));
+        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("otherorder", "sku2", 10));
 
-            EXPECT_THAT(views,
-                UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "sku1batch"),
-                    std::pair<std::string, std::string>("sku2", "sku2batch")));
-        }
-        catch (const Poco::Exception& e)
-        {
-            FAIL() << e.displayText();
-        }
+        ServiceLayer::UoW::SqlUnitOfWork uow;
+        auto views = ServiceLayer::Views::Allocations("order1", uow);
+
+        EXPECT_THAT(
+            views, UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "sku1batch"),
+                       std::pair<std::string, std::string>("sku2", "sku2batch")));
+        
+        auto session = Adapters::Database::SessionPool::Instance().GetSession();
+        Adapters::Database::Mapper::ProductMapper productMapper(session);
+        productMapper.Delete(productMapper.FindBySKU("sku1"));
+        productMapper.Delete(productMapper.FindBySKU("sku2"));
     }
 
-    TEST(Views, test_deallocation)
+    TEST_F(Views_Fixture, test_deallocation)
     {
-        try
-        {
-            using namespace std::chrono;
-            const year_month_day today(2020y, January, 31d);
-            auto& messageBus = Services::MessageBus::Instance();
+        auto cleanupViewB1 = CleanupForReference("b1");
+        auto cleanupViewB2 = CleanupForReference("b2");
 
-            messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>("b1", "sku1", 50));
-            messageBus.Handle(
-                std::make_shared<Domain::Commands::CreateBatch>("b2", "sku1", 50, today));
-            messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("o1", "sku1", 40));
-            messageBus.Handle(std::make_shared<Domain::Commands::ChangeBatchQuantity>("b1", 10));
+        using namespace std::chrono;
+        const year_month_day today(2020y, January, 31d);
+        auto& messageBus = ServiceLayer::MessageBus::Instance();
 
-            Services::UoW::SqlUnitOfWork uow;
-            auto views = Services::Views::Allocations("o1", uow);
+        messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>("b1", "sku1", 50));
+        messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>("b2", "sku1", 50, today));
+        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("o1", "sku1", 40));
+        messageBus.Handle(std::make_shared<Domain::Commands::ChangeBatchQuantity>("b1", 10));
 
-            EXPECT_THAT(
-                views, UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "b1"),
-                           std::pair<std::string, std::string>("sku1", "b2")));
-        }
-        catch (const Poco::Exception& e)
-        {
-            FAIL() << e.displayText();
-        }
+        ServiceLayer::UoW::SqlUnitOfWork uow;
+        auto views = ServiceLayer::Views::Allocations("o1", uow);
+
+        EXPECT_THAT(views, UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "b1"),
+                               std::pair<std::string, std::string>("sku1", "b2")));
+
+        auto session = Adapters::Database::SessionPool::Instance().GetSession();
+        Adapters::Database::Mapper::ProductMapper productMapper(session);
+        productMapper.Delete(productMapper.FindBySKU("sku1"));
     }
 }
-*/

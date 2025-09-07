@@ -1,11 +1,11 @@
 #include "MessageBus.hpp"
 
 #include "Domain/Events/OutOfStock.hpp"
-#include "Services/Loggers/ILogger.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
+#include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
 
 
-namespace Allocation::Services
+namespace Allocation::ServiceLayer
 {
     MessageBus& MessageBus::Instance()
     {
@@ -43,7 +43,7 @@ namespace Allocation::Services
 
     void MessageBus::Handle(Domain::IMessagePtr message)
     {
-        Services::UoW::SqlUnitOfWork uow;
+        ServiceLayer::UoW::SqlUnitOfWork uow;
         Handle(message, uow);
     }
 
@@ -74,7 +74,7 @@ namespace Allocation::Services
         Loggers::GetLogger()->Debug(std::format("handling command {}", command->Name()));
         try
         {
-            _commandHandlers[typeid(*command)](uow, command);
+            _commandHandlers.at(typeid(*command))(uow, command);
             for (auto& newMessage : uow.GetNewMessages())
                 queue.push(newMessage);
         }

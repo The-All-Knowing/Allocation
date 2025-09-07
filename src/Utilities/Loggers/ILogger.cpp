@@ -1,7 +1,7 @@
 #include "ILogger.hpp"
 
 
-namespace Allocation::Services::Loggers
+namespace Allocation::Loggers
 {
     namespace Internal
     {

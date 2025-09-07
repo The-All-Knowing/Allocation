@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Services/Loggers/ILogger.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Tests
 {
     /// @brief Фейковый реализация логгера для тестирования.
-    struct FakeLogger : public Services::Loggers::ILogger
+    struct FakeLogger : public Allocation::Loggers::ILogger
     {
         /// @brief Логирует сообщение уровня Debug.
         /// @param message Сообщение для логирования.

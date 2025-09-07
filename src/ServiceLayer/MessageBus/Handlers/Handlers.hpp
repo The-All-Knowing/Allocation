@@ -13,7 +13,7 @@
 #include "PublisherHandler.hpp"
 
 
-namespace Allocation::Services::Handlers
+namespace Allocation::ServiceLayer::Handlers
 {
     /// @brief Добавляет новую партию товара.
     /// @param uow Единица работы.
@@ -33,7 +33,7 @@ namespace Allocation::Services::Handlers
 
     /// @brief Перераспределяет товар из одной партии в другую.
     /// @param uow Единица работы.
-    /// @param event Событие "перераспределить".
+    /// @param event Событие "товар деаллоцирован".
     void Reallocate(Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Events::Deallocated> event);
 
     /// @brief Отправляет уведомление по электронной почте, когда товара нет на складе.

@@ -18,7 +18,7 @@ CREATE TABLE allocation.products (
 CREATE TABLE allocation.batches (
     id SERIAL PRIMARY KEY,
     reference VARCHAR(255),
-    sku VARCHAR(255) REFERENCES allocation.products(sku) ON DELETE CASCADE,
+    sku VARCHAR(255) REFERENCES allocation.products(sku),
     _purchased_quantity INTEGER NOT NULL,
     eta DATE
 );
@@ -28,11 +28,9 @@ CREATE TABLE allocation.allocations (
     id SERIAL PRIMARY KEY,
     orderline_id INTEGER REFERENCES allocation.order_lines(id),
     batch_id INTEGER REFERENCES allocation.batches(id)
-    ON DELETE CASCADE
 );
 
 -- Таблица/представление для аллокаций
--- В SQLAlchemy её создавали как обычную таблицу без PK
 CREATE TABLE allocation.allocations_view (
     orderid VARCHAR(255),
     sku VARCHAR(255),

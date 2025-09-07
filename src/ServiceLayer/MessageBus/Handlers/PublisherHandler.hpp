@@ -5,7 +5,7 @@
 #include "Domain/Events/AbstractEvent.hpp"
 
 
-namespace Allocation::Services::Handlers
+namespace Allocation::ServiceLayer::Handlers
 {
     template <typename T, typename Message>
     concept PublisherSender = requires(T t, std::string channel, std::shared_ptr<Message> event) {
@@ -21,7 +21,7 @@ namespace Allocation::Services::Handlers
 
         void operator()(std::shared_ptr<Message> event) const
         {
-            Services::Loggers::GetLogger()->Debug(
+            Allocation::Loggers::GetLogger()->Debug(
                 std::format("publishing: channel={}, event={}", "line_allocated", event->Name()));
             _publisher("line_allocated", event);
         }

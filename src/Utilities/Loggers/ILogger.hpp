@@ -3,7 +3,7 @@
 #include "Precompile.hpp"
 
 
-namespace Allocation::Services::Loggers
+namespace Allocation::Loggers
 {
     /// @brief Интерфейс логгера для логирования сообщений разного уровня.
     struct ILogger

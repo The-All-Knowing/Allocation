@@ -1,20 +1,21 @@
 #include "Handlers.hpp"
 
 #include "Domain/Product/Product.hpp"
-#include "Services/Exceptions.hpp"
+#include "ServiceLayer/Exceptions.hpp"
 
 
-namespace Allocation::Services::Handlers
+namespace Allocation::ServiceLayer::Handlers
 {
     void AddBatch(Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Commands::CreateBatch> message)
     {
         auto product = uow.GetProductRepository().Get(message->sku);
         if (!product)
+        {
             product = std::make_shared<Domain::Product>(message->sku);
-
+            uow.GetProductRepository().Add(product);
+        }
         product->AddBatch(
             Allocation::Domain::Batch(message->ref, message->sku, message->qty, message->eta));
-        uow.GetProductRepository().Add(product);
         uow.Commit();
     }
 
@@ -26,7 +27,6 @@ namespace Allocation::Services::Handlers
             throw Exceptions::InvalidSku(command->sku);
 
         auto ref = product->Allocate(line);
-        uow.GetProductRepository().Add(product);
         uow.Commit();
     }
 
@@ -40,8 +40,9 @@ namespace Allocation::Services::Handlers
         Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Commands::ChangeBatchQuantity> command)
     {
         auto product = uow.GetProductRepository().GetByBatchRef(command->ref);
+        if (!product)
+            throw std::invalid_argument("Invalid referebce.");
         product->ChangeBatchQuantity(command->ref, command->qty);
-        uow.GetProductRepository().Add(product);
         uow.Commit();
     }
 

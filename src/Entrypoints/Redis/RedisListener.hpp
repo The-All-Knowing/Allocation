@@ -4,7 +4,7 @@
 
 #include "Adapters/Redis/ClientFactory.hpp"
 #include "Domain/Commands/AbstractCommand.hpp"
-#include "Services/Loggers/ILogger.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Entrypoints::Redis
@@ -43,7 +43,7 @@ namespace Allocation::Entrypoints::Redis
         {
             if (const Poco::Exception* exception = args.exception(); exception)
             {
-                Services::Loggers::GetLogger()->Error(
+                Allocation::Loggers::GetLogger()->Error(
                     "Redis exception: " + exception->displayText());
                 return;
             }
@@ -65,12 +65,12 @@ namespace Allocation::Entrypoints::Redis
             }
             catch(const Poco::Exception& e)
             {
-                Services::Loggers::GetLogger()->Error(
+                Allocation::Loggers::GetLogger()->Error(
                     "RedisListener exception: " + std::string(e.displayText()));
             }
             catch (const std::exception& e)
             {
-                Services::Loggers::GetLogger()->Error(
+                Allocation::Loggers::GetLogger()->Error(
                     "RedisListener exception: " + std::string(e.what()));
             }
         }

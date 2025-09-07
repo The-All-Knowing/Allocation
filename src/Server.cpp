@@ -2,36 +2,37 @@
 
 #include "Adapters/Database/Session/SessionPool.hpp"
 #include "Entrypoints/REST/HandlerFactory.hpp"
-#include "Services/Loggers/PocoLogger.hpp"
-#include "Services/MessageBus/Handlers/Handlers.hpp"
-#include "Services/MessageBus/MessageBus.hpp"
+#include "ServiceLayer/MessageBus/Handlers/Handlers.hpp"
+#include "ServiceLayer/MessageBus/MessageBus.hpp"
+#include "ServiceLayer/PocoLogger.hpp"
 
 
 namespace Allocation
 {
     void ServerApp::initialize(Application& self)
     {
-        Services::Loggers::InitializeLogger(std::make_shared<Services::Loggers::PocoLogger>());
+        Allocation::Loggers::InitializeLogger(
+            std::make_shared<ServiceLayer::Loggers::PocoLogger>());
 
         {
-            auto& messagebus = Services::MessageBus::Instance();
+            auto& messagebus = ServiceLayer::MessageBus::Instance();
             messagebus.SubscribeToEvent<Allocation::Domain::Events::Allocated>(
-                Services::Handlers::PublishAllocatedEvent());
+                ServiceLayer::Handlers::PublishAllocatedEvent());
             messagebus.SubscribeToEvent<Allocation::Domain::Events::Allocated>(
-                Services::Handlers::AddAllocationToReadModel);
+                ServiceLayer::Handlers::AddAllocationToReadModel);
             messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
-                Services::Handlers::RemoveAllocationFromReadModel);
+                ServiceLayer::Handlers::RemoveAllocationFromReadModel);
             messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
-                Services::Handlers::Reallocate);
+                ServiceLayer::Handlers::Reallocate);
             messagebus.SubscribeToEvent<Allocation::Domain::Events::OutOfStock>(
-                Services::Handlers::SendOutOfStockNotification());
+                ServiceLayer::Handlers::SendOutOfStockNotification());
 
             messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
-                Services::Handlers::Allocate);
+                ServiceLayer::Handlers::Allocate);
             messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
-                Services::Handlers::AddBatch);
+                ServiceLayer::Handlers::AddBatch);
             messagebus.SetCommandHandler<Allocation::Domain::Commands::ChangeBatchQuantity>(
-                Services::Handlers::ChangeBatchQuantity);
+                ServiceLayer::Handlers::ChangeBatchQuantity);
         }
 
         loadConfiguration();
@@ -82,11 +83,11 @@ namespace Allocation
         Poco::Net::ServerSocket serverSocket(port);
         Poco::Net::HTTPServer server(new Entrypoints::Rest::HandlerFactory, serverSocket, pParams);
 
-        Services::Loggers::GetLogger()->Information("The server is running");
+        Allocation::Loggers::GetLogger()->Information("The server is running");
         server.start();
         waitForTerminationRequest();
         server.stop();
-        Services::Loggers::GetLogger()->Information("The server is stopped");
+        Allocation::Loggers::GetLogger()->Information("The server is stopped");
     }
 
     void ServerApp::InitDatabase()

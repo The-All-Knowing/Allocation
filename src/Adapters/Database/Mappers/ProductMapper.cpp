@@ -77,30 +77,50 @@ namespace Allocation::Adapters::Database::Mapper
         int version = product->GetVersion();
         auto batches = product->GetBatches();
 
-        _session << R"(
+        Poco::Data::Statement insert(_session);
+        insert << R"(
             INSERT INTO allocation.products (sku, version_number)
             VALUES ($1, $2)
         )",
             use(sku), use(version), now;
+        
+        if (!batches.empty())
+            _batchMapper.Insert(batches);
+    }
 
-        _batchMapper.Insert(batches);
+    bool ProductMapper::Delete(Domain::ProductPtr product)
+    {
+        std::vector<std::string> deletedBatches;
+        for (const auto& batch : product->GetBatches())
+            deletedBatches.push_back(batch.GetReference());
+
+        if (!deletedBatches.empty())
+            _batchMapper.Delete(deletedBatches);
+
+        auto SKU = product->GetSKU();
+        int version = product->GetVersion();
+        Poco::Data::Statement deleteProduct(_session);
+        deleteProduct << R"(
+            DELETE FROM allocation.products
+            WHERE sku = $1 AND version_number = $2
+        )",
+            use(SKU), use(version);
+
+        return deleteProduct.execute() > 0;
     }
 
     void ProductMapper::UpdateBatches(Domain::ProductPtr product)
     {
-        auto modifiedBatches = product->GetModifiedBatches();
-        if (modifiedBatches.empty())
-            return;
+        auto changedBatchRefs = product->GetModifiedBatches();
+        std::vector<Domain::Batch> changedBatches;
 
-        std::vector<Domain::Batch> newBatches;
-        newBatches.reserve(modifiedBatches.size());
-
-        for (const auto& ref : modifiedBatches)
-            if (auto batch = product->GetBatch(ref); batch.has_value())
-                newBatches.push_back(batch.value());
-
-        _batchMapper.Delete(modifiedBatches);
-        if (!newBatches.empty())
-            _batchMapper.Insert(newBatches);
+        for (const auto& ref : changedBatchRefs)
+            if(auto batch = product->GetBatch(ref); batch.has_value())
+                changedBatches.push_back(batch.value());
+        
+        if (!changedBatchRefs.empty())
+            _batchMapper.Delete(changedBatchRefs);
+        if (!changedBatches.empty())
+            _batchMapper.Insert(changedBatches);
     }
 }

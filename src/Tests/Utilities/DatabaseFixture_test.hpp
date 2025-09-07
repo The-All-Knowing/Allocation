@@ -3,6 +3,8 @@
 #include <gtest/gtest.h>
 
 #include "Adapters/Database/Session/SessionPool.hpp"
+#include "ServiceLayer/MessageBus/Handlers/Handlers.hpp"
+#include "ServiceLayer/MessageBus/MessageBus.hpp"
 #include "Utilities/ConfigReaders.hpp"
 
 
@@ -81,6 +83,62 @@ namespace Allocation::Tests
         [[nodiscard]] ProductCleanup CleanupForSku(const std::string& sku) const
         {
             return ProductCleanup(sku);
+        }
+    };
+
+    class Views_Fixture : public UoW_Fixture
+    {
+    public:
+        static void SetUpTestSuite()
+        {
+            auto& messagebus = ServiceLayer::MessageBus::Instance();
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::Allocated>(
+                ServiceLayer::Handlers::AddAllocationToReadModel);
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
+                ServiceLayer::Handlers::RemoveAllocationFromReadModel);
+            messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
+                ServiceLayer::Handlers::Reallocate);
+
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
+                ServiceLayer::Handlers::Allocate);
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
+                ServiceLayer::Handlers::AddBatch);
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::ChangeBatchQuantity>(
+                ServiceLayer::Handlers::ChangeBatchQuantity);
+        }
+
+    protected:
+        /// @brief RAII-хелпер для удаления записей read-model (CQRS) по reference.
+        class ViewCleanup
+        {
+        public:
+            /// @param reference Ссылка на удаляемую партию.
+            explicit ViewCleanup(std::string reference) : _reference(std::move(reference)) {}
+
+            /// @brief Удаляет записи read-model по reference при выходе из области видимости.
+            ~ViewCleanup()
+            {
+                try
+                {
+                    auto session = Adapters::Database::SessionPool::Instance().GetSession();
+                    session << "DELETE FROM allocation.allocations_view WHERE batchref = $1",
+                        Poco::Data::Keywords::use(_reference), Poco::Data::Keywords::now;
+                }
+                catch (...)
+                {
+                }
+            }
+
+        private:
+            std::string _reference;
+        };
+
+        /// @brief Создаёт RAII-объект для удаления записей read-model по reference.
+        /// @param reference Ссылка на удаляемую партию.
+        /// @return RAII-объект, который удалит записи read-model при уничтожении.
+        [[nodiscard]] ViewCleanup CleanupForReference(const std::string& reference) const
+        {
+            return ViewCleanup(reference);
         }
     };
 }

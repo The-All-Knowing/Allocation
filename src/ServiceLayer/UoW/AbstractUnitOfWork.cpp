@@ -1,7 +1,7 @@
 #include "AbstractUnitOfWork.hpp"
 
 
-namespace Allocation::Services::UoW
+namespace Allocation::ServiceLayer::UoW
 {
     AbstractUnitOfWork::AbstractUnitOfWork(Domain::IUpdatableRepository& repo) : _tracking(repo) {}
 

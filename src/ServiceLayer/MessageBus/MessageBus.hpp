@@ -7,13 +7,12 @@
 #include "Domain/Ports/IUnitOfWork.hpp"
 
 
-namespace Allocation::Services
+namespace Allocation::ServiceLayer
 {
     /// @brief Шина сообщений для обработки событий и команд.
     class MessageBus
     {
         using EventHandler = std::function<void(Domain::IUnitOfWork&, Domain::Events::EventPtr)>;
-        using NotificationHandler = std::function<void(Domain::Events::EventPtr)>;
         using CommandHandler =
             std::function<void(Domain::IUnitOfWork&, Domain::Commands::CommandPtr)>;
 
@@ -66,6 +65,7 @@ namespace Allocation::Services
 
         /// @brief Обрабатывает входящее сообщение.
         /// @param message Умный указатель на сообщение.
+        /// @note Автоматически создаёт единицу работы.
         void Handle(Domain::IMessagePtr message);
 
     private:
@@ -73,13 +73,13 @@ namespace Allocation::Services
         MessageBus() = default;
 
         /// @brief Конструктор копирования.
-        /// @param other Экземпляр MessageBus, который нужно скопировать.
         MessageBus(const MessageBus&) = delete;
 
         /// @brief Оператор присваивания.
-        /// @param other Экземпляр MessageBus, который нужно скопировать.
-        /// @return Ссылка на текущий объект.
         MessageBus& operator=(const MessageBus&) = delete;
+        
+        /// @brief Оператор присваивания.
+        MessageBus& operator=(MessageBus&&) = delete;
 
         /// @brief Обрабатывает входящее событие.
         /// @param uow Единица работы для обработки события.

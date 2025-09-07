@@ -44,6 +44,11 @@ namespace Allocation::Adapters::Database::Mapper
         /// запроса.
         void Insert(Domain::ProductPtr product);
 
+        /// @brief 
+        /// @param product 
+        /// @return 
+        bool Delete(Domain::ProductPtr product);
+
     private:
         /// @brief Обновляет партии продукта.
         /// @param product Продукт с партиями для обновления.

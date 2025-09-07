@@ -3,7 +3,7 @@
 #include "Adapters/Repository/TrackingRepository.hpp"
 #include "Domain/Ports/IUnitOfWork.hpp"
 
-namespace Allocation::Services::UoW
+namespace Allocation::ServiceLayer::UoW
 {
     /// @brief Абстрактный базовый класс для реализации паттерна "Единица работы" (Unit of Work).
     /// Отвечает за контроль транзакций и отслеживание изменений продуктов через TrackingRepository.

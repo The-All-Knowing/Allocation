@@ -107,7 +107,7 @@ namespace Allocation::Domain
     std::vector<Batch> Product::GetBatches() const noexcept
     {
         std::vector<Batch> result;
-        for (auto& [_, batch] : _referenceByBatches)
+        for (const auto& [_, batch] : _referenceByBatches)
             result.push_back(batch);
 
         return result;

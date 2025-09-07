@@ -4,7 +4,7 @@
 #include "Handlers/AllocateHandler.hpp"
 #include "Handlers/AllocationsViewHandler.hpp"
 #include "Handlers/NotFoundHandler.hpp"
-#include "Services/Loggers/ILogger.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Entrypoints::Rest
@@ -12,7 +12,7 @@ namespace Allocation::Entrypoints::Rest
     Poco::Net::HTTPRequestHandler* HandlerFactory::createRequestHandler(
         const Poco::Net::HTTPServerRequest& request)
     {
-        Services::Loggers::GetLogger()->Information(
+        Allocation::Loggers::GetLogger()->Information(
             std::format("Request: {} {}", request.getMethod(), request.getURI()));
 
         if (request.getMethod() == Poco::Net::HTTPRequest::HTTP_POST)

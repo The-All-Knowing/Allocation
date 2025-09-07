@@ -6,7 +6,7 @@
 
 #include "Adapters/Database/Mappers/ProductMapper.hpp"
 #include "Adapters/Database/Session/SessionPool.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
 #include "Tests/Utilities/Common_test.hpp"
 #include "Tests/Utilities/DatabaseFixture_test.hpp"
 #include "Utilities/Common.hpp"
@@ -16,84 +16,66 @@ namespace Allocation::Tests
 {
     using namespace Poco::Data::Keywords;
     using UoW = UoW_Fixture;
-    
+
     TEST_F(UoW, test_uow_can_retrieve_a_batch_and_allocate_to_it)
     {
-        auto cleanup = CleanupForSku("HIPSTER-WORKBENCH");
+        auto session = Adapters::Database::SessionPool::Instance().GetSession();
+        Adapters::Database::Mapper::ProductMapper productMapper(session);
 
-        try
         {
-            // Arrange: вставляем продукт с батчем напрямую
-            {
-                auto session = Adapters::Database::SessionPool::Instance().GetSession();
-                Adapters::Database::Mapper::ProductMapper productMapper(session);
-                auto product = std::make_shared<Domain::Product>("HIPSTER-WORKBENCH",
-                    std::vector<Domain::Batch>{{"batch1", "HIPSTER-WORKBENCH", 100}});
-                productMapper.Insert(product);
-            }
-
-            // Act: делаем аллокацию через UoW
-            Services::UoW::SqlUnitOfWork uow;
-            auto& productRepo = uow.GetProductRepository();
-            auto product = productRepo.Get("HIPSTER-WORKBENCH");
-
-            Domain::OrderLine orderLine("o1", "HIPSTER-WORKBENCH", 10);
-            product->Allocate(orderLine);
-            uow.Commit();
-
-            // Assert: партия существует
-            {
-                auto session = uow.GetSession().value();
-                Adapters::Database::Mapper::BatchMapper batchMapper(session);
-                auto retrievedBatches = batchMapper.Find("HIPSTER-WORKBENCH");
-
-                ASSERT_EQ(retrievedBatches.size(), 1);
-                EXPECT_EQ(retrievedBatches.at(0).GetReference(), "batch1");
-
-                // Дополнительно проверим, что аллокация реально создалась
-                int allocationCount = 0;
-                session << "SELECT COUNT(*) FROM allocation.allocations", into(allocationCount),
-                    now;
-
-                EXPECT_EQ(allocationCount, 1);
-            }
+            auto product = std::make_shared<Domain::Product>("HIPSTER-WORKBENCH",
+                std::vector<Domain::Batch>{{"batch1", "HIPSTER-WORKBENCH", 100}});
+            productMapper.Insert(product);
         }
-        catch (const Poco::Exception& e)
+
+        ServiceLayer::UoW::SqlUnitOfWork uow;
+        auto& productRepo = uow.GetProductRepository();
+        auto product = productRepo.Get("HIPSTER-WORKBENCH");
+
+        Domain::OrderLine orderLine("o1", "HIPSTER-WORKBENCH", 10);
+        product->Allocate(orderLine);
+        uow.Commit();
+
         {
-            FAIL() << e.displayText();
+            auto session = uow.GetSession().value();
+            Adapters::Database::Mapper::BatchMapper batchMapper(session);
+            auto retrievedBatches = batchMapper.Find("HIPSTER-WORKBENCH");
+
+            EXPECT_EQ(retrievedBatches.size(), 1);
+            EXPECT_EQ(retrievedBatches.at(0).GetReference(), "batch1");
+
+            int allocationCount = 0;
+            session << "SELECT COUNT(*) FROM allocation.allocations", into(allocationCount), now;
+
+            EXPECT_EQ(allocationCount, 1);
         }
+
+        productMapper.Delete(product);
     }
 
     TEST_F(UoW, test_rolls_back_uncommitted_work_by_default)
     {
-        try
         {
-            {
-                Services::UoW::SqlUnitOfWork uow;
-                auto session = uow.GetSession().value();
-                Adapters::Database::Mapper::ProductMapper productMapper(session);
-                auto product = std::make_shared<Domain::Product>(
-                    "MEDIUM-PLINTH", std::vector<Domain::Batch>{{"batch1", "MEDIUM-PLINTH", 100}});
-                productMapper.Insert(product);
-            }
-
-            auto session = Adapters::Database::SessionPool::Instance().GetSession();
-            int count = 0;
-            session << "SELECT COUNT(*) FROM allocation.batches", into(count), now;
-
-            EXPECT_EQ(count, 0);
+            ServiceLayer::UoW::SqlUnitOfWork uow;
+            auto session = uow.GetSession().value();
+            Adapters::Database::Mapper::ProductMapper productMapper(session);
+            auto product = std::make_shared<Domain::Product>(
+                "MEDIUM-PLINTH", std::vector<Domain::Batch>{{"batch1", "MEDIUM-PLINTH", 100}});
+            productMapper.Insert(product);
         }
-        catch (const Poco::Exception& e)
-        {
-            FAIL() << e.displayText();
-        }
+
+        auto session = Adapters::Database::SessionPool::Instance().GetSession();
+        int count = 0;
+        session << "SELECT COUNT(*) FROM allocation.batches", into(count), now;
+
+        EXPECT_EQ(count, 0);
     }
 
     TEST_F(UoW, test_rolls_back_on_error)
     {
         try
         {
-            Services::UoW::SqlUnitOfWork uow;
+            ServiceLayer::UoW::SqlUnitOfWork uow;
             auto session = uow.GetSession().value();
             Adapters::Database::Mapper::ProductMapper productMapper(session);
             auto product = std::make_shared<Domain::Product>(
@@ -119,7 +101,7 @@ namespace Allocation::Tests
         try
         {
             Domain::OrderLine line(orderid, sku, 10);
-            Services::UoW::SqlUnitOfWork uow;
+            ServiceLayer::UoW::SqlUnitOfWork uow;
             auto product = uow.GetProductRepository().Get(sku);
 
             syncPoint.arrive_and_wait();
@@ -137,14 +119,14 @@ namespace Allocation::Tests
     TEST_F(UoW, test_concurrent_updates_to_version_are_not_allowed)
     {
         auto session = Adapters::Database::SessionPool::Instance().GetSession();
+        Adapters::Database::Mapper::ProductMapper productMapper(session);
+        
         std::string SKU = RandomSku();
         std::string batch = RandomBatchRef();
-        Adapters::Database::Mapper::ProductMapper productMapper(session);
-        auto product =
-            std::make_shared<Domain::Product>(SKU, std::vector<Domain::Batch>{{batch, SKU, 100}}, 1);
+        auto product = std::make_shared<Domain::Product>(
+            SKU, std::vector<Domain::Batch>{{batch, SKU, 100}}, 1);
         productMapper.Insert(product);
         session.commit();
-        auto cleanup = CleanupForSku(SKU);
 
         std::string order1 = RandomOrderId("1");
         std::string order2 = RandomOrderId("2");
@@ -180,5 +162,7 @@ namespace Allocation::Tests
             use(SKU), into(orderCount), now;
 
         EXPECT_EQ(orderCount, 1);
+
+        productMapper.Delete(productMapper.FindBySKU(SKU));
     }
 }

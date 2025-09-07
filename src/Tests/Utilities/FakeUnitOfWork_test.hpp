@@ -3,13 +3,13 @@
 #include "Precompile.hpp"
 
 #include "FakeRepository_test.hpp"
-#include "Services/UoW/AbstractUnitOfWork.hpp"
+#include "ServiceLayer/UoW/AbstractUnitOfWork.hpp"
 
 
 namespace Allocation::Tests
 {
     /// @brief Фейковая реализация Unit of Work для тестирования.
-    class FakeUnitOfWork final : public Services::UoW::AbstractUnitOfWork
+    class FakeUnitOfWork final : public ServiceLayer::UoW::AbstractUnitOfWork
     {
     public:
         /// @brief Конструктор.

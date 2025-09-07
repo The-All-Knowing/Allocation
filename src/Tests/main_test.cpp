@@ -8,7 +8,7 @@ class TestEnvironment : public testing::Environment
 public:
     void SetUp() override
     {
-        Allocation::Services::Loggers::InitializeLogger(
+        Allocation::Loggers::InitializeLogger(
             std::make_shared<Allocation::Tests::FakeLogger>());
     }
 };

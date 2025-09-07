@@ -4,7 +4,7 @@
 
 #include "ClientFactory.hpp"
 #include "Domain/Events/AbstractEvent.hpp"
-#include "Services/Loggers/ILogger.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Adapters::Redis
@@ -39,7 +39,7 @@ namespace Allocation::Adapters::Redis
             }
             catch (const Poco::Exception& e)
             {
-                Services::Loggers::GetLogger()->Error(
+                Allocation::Loggers::GetLogger()->Error(
                     std::format("Redis publish failed: {}", e.displayText()));
             }
         }

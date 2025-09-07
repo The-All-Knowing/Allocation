@@ -1,9 +1,9 @@
 #include "AddBatchHandler.hpp"
 
 #include "Domain/Commands/CreateBatch.hpp"
-#include "Services/Loggers/ILogger.hpp"
-#include "Services/MessageBus/MessageBus.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
+#include "ServiceLayer/MessageBus/MessageBus.hpp"
+#include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
 #include "Utilities/Common.hpp"
 
 
@@ -29,7 +29,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
             if (json->has("eta") && !json->isNull("eta"))
                 eta = Convert(json->getValue<Poco::DateTime>("eta"));
 
-            Services::MessageBus::Instance().Handle(
+            ServiceLayer::MessageBus::Instance().Handle(
                 std::make_shared<Domain::Commands::CreateBatch>(ref, sku, qty, eta));
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_CREATED);
@@ -43,7 +43,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
             std::string msg = ex.displayText();
             response.send() << "{\"error\":\"" << msg << "\"}";
 
-            Services::Loggers::GetLogger()->Error(msg);
+            Allocation::Loggers::GetLogger()->Error(msg);
         }
         catch (const std::exception& ex)
         {
@@ -52,7 +52,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
             std::string msg = ex.what();
             response.send() << "{\"error\":\"" << msg << "\"}";
 
-            Services::Loggers::GetLogger()->Error(msg);
+            Allocation::Loggers::GetLogger()->Error(msg);
         }
     }
 }

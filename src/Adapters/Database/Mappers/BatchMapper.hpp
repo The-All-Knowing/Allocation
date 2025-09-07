@@ -27,7 +27,7 @@ namespace Allocation::Adapters::Database::Mapper
         /// @brief Создаёт партии заказа.
         /// @param batches Партии заказа.
         void Insert(const std::vector<Domain::Batch>& batches);
-
+        
     private:
         /// @brief Получает строки заказов партии. 
         /// @param batchPk PK партии заказа.
@@ -38,6 +38,10 @@ namespace Allocation::Adapters::Database::Mapper
         /// @param orders Строки заказа.
         /// @param batchPk PK партии заказа.
         void InsertOrderLines(const std::vector<Domain::OrderLine>& orders, int batchPk);
+
+        /// @brief Удаляет строки заказов партии.
+        /// @param batchRefs Ссылки на партии.
+        void DeleteOrderLines(std::vector<std::string> batchRefs);
 
         mutable Poco::Data::Session _session;
     };

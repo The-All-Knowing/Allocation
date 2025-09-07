@@ -7,7 +7,7 @@
 #include "Adapters/Repository/SqlRepository.hpp"
 
 
-namespace Allocation::Services::UoW
+namespace Allocation::ServiceLayer::UoW
 {
     /// @brief SQL реализация единицы работы (Unit of Work).
     class SqlUnitOfWork final : public AbstractUnitOfWork
@@ -39,6 +39,7 @@ namespace Allocation::Services::UoW
         {
             AbstractUnitOfWork::Commit();
             _session.commit();
+            _session.begin();
         }
 
         /// @brief Откат изменений.

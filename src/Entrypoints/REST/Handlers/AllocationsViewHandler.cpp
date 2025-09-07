@@ -1,8 +1,8 @@
 #include "AllocationsViewHandler.hpp"
 
-#include "Services/Loggers/ILogger.hpp"
-#include "Services/UoW/SqlUnitOfWork.hpp"
-#include "Services/Views.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
+#include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
+#include "ServiceLayer/Views.hpp"
 
 
 namespace Allocation::Entrypoints::Rest::Handlers
@@ -22,8 +22,8 @@ namespace Allocation::Entrypoints::Rest::Handlers
             }
             std::string orderid = uri.substr(prefix.size());
 
-            Services::UoW::SqlUnitOfWork uow;
-            auto results = Services::Views::Allocations(orderid, uow);
+            ServiceLayer::UoW::SqlUnitOfWork uow;
+            auto results = ServiceLayer::Views::Allocations(orderid, uow);
             if (results.empty())
             {
                 response.setStatus(Poco::Net::HTTPResponse::HTTP_NOT_FOUND);
@@ -50,7 +50,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
             auto msg = ex.what();
             response.send() << "Internal Server Error: " << msg;
 
-            Services::Loggers::GetLogger()->Error(msg);
+            Allocation::Loggers::GetLogger()->Error(msg);
         }
     }
 }

@@ -1,8 +1,8 @@
 #include "Handlers.hpp"
 
 #include "Domain/Commands/ChangeBatchQuantity.hpp"
-#include "Services/Loggers/ILogger.hpp"
-#include "Services/MessageBus/MessageBus.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
+#include "ServiceLayer/MessageBus/MessageBus.hpp"
 
 
 namespace Allocation::Infrastructure::Redis::Handlers
@@ -24,7 +24,7 @@ namespace Allocation::Infrastructure::Redis::Handlers
         std::string batchRef = json->getValue<std::string>("batchref");
         int qty = json->getValue<int>("qty");
 
-        Services::MessageBus::Instance().Handle(
+        ServiceLayer::MessageBus::Instance().Handle(
             std::make_shared<Domain::Commands::ChangeBatchQuantity>(batchRef, qty));
     }
 }

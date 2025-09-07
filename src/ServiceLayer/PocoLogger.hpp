@@ -1,12 +1,12 @@
 #pragma once
 
-#include "ILogger.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
-namespace Allocation::Services::Loggers
+namespace Allocation::ServiceLayer::Loggers
 {
     /// @brief Реализация логгера на основе Poco.
-    struct PocoLogger : public ILogger
+    struct PocoLogger : public Allocation::Loggers::ILogger
     {
         /// @brief Логирует сообщение уровня Debug.
         /// @param message Сообщение для логирования.
