@@ -2,7 +2,7 @@
 
 #include "Precompile.hpp"
 
-#include "ConnectionConfig.hpp"
+#include "Adapters/Database/DatabaseConfig.hpp"
 
 
 namespace Allocation::Adapters::Database
@@ -21,11 +21,11 @@ namespace Allocation::Adapters::Database
 
         /// @brief Конфигурирует пул сессий.
         /// @param config Конфигурация подключения к базе данных.
-        void Configure(const ConnectionConfig& config);
+        void Configure(const DatabaseConfig& config);
 
         /// @brief Переконфигурирует пул сессий.
         /// @param config Конфигурация подключения к базе данных.
-        void Reconfigure(const ConnectionConfig& config);
+        void Reconfigure(const DatabaseConfig& config);
 
         /// @brief Получает сессию из пула.
         /// @return Сессию БД.

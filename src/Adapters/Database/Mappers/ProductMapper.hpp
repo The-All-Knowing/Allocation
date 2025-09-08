@@ -44,9 +44,9 @@ namespace Allocation::Adapters::Database::Mapper
         /// запроса.
         void Insert(Domain::ProductPtr product);
 
-        /// @brief 
-        /// @param product 
-        /// @return 
+        /// @brief Удаляет продукт.
+        /// @param product Удаляемый продукт.
+        /// @return true - успешное удаление, иначе false.
         bool Delete(Domain::ProductPtr product);
 
     private:

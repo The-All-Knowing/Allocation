@@ -51,12 +51,12 @@ build-release: build/Release/CMakeCache.txt
 # Test
 .PHONY: test-debug
 test-debug: build-debug
-	cmake --build build/Debug -j $(NPROCS) --target allocation_unittest
+	cmake --build build/Debug -j $(NPROCS) --target allocation_test
 	cd build/Debug && ((test -t 1 && GTEST_COLOR=1 PYTEST_ADDOPTS="--color=yes" ctest -V) || ctest -V)
 
 .PHONY: test-release
 test-release: build-release
-	cmake --build build/Release -j $(NPROCS) --target allocation_unittest
+	cmake --build build/Release -j $(NPROCS) --target allocation_test
 	cd build/Release && ((test -t 1 && GTEST_COLOR=1 PYTEST_ADDOPTS="--color=yes" ctest -V) || ctest -V)
 # pycodestyle tests пока оставим, как перенесу часть тестов тогда будет разговор
 

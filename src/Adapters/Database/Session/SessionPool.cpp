@@ -15,7 +15,7 @@ namespace Allocation::Adapters::Database
         return static_cast<bool>(_pool);
     }
 
-    void SessionPool::Configure(const ConnectionConfig& config)
+    void SessionPool::Configure(const DatabaseConfig& config)
     {
         std::unique_lock lock(_mutex);
         if (_pool)
@@ -25,7 +25,7 @@ namespace Allocation::Adapters::Database
             config.minSessions, config.maxSessions, config.idleTime, config.connTimeout);
     }
 
-    void SessionPool::Reconfigure(const ConnectionConfig& config)
+    void SessionPool::Reconfigure(const DatabaseConfig& config)
     {
         std::unique_lock lock(_mutex);
         if (_pool)

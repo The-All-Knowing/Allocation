@@ -60,7 +60,7 @@ namespace Allocation::Adapters::Repository
 
     void TrackingRepository::Clear() noexcept { _seenAndOldVersion.clear(); }
 
-    void TrackingRepository::Update(Domain::ProductPtr product, std::optional<int> oldVersion)
+    void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
     {
         _repo.Update(product, oldVersion);
     }

@@ -2,6 +2,8 @@
 
 #include "Precompile.hpp"
 
+#include "RedisConfig.hpp"
+
 
 namespace Allocation::Adapters::Redis
 {
@@ -19,7 +21,7 @@ namespace Allocation::Adapters::Redis
 
         /// @brief 
         /// @param address
-        void Configure(const Poco::Net::SocketAddress& address) noexcept;
+        void Configure(const RedisConfig& config) noexcept;
 
         /// @brief 
         /// @return
@@ -27,7 +29,6 @@ namespace Allocation::Adapters::Redis
 
     private:
         ClientFactory() = default;
-        ~ClientFactory() = default;
         ClientFactory(const ClientFactory&) = delete;
         ClientFactory& operator=(const ClientFactory&) = delete;
 

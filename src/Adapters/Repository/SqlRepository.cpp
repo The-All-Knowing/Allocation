@@ -22,11 +22,11 @@ namespace Allocation::Adapters::Repository
         return _mapper.FindByBatchRef(std::string(batchRef));
     }
 
-    void SqlRepository::Update(Domain::ProductPtr product, std::optional<int> oldVersion)
+    void SqlRepository::Update(Domain::ProductPtr product, int oldVersion)
     {
         if(!product)
             throw std::invalid_argument("The nullptr product");
-        if(!_mapper.Update(product, oldVersion.value()));
+        if(!_mapper.Update(product, oldVersion));
             std::runtime_error("Could not serialize access due to concurrent update");
     }
 }

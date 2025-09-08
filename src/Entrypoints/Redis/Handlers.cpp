@@ -5,16 +5,15 @@
 #include "ServiceLayer/MessageBus/MessageBus.hpp"
 
 
-namespace Allocation::Infrastructure::Redis::Handlers
+namespace Allocation::Entrypoints::Redis::Handlers
 {
-    void HandleChangeBatchQuantity(const void* sender, Poco::Redis::RedisEventArgs& args)
+    void HandleChangeBatchQuantity(const std::string& payload)
     {
-        auto message = args.message();
-        if (message.isNull())
+        if (payload.empty())
             return;
 
         Poco::JSON::Parser parser;
-        Poco::Dynamic::Var parsed = parser.parse(message->toString());
+        Poco::Dynamic::Var parsed = parser.parse(payload);
         Poco::JSON::Object::Ptr json = parsed.extract<Poco::JSON::Object::Ptr>();
 
         /// @todo добавить валидатор

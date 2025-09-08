@@ -40,8 +40,7 @@ namespace Allocation::Adapters::Repository
         /// @brief Обновляет продукт в репозиторий и отслеживает его.
         /// @param product Продукт для добавления.
         /// @param oldVersion Прошлая версия продукта.
-        void Update(
-            Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt) override;
+        void Update(Domain::ProductPtr product, int oldVersion) override;
 
         Domain::IUpdatableRepository& _repo;
         std::unordered_map<std::string, std::pair<Domain::ProductPtr, int>> _seenAndOldVersion;

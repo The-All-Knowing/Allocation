@@ -9,24 +9,33 @@
 
 namespace Allocation::Entrypoints::Redis
 {
+    /// @brief Слушает сообщения из Redis и перенаправляет их в обработчики.
     class RedisListener
     {
     public:
+        /// @brief Создаёт клиента Redis и настраивает асинхронного читателя.
         RedisListener()
             : _client(Adapters::Redis::ClientFactory::Instance().Create()), _reader(*_client)
         {
         }
 
+        /// @brief Освобождает ресурсы, останавливая чтение при необходимости.
         ~RedisListener()
         {
             if (!_reader.isStopped())
                 Stop();
         }
 
+        /// @brief Запускает асинхронное чтение сообщений из Redis.
         void Start() { _reader.start(); }
 
+        /// @brief Останавливает асинхронное чтение сообщений из Redis.
         void Stop() { _reader.stop(); };
 
+        /// @brief Подписывается на канал Redis и регистрирует обработчик сообщений.
+        /// @tparam Handler Тип функции-обработчика.
+        /// @param channel Имя канала Redis.
+        /// @param handler Функция-обработчик, вызываемая при получении сообщения.
         template <typename Handler>
         void Subscribe(const std::string& channel, Handler&& handler)
         {
@@ -39,6 +48,9 @@ namespace Allocation::Entrypoints::Redis
         }
 
     private:
+        /// @brief Обрабатывает входящие сообщения от Redis и вызывает обработчики.
+        /// @param sender Источник события.
+        /// @param args Аргументы события Redis.
         void OnRedisMessage(const void* sender, Poco::Redis::RedisEventArgs& args)
         {
             if (const Poco::Exception* exception = args.exception(); exception)
@@ -80,4 +92,6 @@ namespace Allocation::Entrypoints::Redis
 
         std::unordered_map<std::string, std::function<void(const std::string&)>> _handlers;
     };
+
+    using RedisListenerPtr = std::shared_ptr<RedisListener>;
 }

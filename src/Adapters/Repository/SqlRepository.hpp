@@ -41,15 +41,14 @@ namespace Allocation::Adapters::Repository
 
         /// @brief Обновляет продукт в репозитории.
         /// @param product Продукт для добавления или обновления.
-        /// @param oldVersion Прошлая версия продукта. Если указана, репозиторий проверяет
-        /// версию для контроля конкуренции.
+        /// @param oldVersion Прошлая версия продукта для проверки репозиторием
+        /// версии для контроля конкуренции.
         /// @throw std::runtime_error Выбрасывается, если не удалось обновить продукт из-за
         /// конфликта версий.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
         /// запроса.
-        virtual void Update(
-            Domain::ProductPtr product, std::optional<int> oldVersion = std::nullopt) override;
+        virtual void Update(Domain::ProductPtr product, int oldVersion) override;
 
         Database::Mapper::ProductMapper _mapper;
     };

@@ -55,7 +55,7 @@ namespace Allocation::Tests
         /// @brief Обновляет продукт.
         /// @param product Продукт для добавления.
         /// @note Реализовано для работы с TrackingRepository.
-        virtual void Update(Domain::ProductPtr product, std::optional<int>) override
+        virtual void Update(Domain::ProductPtr product, int) override
         {
             _skuByProduct.insert_or_assign(product->GetSKU(), product);
         }

@@ -16,8 +16,6 @@ namespace Allocation::Adapters::Redis
     public:
         /// @brief Конструктор.
         RedisEventPublisher() : _client(ClientFactory::Instance().Create()) {}
-        RedisEventPublisher(RedisEventPublisher&&) = default;
-        RedisEventPublisher(const RedisEventPublisher&) = default;
 
         /// @brief Публикует событие в указанный канал.
         /// @param channel Канал для публикации.

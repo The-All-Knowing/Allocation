@@ -3,7 +3,9 @@
 #include "Precompile.hpp"
 
 
-namespace Allocation::Infrastructure::Redis::Handlers
+namespace Allocation::Entrypoints::Redis::Handlers
 {
-    void HandleChangeBatchQuantity(const void* sender, Poco::Redis::RedisEventArgs& args);
+    /// @brief Обрабатывает сообщение Redis "изменить количество партии".
+    /// @param payload Тело сообщения.
+    void HandleChangeBatchQuantity(const std::string& payload);
 }

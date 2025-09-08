@@ -2,10 +2,24 @@
 
 #include "Precompile.hpp"
 
-#include "Adapters/Database/Session/ConnectionConfig.hpp"
+#include "Adapters/Database/DatabaseConfig.hpp"
+#include "Adapters/Redis/RedisConfig.hpp"
 
 
 namespace Allocation
 {
-    Adapters::Database::ConnectionConfig ReadSystemDatabaseConfigs();
+    /// @brief Читает настройки подключения к БД из переменных окружения или устанавливает значения
+    /// по умолчанию.
+    /// @return Настройки подключения к БД.
+    Adapters::Database::DatabaseConfig ReadDatabaseConfigurations();
+
+    /// @brief Читает настройки подключения к Redis из переменных окружения или устанавливает
+    /// значения по умолчанию.
+    /// @return Настройки подключения к Redis.
+    Adapters::Redis::RedisConfig ReadRedisConfigurations();
+
+    /// @brief Читает настройки сервера из переменных окружения или устанавливает значения по
+    /// умолчанию.
+    /// @return Настройки сервера и порт.
+    std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> ReadServerConfigurations();
 }

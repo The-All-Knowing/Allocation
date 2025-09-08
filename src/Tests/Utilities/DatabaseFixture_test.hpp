@@ -21,7 +21,7 @@ namespace Allocation::Tests
             if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
                 !sessionPool.IsConfigured())
             {
-                auto config = ReadSystemDatabaseConfigs();
+                auto config = ReadDatabaseConfigurations();
                 sessionPool.Configure(config);
                 Poco::Data::PostgreSQL::Connector::registerConnector();
             }
@@ -58,7 +58,7 @@ namespace Allocation::Tests
             if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
                 !sessionPool.IsConfigured())
             {
-                auto config = ReadSystemDatabaseConfigs();
+                auto config = ReadDatabaseConfigurations();
                 sessionPool.Configure(config);
                 Poco::Data::PostgreSQL::Connector::registerConnector();
             }
@@ -114,7 +114,7 @@ namespace Allocation::Tests
             if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
                 !sessionPool.IsConfigured())
             {
-                auto config = ReadSystemDatabaseConfigs();
+                auto config = ReadDatabaseConfigurations();
                 sessionPool.Configure(config);
                 Poco::Data::PostgreSQL::Connector::registerConnector();
             }
