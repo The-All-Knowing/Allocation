@@ -1,10 +1,11 @@
 #include "AddBatchHandler.hpp"
 
 #include "Domain/Commands/CreateBatch.hpp"
-#include "Utilities/Loggers/ILogger.hpp"
+#include "Domain/Parsers.hpp"
 #include "ServiceLayer/MessageBus/MessageBus.hpp"
 #include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
 #include "Utilities/Common.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Entrypoints::Rest::Handlers
@@ -21,16 +22,8 @@ namespace Allocation::Entrypoints::Rest::Handlers
 
         try
         {
-            /// @todo: Добавить валидатор.
-            std::string ref = json->getValue<std::string>("ref");
-            std::string sku = json->getValue<std::string>("sku");
-            int qty = json->getValue<int>("qty");
-            std::optional<std::chrono::year_month_day> eta;
-            if (json->has("eta") && !json->isNull("eta"))
-                eta = Convert(json->getValue<Poco::DateTime>("eta"));
-
-            ServiceLayer::MessageBus::Instance().Handle(
-                std::make_shared<Domain::Commands::CreateBatch>(ref, sku, qty, eta));
+            auto command = Domain::FromJson<Domain::Commands::CreateBatch>(json);
+            ServiceLayer::MessageBus::Instance().Handle(command);
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_CREATED);
             response.setContentType("application/json");

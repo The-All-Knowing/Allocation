@@ -19,6 +19,7 @@ namespace Allocation
         InitRedis();
         InitDatabase();
         InitMessageBus();
+        InitServer();
         ServerApplication::initialize(self);
     }
 
@@ -42,7 +43,6 @@ namespace Allocation
     {
         if (_helpRequested)
             return Application::EXIT_OK;
-        InitServer();
         StartServer();
         return Application::EXIT_OK;
     };

@@ -1,9 +1,10 @@
 #include "AllocateHandler.hpp"
 
 #include "Domain/Commands/Allocate.hpp"
-#include "Utilities/Loggers/ILogger.hpp"
+#include "Domain/Parsers.hpp"
 #include "ServiceLayer/MessageBus/MessageBus.hpp"
 #include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Entrypoints::Rest::Handlers
@@ -21,13 +22,8 @@ namespace Allocation::Entrypoints::Rest::Handlers
 
         try
         {
-            /// @todo: Добавить валидатор.
-            std::string orderid = json->getValue<std::string>("orderid");
-            std::string sku = json->getValue<std::string>("sku");
-            int qty = json->getValue<int>("qty");
-
-            ServiceLayer::MessageBus::Instance().Handle(
-                std::make_shared<Domain::Commands::Allocate>(orderid, sku, qty));
+            auto command = Domain::FromJson<Domain::Commands::Allocate>(json);
+            ServiceLayer::MessageBus::Instance().Handle(command);
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
             response.setContentType("application/json");

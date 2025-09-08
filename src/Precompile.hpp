@@ -53,6 +53,7 @@
 #include <Poco/Util/HelpFormatter.h>
 #include <Poco/Util/IniFileConfiguration.h>
 #include <Poco/Util/Subsystem.h>
+#include <Poco/Data/Date.h>
 
 #include "Poco/Data/RecordSet.h"
 #include "Poco/Data/SQLite/Connector.h"
