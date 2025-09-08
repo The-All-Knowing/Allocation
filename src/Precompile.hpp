@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <barrier>
 #include <chrono>
 #include <condition_variable>
 #include <exception>
@@ -33,6 +34,7 @@
 #include <Poco/Data/StatementImpl.h>
 #include <Poco/Data/Transaction.h>
 #include <Poco/Delegate.h>
+#include <Poco/Environment.h>
 #include <Poco/File.h>
 #include <Poco/JSON/Object.h>
 #include <Poco/JSON/Parser.h>
@@ -42,6 +44,7 @@
 #include <Poco/Redis/AsyncReader.h>
 #include <Poco/Redis/Client.h>
 #include <Poco/Redis/Command.h>
+#include <Poco/Redis/PoolableConnectionFactory.h>
 #include <Poco/Redis/Redis.h>
 #include <Poco/Redis/Type.h>
 #include <Poco/StreamCopier.h>
@@ -50,6 +53,7 @@
 #include <Poco/Util/HelpFormatter.h>
 #include <Poco/Util/IniFileConfiguration.h>
 #include <Poco/Util/Subsystem.h>
+#include <Poco/Data/Date.h>
 
 #include "Poco/Data/RecordSet.h"
 #include "Poco/Data/SQLite/Connector.h"

@@ -1,60 +1,59 @@
-version: "2.3"
-
 services:
-    postgres:
-        container_name: service-postgres
-        image: postgres:12
-        environment:
-          - POSTGRES_DB=allocation
-          - POSTGRES_USER=user
-          - POSTGRES_PASSWORD=password
-        ports:
-          - 5432
-        volumes:
-          - ./postgresql/schemas:/docker-entrypoint-initdb.d
-          - ./.pgdata:/var/lib/postgresql/data
-        networks:
-          - allocation
-    redis:
-        container_name: service-redis
-        image: redis:alpine
-        ports:
-          - 6379
-        networks:
-          - allocation
+  postgres:
+    container_name: service-postgres
+    image: postgres:12
+    environment:
+      - POSTGRES_DB=allocation
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5432
+    volumes:
+      - ./postgresql/schemas:/docker-entrypoint-initdb.d
+      - ./.pgdata:/var/lib/postgresql/data
+    networks:
+      - allocation
+          
+  redis:
+    container_name: service-redis
+    image: redis:alpine
+    ports:
+      - 6379
+    networks:
+      - allocation
 
-    service-allocation:
-      container_name: allocation
-      build:
-        context: .
-        dockerfile: Dockerfile
-      environment:
-        - POSTGRES_DB=allocation
-        - POSTGRES_USER=user
-        - POSTGRES_PASSWORD=password
-        - PREFIX=${PREFIX:-~/.local}
-        - CC
-        - CCACHE_DIR=/allocation/.ccache
-        - CCACHE_HASHDIR
-        - CCACHE_NOHASHDIR
-        - CCACHE_PREFIX
-        - CCACHE_SIZE
-        - CMAKE_OPTS
-        - CORES_DIR=/cores
-        - CXX
-        - MAKE_OPTS
-        - CMAKE_OPTIONS
-      volumes:
-        - .:/allocation:rw
-      ports:
-        - 8080:8080
-      working_dir: /allocation
-      depends_on:
-        - postgres
-        - redis
-      networks:
-        - allocation
+  service-allocation:
+    container_name: allocation
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=allocation
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - PREFIX=${PREFIX:-~/.local}
+      - CMAKE_OPTS
+      - CORES_DIR=/cores
+      - CXX
+      - MAKE_OPTS
+      - CMAKE_OPTIONS
+    volumes:
+      - .:/allocation:rw
+      - conan_cache:/root/.conan2
+    ports:
+      - 8080:8080
+    working_dir: /allocation
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - allocation
 
 networks:
-    allocation:
-        driver: bridge
+  allocation:
+    driver: bridge
+
+volumes:
+  conan_cache:

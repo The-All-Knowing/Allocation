@@ -1,38 +1,32 @@
 #include "SqlRepository.hpp"
 
-#include "Adapters/Database/Mappers/ProductMapper.hpp"
-
 
 namespace Allocation::Adapters::Repository
 {
-    SqlRepository::SqlRepository(Poco::Data::Session& session) : _session(session) {}
+    SqlRepository::SqlRepository(const Poco::Data::Session& session) : _mapper(session) {}
 
-    void SqlRepository::Add(std::shared_ptr<Domain::Product> product)
+    void SqlRepository::Add(Domain::ProductPtr product)
     {
-        Database::Mapper::ProductMapper mapper(_session);
-
-        if (mapper.IsExists(product->GetSKU()))
-            mapper.Update(product);
-        else
-            mapper.Insert(product);
+        if(!product)
+            throw std::invalid_argument("The nullptr product");
+        _mapper.Insert(product);
     }
 
-    std::shared_ptr<Domain::Product> SqlRepository::Get(std::string_view SKU)
+    Domain::ProductPtr SqlRepository::Get(const std::string& SKU)
     {
-        Database::Mapper::ProductMapper mapper(_session);
-        return mapper.FindBySKU(std::string(SKU));
+        return _mapper.FindBySKU(std::string(SKU));
     }
 
-    std::shared_ptr<Domain::Product> SqlRepository::GetByBatchRef(std::string_view ref)
+    Domain::ProductPtr SqlRepository::GetByBatchRef(const std::string& batchRef)
     {
-        Database::Mapper::ProductMapper mapper(_session);
-        return mapper.FindByBatchRef(std::string(ref));
+        return _mapper.FindByBatchRef(std::string(batchRef));
     }
 
-    void SqlRepository::UpdateVersion(std::string_view SKU, size_t old, size_t newVersion)
+    void SqlRepository::Update(Domain::ProductPtr product, int oldVersion)
     {
-        Database::Mapper::ProductMapper mapper(_session);
-        if (!mapper.UpdateVersion(std::string(SKU), old, newVersion))
-            throw std::runtime_error("Could not serialize access due to concurrent update");
+        if(!product)
+            throw std::invalid_argument("The nullptr product");
+        if(!_mapper.Update(product, oldVersion));
+            std::runtime_error("Could not serialize access due to concurrent update");
     }
 }

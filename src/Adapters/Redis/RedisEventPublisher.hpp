@@ -1,20 +1,48 @@
 #pragma once
 
-#include "Domain/Events/Allocated.hpp"
 #include "Precompile.hpp"
 
+#include "ClientFactory.hpp"
+#include "Domain/Events/AbstractEvent.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
 namespace Allocation::Adapters::Redis
 {
+    template <typename T>
+        requires std::derived_from<T, Domain::Events::AbstractEvent>
     class RedisEventPublisher
     {
     public:
-        RedisEventPublisher(const std::string& host, int port);
+        /// @brief Конструктор.
+        RedisEventPublisher() : _client(ClientFactory::Instance().Create()) {}
 
-        void Publish(const std::string& channel, std::shared_ptr<Domain::Events::Allocated> event);
+        /// @brief Публикует событие в указанный канал.
+        /// @param channel Канал для публикации.
+        /// @param event Событие для публикации.
+        void operator()(std::string channel, std::shared_ptr<T> event) const
+        {
+            Poco::JSON::Object json;
+            for (auto& [name, value] : GetAttributes<T>(event))
+                json.set(name, value);
+
+            std::stringstream ss;
+            json.stringify(ss);
+            Poco::Redis::Command publish("PUBLISH");
+            publish << channel << ss.str();
+
+            try
+            {
+                _client->execute<void>(publish);
+            }
+            catch (const Poco::Exception& e)
+            {
+                Allocation::Loggers::GetLogger()->Error(
+                    std::format("Redis publish failed: {}", e.displayText()));
+            }
+        }
 
     private:
-        Poco::Redis::Client _client;
+        mutable Poco::Redis::Client::Ptr _client;
     };
 }

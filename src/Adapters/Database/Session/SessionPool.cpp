@@ -3,22 +3,21 @@
 
 namespace Allocation::Adapters::Database
 {
-    SessionPool& SessionPool::Instance()
+    SessionPool& SessionPool::Instance() noexcept
     {
         static SessionPool instance;
         return instance;
     }
 
-    bool SessionPool::IsConfigured()
+    bool SessionPool::IsConfigured() const noexcept
     {
         std::shared_lock lock(_mutex);
         return static_cast<bool>(_pool);
     }
 
-    void SessionPool::Configure(const ConnectionConfig& config)
+    void SessionPool::Configure(const DatabaseConfig& config)
     {
         std::unique_lock lock(_mutex);
-
         if (_pool)
             throw std::runtime_error("SessionPool is already configured");
 
@@ -26,10 +25,9 @@ namespace Allocation::Adapters::Database
             config.minSessions, config.maxSessions, config.idleTime, config.connTimeout);
     }
 
-    void SessionPool::Reconfigure(const ConnectionConfig& config)
+    void SessionPool::Reconfigure(const DatabaseConfig& config)
     {
         std::unique_lock lock(_mutex);
-
         if (_pool)
             _pool->shutdown();
 
@@ -40,7 +38,6 @@ namespace Allocation::Adapters::Database
     Poco::Data::Session SessionPool::GetSession()
     {
         std::shared_lock lock(_mutex);
-
         if (!_pool)
             throw std::runtime_error("SessionPool is not configured");
 

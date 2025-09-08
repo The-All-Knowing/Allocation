@@ -3,7 +3,7 @@
 
 namespace Allocation::Domain
 {
-    Batch::Batch(std::string_view reference, std::string_view SKU, size_t quantity,
+    Batch::Batch(const std::string& reference, const std::string& SKU, size_t quantity,
         std::optional<std::chrono::year_month_day> ETA)
         : _reference(reference), _SKU(SKU), _purchasedQuantity(quantity), _ETA(ETA)
     {
@@ -22,7 +22,23 @@ namespace Allocation::Domain
             _allocations.insert(line);
     }
 
-    void Batch::Deallocate(const OrderLine& line) noexcept { _allocations.erase(line); }
+    OrderLine Batch::DeallocateOne()
+    {
+        if (_allocations.empty())
+            throw std::runtime_error("No allocations to deallocate");
+
+        auto line = *_allocations.rbegin();
+        _allocations.erase(--_allocations.end());
+        return line;
+    }
+
+    int Batch::GetAllocatedQuantity() const noexcept
+    {
+        size_t allocated = 0;
+        for (const auto& line : _allocations)
+            allocated += line.quantity;
+        return allocated;
+    }
 
     int Batch::GetAvailableQuantity() const noexcept
     {
@@ -32,12 +48,25 @@ namespace Allocation::Domain
         return _purchasedQuantity - allocated;
     }
 
-    std::string_view Batch::GetReference() const noexcept { return _reference; }
+    int Batch::GetPurchasedQuantity() const noexcept { return _purchasedQuantity; }
+
+    std::string Batch::GetReference() const noexcept { return _reference; }
+
     std::optional<std::chrono::year_month_day> Batch::GetETA() const noexcept { return _ETA; }
-    std::string_view Batch::GetSKU() const noexcept { return _SKU; }
+
+    std::string Batch::GetSKU() const noexcept { return _SKU; }
 
     std::vector<OrderLine> Batch::GetAllocations() const noexcept
     {
         return {_allocations.begin(), _allocations.end()};
+    }
+
+    bool operator<(const Batch& lhs, const Batch& rhs) noexcept
+    {
+        if (!lhs.GetETA().has_value())
+            return true;
+        if (!rhs.GetETA().has_value())
+            return false;
+        return lhs.GetETA().value() < rhs.GetETA().value();
     }
 }

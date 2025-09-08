@@ -5,99 +5,122 @@
 
 namespace Allocation::Adapters::Database::Mapper
 {
-    ProductMapper::ProductMapper(Poco::Data::Session& session) : _session(session) {}
+    using namespace Poco::Data::Keywords;
 
-    bool ProductMapper::IsExists(std::string SKU)
+    ProductMapper::ProductMapper(const Poco::Data::Session& session)
+        : _session(session), _batchMapper(_session)
     {
-        Poco::Nullable<int> dummy;
-        int rowsAffected = 0;
-        _session << "SELECT 1 FROM public.products WHERE sku = $1",
-            Poco::Data::Keywords::into(dummy), Poco::Data::Keywords::use(SKU),
-            Poco::Data::Keywords::now;
-        return !dummy.isNull();
     }
 
-    std::shared_ptr<Domain::Product> ProductMapper::FindBySKU(std::string SKU)
+    Domain::ProductPtr ProductMapper::FindBySKU(std::string SKU) const
     {
-        BatchMapper _batchMapper(_session);
-        std::shared_ptr<Domain::Product> result;
+        int version = 0;
+        Poco::Data::Statement select(_session);
+        select << R"(
+            SELECT version_number
+            FROM allocation.products
+            WHERE sku = $1
+        )",
+            use(SKU), into(version);
 
-        Poco::Nullable<int> version;
-        _session << R"(SELECT version_number FROM public.products WHERE sku = $1)",
-            Poco::Data::Keywords::into(version), Poco::Data::Keywords::use(SKU),
-            Poco::Data::Keywords::now;
+        bool found = select.execute() > 0;
+        if (!found)
+            return nullptr;
 
-        if (version.isNull())
-            return result;
-
-        auto batches = _batchMapper.GetBySKU(SKU);
-        result = std::make_shared<Domain::Product>(SKU, batches, version.value());
-        return result;
+        auto batches = _batchMapper.Find(SKU);
+        return std::make_shared<Domain::Product>(SKU, batches, version, false);
     }
 
-    std::shared_ptr<Domain::Product> ProductMapper::FindByBatchRef(std::string ref)
+    Domain::ProductPtr ProductMapper::FindByBatchRef(std::string ref) const
     {
-        BatchMapper _batchMapper(_session);
-        std::shared_ptr<Domain::Product> result;
-
         std::string SKU;
-        int version;
+        int version = 0;
 
         Poco::Data::Statement select(_session);
         select << R"(
-            SELECT public.products.sku, public.products.version_number FROM public.products
-            JOIN public.batches ON public.products.sku = public.batches.sku
-            WHERE public.batches.reference = $1)",
-            Poco::Data::Keywords::use(ref), Poco::Data::Keywords::into(SKU),
-            Poco::Data::Keywords::into(version), Poco::Data::Keywords::range(0, 1);
+            SELECT p.sku, p.version_number
+            FROM allocation.products p
+            JOIN allocation.batches b ON p.sku = b.sku
+            WHERE b.reference = $1
+            LIMIT 1
+        )",
+            use(ref), into(SKU), into(version);
 
-        while (!select.done())
-        {
-            select.execute();
-            if (!SKU.empty())
-            {
-                auto batches = _batchMapper.GetBySKU(SKU);
-                result = std::make_shared<Domain::Product>(SKU, batches, version);
-            }
-        }
+        bool found = select.execute() > 0;
+        if (!found)
+            return nullptr;
 
-        return result;
+        auto batches = _batchMapper.Find(SKU);
+        return std::make_shared<Domain::Product>(SKU, batches, version, false);
     }
 
-    void ProductMapper::Update(std::shared_ptr<Domain::Product> product)
+    bool ProductMapper::Update(Domain::ProductPtr product, int oldVersion)
+    {   
+        UpdateBatches(product);
+
+        auto sku = product->GetSKU();
+        int newVersion = product->GetVersion();
+        Poco::Data::Statement update(_session);
+        update << R"(
+            UPDATE allocation.products
+            SET version_number = $1
+            WHERE sku = $2 AND version_number = $3
+        )",
+            use(newVersion), use(sku), use(oldVersion);
+
+        return update.execute() > 0;
+    }
+
+    void ProductMapper::Insert(Domain::ProductPtr product)
     {
-        BatchMapper _batchMapper(_session);
+        auto sku = product->GetSKU();
+        int version = product->GetVersion();
         auto batches = product->GetBatches();
 
-        _batchMapper.Update(batches, product->GetSKU());
+        Poco::Data::Statement insert(_session);
+        insert << R"(
+            INSERT INTO allocation.products (sku, version_number)
+            VALUES ($1, $2)
+        )",
+            use(sku), use(version), now;
+        
+        if (!batches.empty())
+            _batchMapper.Insert(batches);
     }
 
-    void ProductMapper::Insert(std::shared_ptr<Domain::Product> product)
+    bool ProductMapper::Delete(Domain::ProductPtr product)
     {
-        BatchMapper _batchMapper(_session);
+        std::vector<std::string> deletedBatches;
+        for (const auto& batch : product->GetBatches())
+            deletedBatches.push_back(batch.GetReference());
 
-        std::string sku = product->GetSKU();
+        if (!deletedBatches.empty())
+            _batchMapper.Delete(deletedBatches);
+
+        auto SKU = product->GetSKU();
         int version = product->GetVersion();
+        Poco::Data::Statement deleteProduct(_session);
+        deleteProduct << R"(
+            DELETE FROM allocation.products
+            WHERE sku = $1 AND version_number = $2
+        )",
+            use(SKU), use(version);
 
-        _session << R"(INSERT INTO public.products (sku, version_number) VALUES ($1, $2))",
-            Poco::Data::Keywords::use(sku), Poco::Data::Keywords::use(version),
-            Poco::Data::Keywords::now;
-
-        _batchMapper.Insert(product->GetBatches());
+        return deleteProduct.execute() > 0;
     }
 
-    bool ProductMapper::UpdateVersion(std::string SKU, size_t oldVersion, size_t newVersion)
+    void ProductMapper::UpdateBatches(Domain::ProductPtr product)
     {
-        Poco::Nullable<int> actualVersion;
-        _session << "UPDATE public.products SET version_number = $1 WHERE sku = $2 AND "
-                    "version_number = $3 RETURNING version_number",
-            Poco::Data::Keywords::into(actualVersion), Poco::Data::Keywords::use(newVersion),
-            Poco::Data::Keywords::use(SKU), Poco::Data::Keywords::use(oldVersion),
-            Poco::Data::Keywords::now;
+        auto changedBatchRefs = product->GetModifiedBatches();
+        std::vector<Domain::Batch> changedBatches;
 
-        if (actualVersion.isNull() || (actualVersion.value() != newVersion))
-            return false;
-
-        return true;
+        for (const auto& ref : changedBatchRefs)
+            if(auto batch = product->GetBatch(ref); batch.has_value())
+                changedBatches.push_back(batch.value());
+        
+        if (!changedBatchRefs.empty())
+            _batchMapper.Delete(changedBatchRefs);
+        if (!changedBatches.empty())
+            _batchMapper.Insert(changedBatches);
     }
 }

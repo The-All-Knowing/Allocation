@@ -3,68 +3,65 @@
 
 namespace Allocation::Adapters::Repository
 {
-    TrackingRepository::TrackingRepository(Domain::IRepository& repo) : _repo(repo){};
+    TrackingRepository::TrackingRepository(Domain::IUpdatableRepository& repo) : _repo(repo) {}
 
-    void TrackingRepository::Add(std::shared_ptr<Domain::Product> product)
+    void TrackingRepository::Add(Domain::ProductPtr product)
     {
-        _repo.Add(product);
-        if (!_seen.contains(product->GetSKU()))
-            _seenObjByOldVersion[product->GetSKU()] = product->GetVersion();
-        _seen[product->GetSKU()] = product;
+        if (!product)
+            throw std::invalid_argument("The nullptr product");
+
+        if (auto it = _seenAndOldVersion.find(product->GetSKU()); it != _seenAndOldVersion.end())
+            Update(product, it->second.second);
+        else
+        {
+            _repo.Add(product);
+            _seenAndOldVersion.insert({product->GetSKU(), {product, product->GetVersion()}});
+        }
     }
 
-    std::shared_ptr<Domain::Product> TrackingRepository::Get(std::string_view SKU)
+    Domain::ProductPtr TrackingRepository::Get(const std::string& SKU)
     {
+        if (auto it = _seenAndOldVersion.find(SKU); it != _seenAndOldVersion.end())
+            return it->second.first;
+
         auto product = _repo.Get(SKU);
-        if (product)
-        {
-            _seen[product->GetSKU()] = product;
-            _seenObjByOldVersion[product->GetSKU()] = product->GetVersion();
-        }
-
+        if (!product)
+            return nullptr;
+        _seenAndOldVersion.insert({product->GetSKU(), {product, product->GetVersion()}});
         return product;
     }
 
-    std::shared_ptr<Domain::Product> TrackingRepository::GetByBatchRef(std::string_view ref)
+    Domain::ProductPtr TrackingRepository::GetByBatchRef(const std::string& batchRef)
     {
-        auto product = _repo.GetByBatchRef(ref);
-        if (product)
-        {
-            _seen[product->GetSKU()] = product;
-            _seenObjByOldVersion[product->GetSKU()] = product->GetVersion();
-        }
+        auto it = std::find_if(_seenAndOldVersion.begin(), _seenAndOldVersion.end(),
+            [batchRef](auto& pair)
+            { return pair.second.first->GetBatch(batchRef) != std::nullopt; });
 
+        if (it != _seenAndOldVersion.end())
+            return it->second.first;
+
+        auto product = _repo.GetByBatchRef(batchRef);
+        if (!product)
+            return nullptr;
+
+        _seenAndOldVersion.insert({product->GetSKU(), {product, product->GetVersion()}});
         return product;
     }
 
-    std::vector<std::shared_ptr<Domain::Product>> TrackingRepository::GetSeen() const noexcept
+    std::vector<std::pair<Domain::ProductPtr, int>> TrackingRepository::GetSeen() const noexcept
     {
-        std::vector<std::shared_ptr<Domain::Product>> result;
-        result.reserve(_seen.size());
-        for (const auto& [_, product] : _seen)
-            result.push_back(product);
+        std::vector<std::pair<Domain::ProductPtr, int>> result;
+        result.reserve(_seenAndOldVersion.size());
+        for (const auto& [_, productAndOldVersion] : _seenAndOldVersion)
+            result.push_back(productAndOldVersion);
 
         return result;
     }
 
-    std::vector<std::tuple<std::string, size_t, size_t>> TrackingRepository::GetChangedVersions()
-        const noexcept
+    void TrackingRepository::Clear() noexcept { _seenAndOldVersion.clear(); }
+
+    void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
     {
-        std::vector<std::tuple<std::string, size_t, size_t>> result;
-
-        for (auto& [sku, prod] : _seen)
-        {
-            auto oldVersionIt = _seenObjByOldVersion.find(sku);
-            if (oldVersionIt == _seenObjByOldVersion.end())
-                continue;
-
-            size_t oldVersion = oldVersionIt->second;
-            if (prod->GetVersion() == oldVersion)
-                continue;
-
-            result.emplace_back(sku, oldVersion, prod->GetVersion());
-        }
-
-        return result;
+        _repo.Update(product, oldVersion);
     }
 }

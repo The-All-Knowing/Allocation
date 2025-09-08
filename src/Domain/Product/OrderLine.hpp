@@ -5,12 +5,19 @@
 
 namespace Allocation::Domain
 {
+    /// @brief Представляет строку заказа для распределения.
     struct OrderLine
     {
+        /// @brief Ссылка на заказ.
         std::string reference;
+        /// @brief Артикул продукта.
         std::string SKU;
+        /// @brief Количество продукта в заказе.
         size_t quantity;
 
+        /// @brief Оператор сравнения для строк заказа.
+        /// @param other Другая строка заказа.
+        /// @return Результат сравнения.
         auto operator<=>(const OrderLine&) const = default;
     };
 }
