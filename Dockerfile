@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
   gdb \
   cmake \
   pipx \
+  python3 python3-pip \
   git \
   sudo \
   pycodestyle \

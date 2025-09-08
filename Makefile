@@ -53,12 +53,13 @@ build-release: build/Release/CMakeCache.txt
 test-debug: build-debug
 	cmake --build build/Debug -j $(NPROCS) --target allocation_test
 	cd build/Debug && ((test -t 1 && GTEST_COLOR=1 PYTEST_ADDOPTS="--color=yes" ctest -V) || ctest -V)
+	pycodestyle tests
 
 .PHONY: test-release
 test-release: build-release
 	cmake --build build/Release -j $(NPROCS) --target allocation_test
 	cd build/Release && ((test -t 1 && GTEST_COLOR=1 PYTEST_ADDOPTS="--color=yes" ctest -V) || ctest -V)
-# pycodestyle tests пока оставим, как перенесу часть тестов тогда будет разговор
+	pycodestyle tests
 
 # Start the service (via testsuite service runner)
 .PHONY: start-debug
@@ -80,8 +81,8 @@ clean-debug clean-release: clean-%:
 .PHONY: dist-clean
 dist-clean:
 	rm -rf build/*
-#rm -rf tests/__pycache__/ пока тесты на С++
-#rm -rf tests/.pytest_cache/
+	rm -rf tests/__pycache__/ пока тесты на С++
+	rm -rf tests/.pytest_cache/
 
 # Install
 .PHONY: install-debug
