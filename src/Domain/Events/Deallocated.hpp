@@ -13,7 +13,7 @@ namespace Allocation::Domain::Events
         /// @param SKU Артикул товара.
         /// @param qty Количество.
         Deallocated(std::string orderid, std::string SKU, size_t qty)
-            : orderid(std::move(orderid)), SKU(std::move(SKU)), qty(qty) {};
+            : orderid(std::move(orderid)), SKU(std::move(SKU)), qty(qty){};
 
         /// @brief Получить имя события.
         /// @return Имя события.

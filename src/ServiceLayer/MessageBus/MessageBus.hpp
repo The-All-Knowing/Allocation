@@ -77,7 +77,7 @@ namespace Allocation::ServiceLayer
 
         /// @brief Оператор присваивания.
         MessageBus& operator=(const MessageBus&) = delete;
-        
+
         /// @brief Оператор присваивания.
         MessageBus& operator=(MessageBus&&) = delete;
 

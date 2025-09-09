@@ -18,7 +18,7 @@ services:
     container_name: service-redis
     image: redis:alpine
     ports:
-      - 6379
+      - 6379::6379
     networks:
       - allocation
 
@@ -36,10 +36,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PREFIX=${PREFIX:-~/.local}
-      - CMAKE_OPTS
-      - CXX
-      - MAKE_OPTS
-      - CMAKE_OPTIONS
     volumes:
       - .:/allocation:rw
       - conan_cache:/root/.conan2

@@ -13,6 +13,7 @@ Testing/
 .DS_Store
 .conan_cache
 bin/
+venv/
 etc/
 CMakeFiles/
 CMakeUserPresets.json

@@ -1,8 +1,8 @@
 #include "MessageBus.hpp"
 
 #include "Domain/Events/OutOfStock.hpp"
-#include "Utilities/Loggers/ILogger.hpp"
 #include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
+#include "Utilities/Loggers/ILogger.hpp"
 
 
 namespace Allocation::ServiceLayer

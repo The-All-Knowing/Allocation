@@ -75,11 +75,11 @@ namespace Allocation::Entrypoints::Redis
                         Poco::Redis::BulkString type = array.get<Poco::Redis::BulkString>(0);
                         if (type != "message")
                             return;
-                        auto channel = array.get<Poco::Redis::BulkString>(1);
-                        auto payload = array.get<Poco::Redis::BulkString>(2);
+                        auto channel = std::string(array.get<Poco::Redis::BulkString>(1));
+                        auto payload = std::string(array.get<Poco::Redis::BulkString>(2));
 
-                        if (auto it = _handlers.find(std::string(channel)); it != _handlers.end())
-                            it->second(std::string(payload));
+                        if (auto it = _handlers.find(channel); it != _handlers.end())
+                            it->second(payload);
                     }
                 }
             }

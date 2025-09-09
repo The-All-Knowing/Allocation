@@ -16,7 +16,7 @@ namespace Allocation::Tests
         Domain::OrderLine line("order-ref", "SMALL-TABLE", 2);
 
         batch.Allocate(line);
-        
+
         EXPECT_EQ(batch.GetAvailableQuantity(), 18);
     }
 

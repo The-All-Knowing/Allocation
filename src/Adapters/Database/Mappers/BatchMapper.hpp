@@ -7,7 +7,7 @@
 
 namespace Allocation::Adapters::Database::Mapper
 {
-    /// @brief Маппер для работы с партиями заказ в базе данных. 
+    /// @brief Маппер для работы с партиями заказ в базе данных.
     class BatchMapper
     {
     public:
@@ -27,9 +27,9 @@ namespace Allocation::Adapters::Database::Mapper
         /// @brief Создаёт партии заказа.
         /// @param batches Партии заказа.
         void Insert(const std::vector<Domain::Batch>& batches);
-        
+
     private:
-        /// @brief Получает строки заказов партии. 
+        /// @brief Получает строки заказов партии.
         /// @param batchPk PK партии заказа.
         /// @return Строки заказа.
         [[nodiscard]] std::vector<Domain::OrderLine> GetAllocations(int batchPk) const;

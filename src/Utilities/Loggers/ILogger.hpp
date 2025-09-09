@@ -33,4 +33,8 @@ namespace Allocation::Loggers
     /// @brief Инициализирует логгер.
     /// @param logger Указатель на логгер.
     void InitializeLogger(ILoggerPtr logger);
+
+    /// @brief Проверяет инициализирован ли логгер.
+    /// @return true - инициализирован, иначе false.
+    bool IsInitialize();
 }

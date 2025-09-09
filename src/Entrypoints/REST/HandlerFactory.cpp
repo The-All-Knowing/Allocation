@@ -4,6 +4,7 @@
 #include "Handlers/AllocateHandler.hpp"
 #include "Handlers/AllocationsViewHandler.hpp"
 #include "Handlers/NotFoundHandler.hpp"
+#include "Handlers/PingHandler.hpp"
 #include "Utilities/Loggers/ILogger.hpp"
 
 
@@ -28,6 +29,9 @@ namespace Allocation::Entrypoints::Rest
         {
             if (request.getURI().find("/allocations/") == 0)
                 return new Handlers::AllocationsViewHandler;
+
+            if (request.getURI().find("/ping") == 0)
+                return new Handlers::PingHandler;
         }
 
         return new Handlers::NotFoundHandler;

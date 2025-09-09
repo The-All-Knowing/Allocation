@@ -35,6 +35,11 @@ namespace Allocation::Adapters::Database
             config.minSessions, config.maxSessions, config.idleTime, config.connTimeout);
     }
 
+    void SessionPool::Shutdown()
+    {
+        _pool->shutdown();
+    }
+
     Poco::Data::Session SessionPool::GetSession()
     {
         std::shared_lock lock(_mutex);

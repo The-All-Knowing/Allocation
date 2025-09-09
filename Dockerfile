@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
   sudo \
   pycodestyle \
   clang-format \
+  postgresql-client \
   && \
   pipx ensurepath && \
   pipx install conan && \

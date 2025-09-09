@@ -28,6 +28,7 @@
 
 /// Poco
 #include <Poco/Data/Connector.h>
+#include <Poco/Data/Date.h>
 #include <Poco/Data/PostgreSQL/Connector.h>
 #include <Poco/Data/SessionImpl.h>
 #include <Poco/Data/SessionPool.h>
@@ -53,7 +54,6 @@
 #include <Poco/Util/HelpFormatter.h>
 #include <Poco/Util/IniFileConfiguration.h>
 #include <Poco/Util/Subsystem.h>
-#include <Poco/Data/Date.h>
 
 #include "Poco/Data/RecordSet.h"
 #include "Poco/Data/SQLite/Connector.h"
@@ -65,5 +65,5 @@
 #include "Poco/Net/HTTPServerRequest.h"
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Net/ServerSocket.h"
-#include "Poco/Util/ServerApplication.h"
 #include "Poco/Redis/Type.h"
+#include "Poco/Util/ServerApplication.h"

@@ -6,7 +6,7 @@
 namespace Allocation::Entrypoints::Rest::Handlers
 {
     /// @brief Обрабатывает HTTP-запрос на полчение партии и артикула товара.
-    /// 
+    ///
     /// Реализует обработчик REST-эндпоинта, который принимает входящий запрос,
     /// разбирает JSON-данные и загружает данные из модели чтения.
     class AllocationsViewHandler final : public Poco::Net::HTTPRequestHandler

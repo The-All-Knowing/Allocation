@@ -18,8 +18,7 @@ namespace Allocation::ServiceLayer::Handlers
     class NotificationHandler
     {
     public:
-        NotificationHandler(Notifier notifier = {})
-            : _notifier(std::move(notifier)) {}
+        NotificationHandler(Notifier notifier = {}) : _notifier(std::move(notifier)) {}
 
         void operator()(std::shared_ptr<Message> event) const
         {

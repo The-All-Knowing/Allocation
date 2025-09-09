@@ -27,8 +27,11 @@ namespace Allocation::Adapters::Database
         /// @param config Конфигурация подключения к базе данных.
         void Reconfigure(const DatabaseConfig& config);
 
+        /// @brief Завершает работу сессий БД.
+        void Shutdown();
+
         /// @brief Получает сессию из пула.
-        /// @return Сессию БД.
+        /// @return Сессия БД.
         Poco::Data::Session GetSession();
 
     private:
