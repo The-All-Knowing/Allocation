@@ -1,6 +1,5 @@
 # dev/tests
 pytest
-pytest-icdiff
 mypy
 pylint
 requests

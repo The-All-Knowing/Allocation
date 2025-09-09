@@ -1,9 +1,9 @@
 import requests
-from ..config import get_api_url
+from ..config import API_URL
 
 
 def post_to_add_batch(ref, sku, qty, eta):
-    url = get_api_url()
+    url = API_URL
     r = requests.post(
         f"{url}/add_batch", json={"ref": ref, "sku": sku, "qty": qty, "eta": eta}
     )
@@ -11,7 +11,7 @@ def post_to_add_batch(ref, sku, qty, eta):
 
 
 def post_to_allocate(orderid, sku, qty, expect_success=True):
-    url = get_api_url()
+    url = API_URL
     r = requests.post(
         f"{url}/allocate",
         json={
@@ -26,5 +26,5 @@ def post_to_allocate(orderid, sku, qty, expect_success=True):
 
 
 def get_allocation(orderid):
-    url = get_api_url()
+    url = API_URL
     return requests.get(f"{url}/allocations/{orderid}")

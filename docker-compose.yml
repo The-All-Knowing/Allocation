@@ -33,9 +33,10 @@ services:
       - POSTGRES_DB=allocation
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - PREFIX=${PREFIX:-~/.local}
       - CMAKE_OPTS
-      - CORES_DIR=/cores
       - CXX
       - MAKE_OPTS
       - CMAKE_OPTIONS

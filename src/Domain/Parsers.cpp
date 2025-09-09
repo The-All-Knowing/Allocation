@@ -24,9 +24,18 @@ namespace Allocation::Domain
         if (json->has("eta") && !json->isNull("eta"))
         {
             auto jsonEta = json->get("eta");
-            if (!jsonEta.isDateTime())
-                throw std::invalid_argument("Field 'eta' must be a date");
-            eta = Convert(jsonEta.convert<Poco::DateTime>());
+            if (!jsonEta.isString())
+                throw std::invalid_argument("Field 'eta' must be a string (ISO 8601 datetime)");
+
+            auto etaStr = jsonEta.convert<std::string>();
+            Poco::DateTime dt;
+            int tz = 0;
+            if (!Poco::DateTimeParser::tryParse(
+                    Poco::DateTimeFormat::ISO8601_FORMAT, etaStr, dt, tz))
+                throw std::invalid_argument(
+                    "Invalid datetime format, expected ISO 8601 (e.g. 2011-01-02T00:00:00)");
+
+            eta = Convert(dt);
         }
 
         return std::make_shared<Commands::CreateBatch>(
@@ -60,7 +69,7 @@ namespace Allocation::Domain
         if (!json->has("batchref") || !json->has("qty"))
             throw std::invalid_argument("It doesn't have the required batchref or qty fields.");
 
-        auto batchRef = json->get("batchRef");
+        auto batchRef = json->get("batchref");
         if (!batchRef.isString())
             throw std::invalid_argument("Field 'batchRef' must be a string");
         auto qty = json->get("qty");

@@ -33,7 +33,7 @@ namespace Allocation::Adapters::Redis
 
             try
             {
-                _client->execute<void>(publish);
+                _client->execute<Poco::Int64>(publish);
             }
             catch (const Poco::Exception& e)
             {

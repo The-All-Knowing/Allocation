@@ -25,8 +25,10 @@ namespace Allocation::Entrypoints::Rest::Handlers
             auto command = Domain::FromJson<Domain::Commands::Allocate>(json);
             ServiceLayer::MessageBus::Instance().Handle(command);
 
-            response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
+            response.setStatus(Poco::Net::HTTPResponse::HTTP_ACCEPTED);
             response.setContentType("application/json");
+            std::ostream& out = response.send();
+            out << "{}";
             return;
         }
         catch (const Poco::Exception& ex)

@@ -66,3 +66,4 @@
 #include "Poco/Net/HTTPServerResponse.h"
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Util/ServerApplication.h"
+#include "Poco/Redis/Type.h"

@@ -39,10 +39,11 @@ namespace Allocation::Entrypoints::Redis
         template <typename Handler>
         void Subscribe(const std::string& channel, Handler&& handler)
         {
-            Poco::Redis::Command subscribe("SUBSCRIBE");
-            subscribe.add(channel);
-            _client->execute<void>(subscribe);
+            Poco::Redis::Array subscribe;
+            subscribe.add("SUBSCRIBE").add(channel);
 
+            _client->execute<void>(subscribe);
+            _client->flush();
             _handlers.try_emplace(channel, std::forward<Handler>(handler));
             _reader.redisResponse += Poco::delegate(this, &RedisListener::OnRedisMessage);
         }
@@ -64,18 +65,25 @@ namespace Allocation::Entrypoints::Redis
             {
                 if (auto msg = args.message(); msg && msg->isArray())
                 {
-                    auto arr = dynamic_cast<Poco::Redis::Array*>(msg.get());
-                    if (arr && arr->size() == 3 && arr->get<std::string>(0) == "message")
+                    Poco::Redis::Type<Poco::Redis::Array>* arrayType =
+                        dynamic_cast<Poco::Redis::Type<Poco::Redis::Array>*>(args.message().get());
+                    if (!arrayType)
+                        return;
+                    Poco::Redis::Array& array = arrayType->value();
+                    if (array.size() == 3)
                     {
-                        std::string channel = arr->get<std::string>(1);
-                        std::string payload = arr->get<std::string>(2);
+                        Poco::Redis::BulkString type = array.get<Poco::Redis::BulkString>(0);
+                        if (type != "message")
+                            return;
+                        auto channel = array.get<Poco::Redis::BulkString>(1);
+                        auto payload = array.get<Poco::Redis::BulkString>(2);
 
-                        if (auto it = _handlers.find(channel); it != _handlers.end())
-                            it->second(payload);
+                        if (auto it = _handlers.find(std::string(channel)); it != _handlers.end())
+                            it->second(std::string(payload));
                     }
                 }
             }
-            catch(const Poco::Exception& e)
+            catch (const Poco::Exception& e)
             {
                 Allocation::Loggers::GetLogger()->Error(
                     "RedisListener exception: " + std::string(e.displayText()));

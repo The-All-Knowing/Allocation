@@ -72,6 +72,7 @@
       "typeindex": "cpp",
       "*.cpp_": "cpp",
       "csignal": "cpp",
-      "barrier": "cpp"
+      "barrier": "cpp",
+      "fstream": "cpp"
     }
 }
