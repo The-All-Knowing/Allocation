@@ -27,8 +27,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
 
             response.setStatus(Poco::Net::HTTPResponse::HTTP_ACCEPTED);
             response.setContentType("application/json");
-            std::ostream& out = response.send();
-            out << "{}";
+            response.send();
             return;
         }
         catch (const Poco::Exception& ex)
@@ -37,6 +36,16 @@ namespace Allocation::Entrypoints::Rest::Handlers
             response.setContentType("application/json");
             std::string msg = ex.displayText();
             response.send() << "{\"error\":\"" << msg << "\"}";
+
+            Allocation::Loggers::GetLogger()->Error(msg);
+        }
+        catch (const std::runtime_error& ex)
+        {
+            response.setStatus(Poco::Net::HTTPResponse::HTTP_CONFLICT);
+            response.setContentType("application/json");
+            std::ostream& ostr = response.send();
+            std::string msg = ex.what();
+            ostr << "{\"message\": \"" << msg << "\"}";
 
             Allocation::Loggers::GetLogger()->Error(msg);
         }

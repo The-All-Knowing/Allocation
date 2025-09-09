@@ -1,93 +1,97 @@
 name: allocation CI
 
 'on':
-    schedule:
-      - cron: '30 5 * * 1'  # Every Monday at 5:30
-    pull_request:
-    push:
-        branches:
-          - main
-          - develop
+  schedule:
+    - cron: '30 5 * * 1'
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
 
 env:
-    UBSAN_OPTIONS: print_stacktrace=1
+  UBSAN_OPTIONS: print_stacktrace=1
 
 jobs:
-    posix:
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                  - os: ubuntu-24.04
-                    make-target: test-debug
-                    compiler: g++-14
-                    description: "Debug build"
-                  
-                  - os: ubuntu-24.04
-                    make-target: test-release
-                    compiler: g++-14
-                    description: "Release build"
+  posix:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            make-target: test-debug
+            compiler: g++-14
+            description: "Debug build"
+          
+          - os: ubuntu-24.04
+            make-target: test-release
+            compiler: g++-14
+            description: "Release build"
 
-        name: '${{matrix.os}}: ${{matrix.info}}'
-        runs-on: ${{matrix.os}}
+    name: '${{matrix.os}}: ${{matrix.info}}'
+    runs-on: ${{matrix.os}}
 
-        steps:
-          - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-          - name: Install packages
-            run: |
-                sudo apt update
-                sudo apt install -y build-essential cmake pipx pycodestyle postgresql
-                pipx ensurepath
-                pipx install conan
-                PATH="/root/.local/bin:${PATH}"
-   
-          - name: Install postgres 16
-            run: |
-                sudo apt install -y postgresql-16 postgresql-client-16 postgresql-server-dev-16
+      - name: Install packages
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake pipx pycodestyle postgresql postgresql-client redis-server
+          pipx ensurepath
+          pipx install conan
+          export PATH="/root/.local/bin:$PATH"
 
-          - name: Install Redis
-            run: |
-                sudo apt-get install redis
-                
-          - name: Run postgresql
-            if: matrix.make == 'test-release'
-            run: |
-                pg_lsclusters
-                sudo -u postgres psql --command="CREATE USER allocation_user PASSWORD 'password'" --command="\du"
-                sudo -u postgres createdb --owner=allocation_user allocation_db-1
+      - name: Setup PostgreSQL
+        run: |
+          sudo pg_lsclusters
+          sudo pg_dropcluster --stop 16 main || true
+          sudo pg_createcluster 16 main --start -p 5432
+          sudo -u postgres psql --command='CREATE USER "user" WITH PASSWORD '\''password'\'';'
+          sudo -u postgres createdb --owner="user" allocation
+          echo "POSTGRES_HOST=localhost" >> $GITHUB_ENV
+          echo "POSTGRES_PORT=5432" >> $GITHUB_ENV
+          echo "POSTGRES_DB=allocation" >> $GITHUB_ENV
+          echo "POSTGRES_USER=user" >> $GITHUB_ENV
+          echo "POSTGRES_PASSWORD=password" >> $GITHUB_ENV
 
-          - name: Run migrations
-            if: matrix.make == 'test-release'
-            run: |
-                PGPASSWORD=password psql 'postgresql://allocation@localhost:5432/allocation_db-1' -f ./postgresql/schemas/db-1.sql
+      - name: Setup Redis
+        run: |
+          sudo systemctl start redis-server
+          REDIS_PORT=$(grep -E "^port " /etc/redis/redis.conf | awk '{print $2}')
+          echo "REDIS_HOST=localhost" >> $GITHUB_ENV
+          echo "REDIS_PORT=$REDIS_PORT" >> $GITHUB_ENV
 
-          - name: Run ${{matrix.make}}
-            run: |
-                make ${{matrix.make}}
-
-          - name: Test install ${{matrix.make}}
-            if: matrix.make == 'test-release'
-            run: |
-                make dist-clean
-                make install PREFIX=`pwd`/local_installation/
-
-#          - name: Test run after install
-#            if: matrix.make == 'test-release'
-#            run: |
-#               ./local_installation/bin/realmedium_sample \
-#                   --config=./local_installation/etc/realmedium_sample/config.yaml \
-#                   --config_vars=./local_installation/etc/realmedium_sample/config_vars.yaml \
-#                   &
-
-          - name: Check work run service
-            if: matrix.make == 'test-release'
-            run: |
-                ps aux | grep allocation | grep config && curl http://localhost:8080/ping -v
-
-          - name: Stop all
-            if: matrix.make == 'test-release'
-            run: |
-                killall allocation
+      - name: Run migrations
+        if: matrix.make-target == 'test-release'
+        run: |
+          psql "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB" -f ./postgresql/schemas/db-1.sql
 
 
+      - name: Run build
+        run: make ${{matrix.make-target}}
+
+      - name: Test install
+        if: matrix.make-target == 'test-release'
+        run: |
+          make dist-clean
+          make install PREFIX=`pwd`/local_installation/
+
+      - name: Test run after install
+        if: matrix.make-target == 'test-release'
+        run: |
+          ./local_installation/bin/allocation &   # сервис запускается в фоне
+          sleep 5
+
+      - name: Check service
+        if: matrix.make-target == 'test-release'
+        run: |
+          ps aux | grep allocation | grep config && curl http://localhost:8080/ping -v
+
+      - name: Run e2e test
+        if: matrix.make-target == 'test-release'
+        run: make e2e-test
+
+      - name: Stop all
+        if: matrix.make-target == 'test-release'
+        run: killall allocation

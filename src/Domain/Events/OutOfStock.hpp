@@ -10,7 +10,7 @@ namespace Allocation::Domain::Events
     {
         /// @brief Конструктор события "OutOfStock".
         /// @param SKU Артикул товара.
-        OutOfStock(std::string SKU) : SKU(std::move(SKU)) {};
+        OutOfStock(std::string SKU) : SKU(std::move(SKU)){};
 
         /// @brief Получить имя события.
         /// @return Имя события.

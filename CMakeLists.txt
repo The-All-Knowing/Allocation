@@ -22,7 +22,7 @@ target_link_libraries(${PROJECT_NAME}_objs PUBLIC Poco::Poco)
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
 
-# Unit-тесты
+# тесты
 enable_testing()
 add_executable(${PROJECT_NAME}_test ${UNIT_TEST_SOURCES})
 target_link_libraries(${PROJECT_NAME}_test PRIVATE ${PROJECT_NAME}_objs GTest::gtest_main GTest::gmock)
@@ -48,15 +48,15 @@ install(FILES ${CONFIGS_FILES} DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT
 
 # Добавляем цели для запуска сервиса
 add_custom_target(start-debug
-    COMMAND ${PROJECT_NAME} #--config configs/debug.yaml дополнить когда научу считывать конфиг файл по пути
+    COMMAND ${PROJECT_NAME}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Запуск сервиса в режиме отладки"
+    COMMENT "Launching the service in debugging mode"
 )
 
 add_custom_target(start-release
-    COMMAND ${PROJECT_NAME} #--config configs/release.yaml
+    COMMAND ${PROJECT_NAME}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Запуск сервиса в режиме релиза"
+    COMMENT "Launching the service in release mode"
 )
 
 # Добавляем зависимости

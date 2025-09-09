@@ -7,7 +7,6 @@ name: allocation Docker build
     push:
         branches:
           - main
-          - master
           - develop
           - feature/**
 
@@ -30,5 +29,8 @@ jobs:
           - name: Build
             run: make docker-build-release
 
-#          - name: Run tests
-#            run: make docker-test-release
+          - name: Run test
+            run: make docker-test-release
+
+          - name: Run e2e tests
+            run: make e2e-test

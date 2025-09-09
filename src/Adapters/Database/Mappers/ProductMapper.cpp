@@ -55,7 +55,7 @@ namespace Allocation::Adapters::Database::Mapper
     }
 
     bool ProductMapper::Update(Domain::ProductPtr product, int oldVersion)
-    {   
+    {
         UpdateBatches(product);
 
         auto sku = product->GetSKU();
@@ -83,7 +83,7 @@ namespace Allocation::Adapters::Database::Mapper
             VALUES ($1, $2)
         )",
             use(sku), use(version), now;
-        
+
         if (!batches.empty())
             _batchMapper.Insert(batches);
     }
@@ -115,9 +115,9 @@ namespace Allocation::Adapters::Database::Mapper
         std::vector<Domain::Batch> changedBatches;
 
         for (const auto& ref : changedBatchRefs)
-            if(auto batch = product->GetBatch(ref); batch.has_value())
+            if (auto batch = product->GetBatch(ref); batch.has_value())
                 changedBatches.push_back(batch.value());
-        
+
         if (!changedBatchRefs.empty())
             _batchMapper.Delete(changedBatchRefs);
         if (!changedBatches.empty())

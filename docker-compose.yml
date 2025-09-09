@@ -36,10 +36,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PREFIX=${PREFIX:-~/.local}
-      - CMAKE_OPTS
-      - CXX
-      - MAKE_OPTS
-      - CMAKE_OPTIONS
     volumes:
       - .:/allocation:rw
       - conan_cache:/root/.conan2

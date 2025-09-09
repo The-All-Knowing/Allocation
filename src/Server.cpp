@@ -13,14 +13,21 @@ namespace Allocation
 {
     void ServerApp::initialize(Application& self)
     {
-        Allocation::Loggers::InitializeLogger(
-            std::make_shared<ServiceLayer::Loggers::PocoLogger>());
+        if (!Allocation::Loggers::IsInitialize())
+            Allocation::Loggers::InitializeLogger(
+                std::make_shared<ServiceLayer::Loggers::PocoLogger>());
 
         InitRedis();
         InitDatabase();
         InitMessageBus();
         InitServer();
         ServerApplication::initialize(self);
+    }
+
+    void ServerApp::uninitialize()
+    {
+        _redisListener->Stop();
+        Adapters::Database::SessionPool::Instance().Shutdown();
     }
 
     void ServerApp::defineOptions(Poco::Util::OptionSet& options)
@@ -33,8 +40,9 @@ namespace Allocation
                 .callback(Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandleHelp)));
 
         options.addOption(Poco::Util::Option("config", "c", "Set path to config file")
+                .argument("file")
                 .required(false)
-                .required(false)
+                .repeatable(false)
                 .callback(
                     Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandlePathToConfig)));
     }
@@ -60,27 +68,39 @@ namespace Allocation
 
     void ServerApp::HandlePathToConfig(const std::string& name, const std::string& value)
     {
-        Poco::File configFile(value);
-
-        if (!configFile.exists() || !configFile.isFile())
-        {
-            std::ostringstream oss;
-            oss << "Configuration file not found or is not a regular file: " << value << std::endl
-                << "Loading environment variables.";
-            Allocation::Loggers::GetLogger()->Error(oss.str());
-        }
+        if (!Allocation::Loggers::IsInitialize())
+            Allocation::Loggers::InitializeLogger(
+                std::make_shared<ServiceLayer::Loggers::PocoLogger>());
 
         try
         {
-            loadConfiguration(value);
-            Allocation::Loggers::GetLogger()->Information("Loaded configuration from: " + value);
+            Poco::Path path(value);
+            if (path.isRelative())
+                path = Poco::Path(Poco::Path::current()).append(path);
+
+            std::string absPath = path.toString();
+
+            Allocation::Loggers::GetLogger()->Information("Config path argument: " + absPath);
+
+            Poco::File configFile(path);
+            if (!configFile.exists() || !configFile.isFile())
+            {
+                std::ostringstream oss;
+                oss << "Configuration file not found or not a regular file: " << absPath
+                    << "\nLoading environment variables.";
+                Allocation::Loggers::GetLogger()->Error(oss.str());
+                return;
+            }
+
+            loadConfiguration(absPath);
+            Allocation::Loggers::GetLogger()->Information("Loaded configuration from: " + absPath);
+            _isConfigFileLoaded = true;
         }
         catch (const Poco::Exception& ex)
         {
             std::ostringstream oss;
             oss << "Failed to load configuration file '" << value << "': " << ex.displayText()
-                << std::endl
-                << "Loading environment variables.";
+                << "\nLoading environment variables.";
             Allocation::Loggers::GetLogger()->Error(oss.str());
         }
     }
@@ -197,8 +217,8 @@ namespace Allocation
         const auto& cfg = config();
         Poco::UInt16 port = cfg.getInt("server.port", 8080);
         Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
-        pParams->setMaxQueued(100);
-        pParams->setMaxThreads(16);
+        pParams->setMaxQueued(cfg.getInt("server.max_queued", 100));
+        pParams->setMaxThreads(cfg.getInt("server.max_threads", 16));
         pParams->setMaxKeepAliveRequests(cfg.getInt("server.max_connections", 100));
         return {pParams, port};
     }

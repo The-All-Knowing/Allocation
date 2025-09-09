@@ -2,9 +2,9 @@
 
 #include "Precompile.hpp"
 
-#include "Commands/CreateBatch.hpp"
 #include "Commands/Allocate.hpp"
 #include "Commands/ChangeBatchQuantity.hpp"
+#include "Commands/CreateBatch.hpp"
 
 
 namespace Allocation::Domain
@@ -25,7 +25,7 @@ namespace Allocation::Domain
     /// @param json JSON-объект с полями ref, sku, qty и опционально eta.
     /// @throw std::invalid_argument если отсутствуют обязательные поля или они некорректны.
     /// @return Умный указатель на команду CreateBatch.
-    template<>
+    template <>
     IMessagePtr FromJson<Commands::CreateBatch>(Poco::JSON::Object::Ptr json);
 
     /// @brief Преобразует JSON-объект в команду Allocate.

@@ -17,7 +17,7 @@ namespace Allocation::Domain::Events
             : orderid(std::move(orderid)),
               SKU(std::move(SKU)),
               qty(qty),
-              batchref(std::move(batchref)) {};
+              batchref(std::move(batchref)){};
 
         /// @brief Получить имя события.
         /// @return Имя события.

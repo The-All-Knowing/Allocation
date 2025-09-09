@@ -2,9 +2,9 @@
 
 #include "Precompile.hpp"
 
-#include "Entrypoints/Redis/RedisListener.hpp"
 #include "Adapters/Database/DatabaseConfig.hpp"
 #include "Adapters/Redis/RedisConfig.hpp"
+#include "Entrypoints/Redis/RedisListener.hpp"
 
 
 namespace Allocation
@@ -16,6 +16,9 @@ namespace Allocation
         /// @brief Инициализирует приложения.
         /// @param self Ссылка на текущее приложение.
         void initialize(Application& self) override;
+
+        /// @brief Деинициализирует, освобождает ресурсы приложения.
+        void uninitialize() override;
 
         /// @brief Определяет параметры командной строки.
         /// @param options Набор параметров.
@@ -36,7 +39,7 @@ namespace Allocation
         /// @param name Название команды.
         /// @param value Значение.
         void HandlePathToConfig(const std::string& name, const std::string& value);
-        
+
         /// @brief Запускает сервер.
         void StartServer();
 
@@ -49,7 +52,7 @@ namespace Allocation
         /// @brief Инициализирует базу данных.
         void InitDatabase();
 
-        /// @brief Инициализирует клиент Redis.
+        /// @brief Инициализирует Redis.
         void InitRedis();
 
         /// @brief Загружает параметры БД из файла конфига.

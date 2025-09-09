@@ -7,7 +7,7 @@
 
 namespace Allocation::Adapters::Redis
 {
-    /// @brief 
+    /// @brief
     class ClientFactory
     {
     public:
@@ -19,11 +19,11 @@ namespace Allocation::Adapters::Redis
         /// @return true, если пул сессий сконфигурирован; в противном случае - false.
         bool IsConfigured() const noexcept;
 
-        /// @brief 
+        /// @brief
         /// @param address
         void Configure(const RedisConfig& config) noexcept;
 
-        /// @brief 
+        /// @brief
         /// @return
         Poco::Redis::Client::Ptr Create();
 

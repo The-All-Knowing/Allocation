@@ -9,6 +9,16 @@ namespace Allocation::Loggers
         class LoggerHolder
         {
         public:
+            /// @brief Проверяет инициализирован ли логгер.
+            /// @return true - инициализирован, иначе false.
+            static bool IsInitialize()
+            {
+                std::lock_guard<std::mutex> lock(mutex_);
+                if (instance_)
+                    return true;
+                return false;
+            }
+
             /// @brief Устанавливает экземпляр логгера.
             /// @param logger Указатель на логгер.
             static void SetLogger(ILoggerPtr logger)
@@ -42,4 +52,6 @@ namespace Allocation::Loggers
     ILoggerPtr GetLogger() { return Internal::LoggerHolder::GetLogger(); }
 
     void InitializeLogger(ILoggerPtr logger) { Internal::LoggerHolder::SetLogger(logger); }
+
+    bool IsInitialize() { return Internal::LoggerHolder::IsInitialize(); };
 }

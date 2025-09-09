@@ -2,8 +2,8 @@
 
 #include "Precompile.hpp"
 
-#include "Domain/Product/Product.hpp"
 #include "BatchMapper.hpp"
+#include "Domain/Product/Product.hpp"
 
 
 namespace Allocation::Adapters::Database::Mapper

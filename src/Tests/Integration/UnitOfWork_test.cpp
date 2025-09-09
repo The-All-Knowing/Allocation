@@ -119,7 +119,7 @@ namespace Allocation::Tests
     {
         auto session = Adapters::Database::SessionPool::Instance().GetSession();
         Adapters::Database::Mapper::ProductMapper productMapper(session);
-        
+
         std::string SKU = RandomSku();
         std::string batch = RandomBatchRef();
         auto product = std::make_shared<Domain::Product>(

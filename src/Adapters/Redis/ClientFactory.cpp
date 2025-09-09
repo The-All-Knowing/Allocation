@@ -12,7 +12,7 @@ namespace Allocation::Adapters::Redis
     bool ClientFactory::IsConfigured() const noexcept { return !_address.toString().empty(); }
 
     void ClientFactory::Configure(const RedisConfig& config) noexcept
-    { 
+    {
         _address = Poco::Net::SocketAddress(config.path, config.port);
     }
 

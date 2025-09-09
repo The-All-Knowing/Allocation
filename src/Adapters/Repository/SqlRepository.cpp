@@ -7,7 +7,7 @@ namespace Allocation::Adapters::Repository
 
     void SqlRepository::Add(Domain::ProductPtr product)
     {
-        if(!product)
+        if (!product)
             throw std::invalid_argument("The nullptr product");
         _mapper.Insert(product);
     }
@@ -24,9 +24,10 @@ namespace Allocation::Adapters::Repository
 
     void SqlRepository::Update(Domain::ProductPtr product, int oldVersion)
     {
-        if(!product)
+        if (!product)
             throw std::invalid_argument("The nullptr product");
-        if(!_mapper.Update(product, oldVersion));
-            std::runtime_error("Could not serialize access due to concurrent update");
+        if (!_mapper.Update(product, oldVersion))
+            ;
+        std::runtime_error("Could not serialize access due to concurrent update");
     }
 }
