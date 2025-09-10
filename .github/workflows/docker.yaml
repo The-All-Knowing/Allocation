@@ -38,9 +38,8 @@ jobs:
               REDIS_HOST: redis
               REDIS_PORT: 6379
             run: |
-              make docker-start-service-release-bg
+              make docker-start-service-debug-bg
               echo "Waiting for service..."
-              sleep 5
+              sleep 10
               curl http://localhost:8080/ping -v
               make e2e-test
-              docker-compose down

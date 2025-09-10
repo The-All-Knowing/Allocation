@@ -111,7 +111,9 @@ jobs:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
         run: |
-          ps aux | grep allocation | grep config && curl http://localhost:8080/ping -v 
+          make start-release &
+          sleep 10
+          curl http://localhost:8080/ping -v
           make e2e-test
 
       - name: Stop all
