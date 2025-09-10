@@ -1,6 +1,6 @@
 import pytest
-from ..random_refs import random_batchref, random_orderid, random_sku
-from . import api_client
+from tests.random_refs import random_batchref, random_orderid, random_sku
+from tests.e2e import api_client
 
 
 def test_happy_path_returns_202_and_batch_is_allocated():

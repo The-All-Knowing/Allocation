@@ -1,7 +1,7 @@
 import json
 import redis
 
-from ..config import REDIS_HOST, REDIS_PORT
+from tests.config import REDIS_HOST, REDIS_PORT
 
 r = redis.Redis(REDIS_HOST, REDIS_PORT)
 

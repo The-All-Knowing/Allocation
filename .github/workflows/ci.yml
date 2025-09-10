@@ -89,10 +89,6 @@ jobs:
             -h localhost -U user -d allocation \
             -f ./postgresql/schemas/db-1.sql
 
-      - name: Verify schema
-        run: |
-          PGPASSWORD=password psql -h localhost -U user -d allocation -c "\dt"
-
       - name: Run build
         run: make ${{matrix.make-target}}
 

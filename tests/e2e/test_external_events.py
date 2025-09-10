@@ -1,8 +1,8 @@
 import json
 import pytest
 from tenacity import Retrying, RetryError, stop_after_delay
-from . import api_client, redis_client
-from ..random_refs import random_batchref, random_orderid, random_sku
+from tests.e2e import api_client, redis_client
+from tests.random_refs import random_batchref, random_orderid, random_sku
 
 
 def test_change_batch_quantity_leading_to_reallocation():

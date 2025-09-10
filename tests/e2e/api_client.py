@@ -1,5 +1,5 @@
 import requests
-from ..config import API_URL
+from tests.config import API_URL
 
 
 def post_to_add_batch(ref, sku, qty, eta):
