@@ -96,7 +96,6 @@ jobs:
           curl http://localhost:8080/ping -v
 
       - name: Run e2e test
-        if: matrix.make-target == 'test-release'
         run: make e2e-test
 
       - name: Stop all
