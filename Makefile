@@ -129,10 +129,31 @@ docker-start-debug docker-start-release: docker-start-%:
 .PHONY: docker-start-service-debug docker-start-service-release
 docker-start-service-debug docker-start-service-release: docker-start-service-%: docker-start-%
 
+.PHONY: docker-start-service-debug docker-start-service-release
+docker-start-service-debug:
+	$(DOCKER_COMPOSE) run -d service-allocation make service-start-bg-debug
+
+docker-start-service-release:
+	$(DOCKER_COMPOSE) run -d service-allocation make service-start-bg-release
+
 # Docker helpers
 .PHONY: docker-cmake-debug docker-build-debug docker-test-debug docker-clean-debug docker-install-debug docker-cmake-release docker-build-release docker-test-release docker-clean-release docker-install-release
 docker-cmake-debug docker-build-debug docker-test-debug docker-clean-debug docker-install-debug docker-cmake-release docker-build-release docker-test-release docker-clean-release docker-install-release: docker-%:
 	$(DOCKER_COMPOSE) run --rm service-allocation make $*
+
+.PHONY: service-start-bg-debug service-start-bg-release
+service-start-bg-debug:
+	make --in-docker-start-debug & \
+	service_pid=$$!; \
+	echo "Service started with PID $$service_pid"; \
+	sleep 1
+
+service-start-bg-release:
+	make --in-docker-start-release & \
+	service_pid=$$!; \
+	echo "Service started with PID $$service_pid"; \
+	sleep 1
+
 
 .PHONY: docker-clean-data
 docker-clean-data:

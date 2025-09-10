@@ -111,12 +111,8 @@ jobs:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
         run: |
-          ./local_installation/bin/allocation &
-          PID=$!
-          sleep 5
-          curl http://localhost:8080/ping -v
+          ps aux | grep allocation | grep config && curl http://localhost:8080/ping -v 
           make e2e-test
-          kill $PID
 
       - name: Stop all
         if: matrix.make-target == 'test-release'
