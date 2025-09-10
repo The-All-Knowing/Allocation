@@ -22,7 +22,7 @@ namespace Allocation::Adapters::Database
             throw std::runtime_error("SessionPool is already configured");
 
         _pool = std::make_unique<Poco::Data::SessionPool>(config.connector, config.connectionString,
-            config.minSessions, config.maxSessions, config.idleTime, config.connTimeout);
+            config.minSessions, config.maxSessions, config.idleTime);
     }
 
     void SessionPool::Reconfigure(const DatabaseConfig& config)
@@ -32,7 +32,7 @@ namespace Allocation::Adapters::Database
             _pool->shutdown();
 
         _pool = std::make_unique<Poco::Data::SessionPool>(config.connector, config.connectionString,
-            config.minSessions, config.maxSessions, config.idleTime, config.connTimeout);
+            config.minSessions, config.maxSessions, config.idleTime);
     }
 
     void SessionPool::Shutdown()

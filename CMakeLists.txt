@@ -4,7 +4,12 @@ project(allocation LANGUAGES CXX)
 SET(CMAKE_CXX_STANDARD 23)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Poco REQUIRED)
+find_package(PostgreSQL REQUIRED)
+# Create alias for PostgreSQL client that Poco expects
+if(NOT TARGET PostgreSQL::client)
+    add_library(PostgreSQL::client ALIAS PostgreSQL::PostgreSQL)
+endif()
+find_package(Poco REQUIRED COMPONENTS Foundation Data DataPostgreSQL Net Util JSON Redis)
 find_package(GTest REQUIRED)
 
 # Общие исходники
@@ -16,7 +21,15 @@ add_library(${PROJECT_NAME}_objs OBJECT ${SOURCES})
 include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories(${PROJECT_NAME}_unittest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories(${PROJECT_NAME}_unittest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-target_link_libraries(${PROJECT_NAME}_objs PUBLIC Poco::Poco)
+target_link_libraries(${PROJECT_NAME}_objs PUBLIC 
+    Poco::Foundation 
+    Poco::Data 
+    Poco::DataPostgreSQL
+    Poco::Net 
+    Poco::Util 
+    Poco::JSON
+    Poco::Redis
+    PostgreSQL::PostgreSQL)
 
 # Сервис
 add_executable(${PROJECT_NAME} src/main.cpp)
@@ -25,7 +38,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
 # тесты
 enable_testing()
 add_executable(${PROJECT_NAME}_test ${UNIT_TEST_SOURCES})
-target_link_libraries(${PROJECT_NAME}_test PRIVATE ${PROJECT_NAME}_objs GTest::gtest_main GTest::gmock)
+target_link_libraries(${PROJECT_NAME}_test PRIVATE ${PROJECT_NAME}_objs GTest::gtest_main GTest::gtest GTest::gmock)
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME}_test)
 
