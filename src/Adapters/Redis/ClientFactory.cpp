@@ -21,8 +21,6 @@ namespace Allocation::Adapters::Redis
         if (_address.toString().empty())
             throw std::runtime_error("ClientFactory is not configured");
 
-        Poco::Redis::Client::Ptr client = new Poco::Redis::Client();
-        client->connect(_address);
-        return client;
+        return Poco::Redis::Client(_address);
     }
 }

@@ -40,6 +40,11 @@ namespace Allocation::Adapters::Database
         _pool->shutdown();
     }
 
+    void SessionPool::Shutdown()
+    {
+        _pool->shutdown();
+    }
+
     Poco::Data::Session SessionPool::GetSession()
     {
         std::shared_lock lock(_mutex);
