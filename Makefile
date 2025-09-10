@@ -22,7 +22,7 @@ venv/touchfile: tests/requirements.txt
 
 .PHONY: e2e-test
 e2e-test: pip-install
-	./venv/bin/pytest -v --color=yes
+	PYTHONPATH=. ./venv/bin/pytest -v --color=yes
 
 # Conan
 .PHONY: conan-profile
