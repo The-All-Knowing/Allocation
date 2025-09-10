@@ -61,25 +61,32 @@ jobs:
       - name: Install packages
         run: |
           sudo apt update
-          sudo apt install -y build-essential cmake pipx pycodestyle
+          sudo apt install -y build-essential cmake pipx pycodestyle postgresql-client
           pipx ensurepath
           pipx install conan
           export PATH="/root/.local/bin:$PATH"
 
-      # --- Новый шаг: дождаться PostgreSQL ---
+      # --- Ждём готовность Postgres ---
       - name: Wait for Postgres
         run: |
-          until pg_isready -h postgres -U user -d allocation; do
-            echo "Waiting for PostgreSQL..."
+          echo "Waiting for Postgres..."
+          until pg_isready -h postgres -p 5432 -U user -d allocation; do
             sleep 2
           done
+          echo "Postgres is ready!"
 
-      # --- Прогрузка схемы для всех сборок ---
+      # --- Прогрузка схемы ---
       - name: Run migrations
         run: |
+          echo "Running migrations..."
           PGPASSWORD=password psql \
-            "postgresql://user:password@postgres:5432/allocation" \
+            -h postgres -U user -d allocation \
             -f ./postgresql/schemas/db-1.sql
+
+      - name: Verify schema
+        run: |
+          PGPASSWORD=password psql -h postgres -U user -d allocation -c "\dt"
+
 
       - name: Run build
         run: make ${{matrix.make-target}}
