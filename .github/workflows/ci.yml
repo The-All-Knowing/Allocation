@@ -56,7 +56,7 @@ jobs:
 
       - name: Setup Redis
         run: |
-          redis-server --daemonize yes
+          sudo /usr/bin/redis-server --daemonize yes
           echo "REDIS_HOST=localhost" >> $GITHUB_ENV
           echo "REDIS_PORT=6379" >> $GITHUB_ENV
 
