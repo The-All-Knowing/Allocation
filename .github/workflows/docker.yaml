@@ -38,7 +38,7 @@ jobs:
               REDIS_HOST: redis
               REDIS_PORT: 6379
             run: |
-              make docker-start-service-release
+              make docker-start-service-release-bg
               echo "Waiting for service..."
               sleep 5
               curl http://localhost:8080/ping -v

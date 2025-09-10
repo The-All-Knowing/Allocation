@@ -129,11 +129,11 @@ docker-start-debug docker-start-release: docker-start-%:
 .PHONY: docker-start-service-debug docker-start-service-release
 docker-start-service-debug docker-start-service-release: docker-start-service-%: docker-start-%
 
-.PHONY: docker-start-service-debug docker-start-service-release
-docker-start-service-debug:
+.PHONY: docker-start-service-debug-bg docker-start-service-release-bg
+docker-start-service-debug-bg:
 	$(DOCKER_COMPOSE) run -d service-allocation make service-start-bg-debug
 
-docker-start-service-release:
+docker-start-service-release-bg:
 	$(DOCKER_COMPOSE) run -d service-allocation make service-start-bg-release
 
 # Docker helpers
