@@ -66,6 +66,15 @@ jobs:
           pipx install conan
           export PATH="/root/.local/bin:$PATH"
 
+      # --- Отладка контейнеров ---
+      - name: Check running containers
+        run: docker ps -a
+
+      - name: Show Postgres logs
+        run: |
+          echo "=== Postgres logs ==="
+          docker logs $(docker ps -q --filter "name=postgres") || true
+
       # --- Ждём готовность Postgres ---
       - name: Wait for Postgres
         run: |
@@ -74,6 +83,7 @@ jobs:
             sleep 2
           done
           echo "Postgres is ready!"
+
 
       # --- Прогрузка схемы ---
       - name: Run migrations
@@ -86,7 +96,6 @@ jobs:
       - name: Verify schema
         run: |
           PGPASSWORD=password psql -h postgres -U user -d allocation -c "\dt"
-
 
       - name: Run build
         run: make ${{matrix.make-target}}
