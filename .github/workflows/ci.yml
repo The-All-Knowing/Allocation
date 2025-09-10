@@ -52,7 +52,6 @@ jobs:
           pipx install conan
           export PATH="/root/.local/bin:$PATH"
 
-      # --- Новый шаг: дождаться PostgreSQL ---
       - name: Wait for Postgres
         run: |
           until pg_isready -h postgres -U user -d allocation; do
@@ -60,7 +59,6 @@ jobs:
             sleep 2
           done
 
-      # --- Прогрузка схемы для всех сборок ---
       - name: Run migrations
         run: |
           PGPASSWORD=password psql \
