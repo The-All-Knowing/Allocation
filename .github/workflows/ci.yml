@@ -58,17 +58,30 @@ jobs:
       - name: Setup Redis
         run: |
           sudo systemctl start redis-server
-          REDIS_PORT=$(grep -E "^port " /etc/redis/redis.conf | awk '{print $2}')
+          # Use default Redis port 6379 instead of parsing config file
           echo "REDIS_HOST=localhost" >> $GITHUB_ENV
-          echo "REDIS_PORT=$REDIS_PORT" >> $GITHUB_ENV
+          echo "REDIS_PORT=6379" >> $GITHUB_ENV
 
       - name: Run migrations
-        if: matrix.make-target == 'test-release'
         run: |
+          # Set environment variables for this step since $GITHUB_ENV doesn't affect current step
+          export POSTGRES_HOST=localhost
+          export POSTGRES_PORT=5432
+          export POSTGRES_DB=allocation
+          export POSTGRES_USER=user
+          export POSTGRES_PASSWORD=password
           psql "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB" -f ./postgresql/schemas/db-1.sql
 
 
       - name: Run build
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: allocation
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
         run: make ${{matrix.make-target}}
 
       - name: Test install
@@ -79,6 +92,14 @@ jobs:
 
       - name: Test run after install
         if: matrix.make-target == 'test-release'
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: allocation
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
         run: |
           ./local_installation/bin/allocation &   # сервис запускается в фоне
           sleep 5
@@ -90,6 +111,14 @@ jobs:
 
       - name: Run e2e test
         if: matrix.make-target == 'test-release'
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: allocation
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
         run: make e2e-test
 
       - name: Stop all

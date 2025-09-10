@@ -33,4 +33,12 @@ jobs:
             run: make docker-test-release
 
           - name: Run e2e tests
+            env:
+              POSTGRES_HOST: postgres
+              POSTGRES_PORT: 5432
+              POSTGRES_DB: allocation
+              POSTGRES_USER: user
+              POSTGRES_PASSWORD: password
+              REDIS_HOST: redis
+              REDIS_PORT: 6379
             run: make e2e-test
