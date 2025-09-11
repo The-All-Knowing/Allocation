@@ -42,26 +42,26 @@ jobs:
           docker-compose up --build -d
 
       - name: Wait for Postgres and Redis to be ready
-        # Используем docker-compose exec для проверки здоровья сервисов внутри сети docker-compose
         run: |
           echo "Waiting for Postgres..."
-          until docker-compose exec postgres pg_isready -U user -d allocation; do
+          until docker-compose exec -it postgres pg_isready -U user -d allocation; do
+            printf "." # Добавим точку, чтобы видеть прогресс
             sleep 2
           done
-          echo "Postgres is ready!"
+          echo "\nPostgres is ready!"
 
           echo "Waiting for Redis..."
-          until docker-compose exec redis redis-cli ping; do
+          until docker-compose exec -it redis redis-cli ping; do
+            printf "." # Добавим точку, чтобы видеть прогресс
             sleep 2
           done
-          echo "Redis is ready!"
+          echo "\nRedis is ready!"
 
       - name: Run database migrations
         run: |
           echo "Running migrations..."
-          # Выполняем миграции из контейнера service-allocation, так как он имеет доступ к postgres-client
-          # PGPASSWORD берется из переменных окружения, которые мы передали в docker-compose.yml
-          docker-compose exec service-allocation psql \
+          # Также добавим -it для psql, чтобы избежать возможных проблем
+          docker-compose exec -it service-allocation psql \
             -h postgres -U user -d allocation \
             -f ./postgresql/schemas/db-1.sql
 
