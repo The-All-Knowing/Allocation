@@ -22,14 +22,6 @@ jobs:
                 sudo apt update
                 sudo apt install -y docker-compose
 
-          - name: Cmake
-            run: |
-                make docker-cmake-release
-                sudo make dist-clean
-
-          - name: Build
-            run: make docker-build-release
-
           - name: Run tests
             run: make docker-test-release
 
