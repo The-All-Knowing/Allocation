@@ -99,7 +99,7 @@ clean-debug clean-release: clean-%:
 .PHONY: dist-clean
 dist-clean:
 	rm -rf build/*
-	rm -rf tests/__pycache__/ пока тесты на С++
+	rm -rf tests/__pycache__/
 	rm -rf tests/.pytest_cache/
 
 # Install
