@@ -21,4 +21,4 @@ RUN apt-get update && apt-get install -y \
 
 ENV PATH="/root/.local/bin:${PATH}"
 
-CMD ["/bin/bash"]
+CMD ["tail", "-f", "/dev/null"]
