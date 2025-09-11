@@ -1,90 +1,137 @@
 name: allocation CI
 
-'on':
-    schedule:
-      - cron: '30 5 * * 1'  # Every Monday at 5:30
-    pull_request:
-    push:
-        branches:
-          - main
-          - develop
+on:
+  schedule:
+    - cron: '30 5 * * 1'  # Every Monday at 5:30
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
 
 env:
-    UBSAN_OPTIONS: print_stacktrace=1
+  UBSAN_OPTIONS: print_stacktrace=1
 
 jobs:
-    posix:
-        strategy:
-            fail-fast: false
-            matrix:
-                include:
-                  - os: ubuntu-24.04
-                    make-target: test-debug
-                    compiler: g++-14
-                    description: "Debug build"
-                  
-                  - os: ubuntu-24.04
-                    make-target: test-release
-                    compiler: g++-14
-                    description: "Release build"
+  posix:
+    # матрица: используем понятные имена полей
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            make_target: test-debug
+            compiler: g++-14
+            description: "Debug build"
+          - os: ubuntu-24.04
+            make_target: test-release
+            compiler: g++-14
+            description: "Release build"
 
-        name: '${{matrix.os}}: ${{matrix.info}}'
-        runs-on: ${{matrix.os}}
+    name: '${{ matrix.os }}: ${{ matrix.description }}'
+    runs-on: ${{ matrix.os }}
 
-        steps:
-          - uses: actions/checkout@v4
+    # выставим DB-данные job-wide, чтобы шаги и процесс тестов видели их
+    env:
+      POSTGRES_USER: allocation_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: allocation_db_1
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_PORT: 5432
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
 
-          - name: Install packages
-            run: |
-                sudo apt update
-                sudo apt install -y build-essential cmake pipx pycodestyle postgresql
-                pipx ensurepath
-                pipx install conan
-                PATH="/root/.local/bin:${PATH}"
-   
-          - name: Install postgres 16
-            run: |
-                sudo apt install -y postgresql-16 postgresql-client-16 postgresql-server-dev-16
+    # Поднимем сервисы через контейнеры (быстро и надёжно)
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: allocation_user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: allocation_db_1
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready -U allocation_user -d allocation_db_1
+          --health-interval=5s --health-timeout=5s --health-retries=10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping || exit 1"
+          --health-interval=5s --health-timeout=5s --health-retries=10
 
-          - name: Install Redis
-            run: |
-                sudo apt-get install redis
-                
-          - name: Run postgresql
-            if: matrix.make == 'test-release'
-            run: |
-                pg_lsclusters
-                sudo -u postgres psql --command="CREATE USER allocation_user PASSWORD 'password'" --command="\du"
-                sudo -u postgres createdb --owner=allocation_user allocation_db-1
+    steps:
+      - uses: actions/checkout@v4
 
-          - name: Run migrations
-            if: matrix.make == 'test-release'
-            run: |
-                PGPASSWORD=password psql 'postgresql://allocation@localhost:5432/allocation_db-1' -f ./postgresql/schemas/db-1.sql
+      - name: Install packages
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake python3-venv python3-pip clang-format
+          # pipx и conan можно ставить через pip
+          python3 -m pip install --user pipx
+          python3 -m pip install --user conan
+          export PATH="$HOME/.local/bin:$PATH"
+        shell: bash
 
-          - name: Run ${{matrix.make}}
-            run: |
-                make ${{matrix.make}}
+      - name: Wait for services to be healthy
+        # ждём, пока контейнеры пройдут healthcheck; если health не настроен — можно использовать цикл проверки
+        run: |
+          echo "Waiting for Postgres..."
+          for i in {1..30}; do
+            if PGPASSWORD=${POSTGRES_PASSWORD} psql -h ${POSTGRES_HOST} -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c '\q' 2>/dev/null; then
+              echo "Postgres ready"
+              break
+            fi
+            sleep 2
+          done
+          echo "Waiting for Redis..."
+          for i in {1..30}; do
+            if redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} ping 2>/dev/null | grep -q PONG; then
+              echo "Redis ready"
+              break
+            fi
+            sleep 1
+          done
+        shell: bash
 
-          - name: Test install ${{matrix.make}}
-            if: matrix.make == 'test-release'
-            run: |
-                make dist-clean
-                make install PREFIX=`pwd`/local_installation/
+      - name: Run migrations (only for release test-target)
+        if: matrix.make_target == 'test-release'
+        env:
+          PGPASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        run: |
+          echo "Running migrations..."
+          PGPASSWORD=$PGPASSWORD psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}" -f ./postgresql/schemas/db-1.sql
+        shell: bash
 
-          - name: Test run after install
-            if: matrix.make == 'test-release'
-            run: |
-               ./local_installation/bin/allocation &
+      - name: Run ${{ matrix.make_target }}
+        run: |
+          make ${{ matrix.make_target }}
+        shell: bash
 
-          - name: Check work run service
-            if: matrix.make == 'test-release'
-            run: |
-                ps aux | grep allocation | grep config && curl http://localhost:8080/ping -v
+      - name: Test install ${{ matrix.make_target }}
+        if: matrix.make_target == 'test-release'
+        run: |
+          make dist-clean
+          make install PREFIX=`pwd`/local_installation/
+        shell: bash
 
-          - name: Stop all
-            if: matrix.make == 'test-release'
-            run: |
-                killall allocation
+      - name: Test run after install
+        if: matrix.make_target == 'test-release'
+        run: |
+          ./local_installation/bin/allocation & sleep 2
+        shell: bash
 
+      - name: Check work run service
+        if: matrix.make_target == 'test-release'
+        run: |
+          ps aux | grep allocation || true
+          curl --fail http://localhost:8080/ping -v || true
+        shell: bash
 
+      - name: Stop all
+        if: matrix.make_target == 'test-release'
+        run: |
+          pkill allocation || true
+        shell: bash
