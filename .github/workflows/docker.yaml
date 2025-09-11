@@ -67,9 +67,14 @@ jobs:
 
       - name: Run Conan install and CMake configure (Debug)
         run: |
-          # Выполняем команды make внутри контейнера service-allocation
+          set -x # Включаем вывод команд
           docker-compose exec service-allocation make conan-debug
           docker-compose exec service-allocation make cmake-debug
+
+      - name: Build Debug
+        run: |
+          set -x # Включаем вывод команд
+          docker-compose exec service-allocation make build-debug
 
       - name: Build Debug
         run: docker-compose exec service-allocation make build-debug
