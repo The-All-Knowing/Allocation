@@ -34,17 +34,18 @@ namespace Allocation
     {
         ServerApplication::defineOptions(options);
 
-        options.addOption(Poco::Util::Option("help", "h", "Show help")
+        options.addOption(
+            Poco::Util::Option("help", "h", "Show help")
                 .required(false)
                 .repeatable(false)
                 .callback(Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandleHelp)));
 
         options.addOption(Poco::Util::Option("config", "c", "Set path to config file")
-                .argument("file")
-                .required(false)
-                .repeatable(false)
-                .callback(
-                    Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandlePathToConfig)));
+                              .argument("file")
+                              .required(false)
+                              .repeatable(false)
+                              .callback(Poco::Util::OptionCallback<ServerApp>(
+                                  this, &ServerApp::HandlePathToConfig)));
     }
 
     int ServerApp::main(const std::vector<std::string>&)
