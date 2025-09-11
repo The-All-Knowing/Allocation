@@ -15,21 +15,19 @@ all: test-debug test-release
 # Убедимся, что ~/.local/bin в PATH для pipx, если он установлен глобально
 # В CI это лучше делать в шаге GitHub Actions
 # export PATH := $(HOME)/.local/bin:$(PATH)
-
 .PHONY: pip-install
 pip-install: venv/touchfile
 
 venv/touchfile: tests/requirements.txt
-    @echo "Creating Python virtual environment and installing dependencies..."
-    python3 -m venv venv
-    . ./venv/bin/activate && pip install -r ./tests/requirements.txt
-    touch venv/touchfile
+	@echo "Creating Python virtual environment and installing dependencies..."
+	python3 -m venv venv
+	. ./venv/bin/activate && pip install -r ./tests/requirements.txt
+	touch venv/touchfile
 
 .PHONY: e2e-test
 e2e-test: pip-install
-    @echo "Running E2E tests..."
-    . ./venv/bin/activate && PYTHONPATH=. pytest -v --color=yes
-
+	@echo "Running E2E tests..."
+	. ./venv/bin/activate && PYTHONPATH=. pytest -v --color=yes
 
 # start conan
 .PHONY: conan-profile
