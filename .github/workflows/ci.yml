@@ -72,13 +72,10 @@ jobs:
                 make dist-clean
                 make install PREFIX=`pwd`/local_installation/
 
-#          - name: Test run after install
-#            if: matrix.make == 'test-release'
-#            run: |
-#               ./local_installation/bin/realmedium_sample \
-#                   --config=./local_installation/etc/realmedium_sample/config.yaml \
-#                   --config_vars=./local_installation/etc/realmedium_sample/config_vars.yaml \
-#                   &
+          - name: Test run after install
+            if: matrix.make == 'test-release'
+            run: |
+               ./local_installation/bin/allocation &
 
           - name: Check work run service
             if: matrix.make == 'test-release'
