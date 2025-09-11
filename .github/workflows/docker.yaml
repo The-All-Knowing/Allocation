@@ -40,6 +40,6 @@ jobs:
             run: |
               make docker-start-service-debug-bg
               echo "Waiting for service..."
-              sleep 10
+              sleep 60
               curl http://localhost:8080/ping -v
               make e2e-test

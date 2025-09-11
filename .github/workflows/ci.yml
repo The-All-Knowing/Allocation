@@ -94,10 +94,10 @@ jobs:
 
       - name: Test install
         if: matrix.make-target == 'test-release'
+        env:
+          PREFIX: ${PWD}/local_installation
         run: |
-          make dist-clean
-          make build-release
-          make install PREFIX=`pwd`/local_installation/
+          make install-release
 
       - name: Test run after install
         if: matrix.make-target == 'test-release'
