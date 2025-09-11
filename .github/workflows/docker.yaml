@@ -65,9 +65,21 @@ jobs:
             -h postgres -U user -d allocation \
             -f ./postgresql/schemas/db-1.sql
 
+      - name: Check service-allocation container status
+        run: |
+          echo "Checking service-allocation container status..."
+          docker-compose ps -a
+          docker-compose logs service-allocation || true # Показать логи контейнера service-allocation
+
+      - name: Try a simple command in service-allocation
+        run: |
+          echo "Trying a simple 'ls -la' in service-allocation..."
+          docker-compose exec service-allocation ls -la /allocation # Проверить, что рабочая директория доступна
+          docker-compose exec service-allocation bash -c "echo Hello from container && which conan" # Проверить, что bash работает и conan доступен
+
       - name: Run Conan install and CMake configure (Debug)
         run: |
-          set -x # Включаем вывод команд
+          set -x
           docker-compose exec service-allocation make conan-debug
           docker-compose exec service-allocation make cmake-debug
 
