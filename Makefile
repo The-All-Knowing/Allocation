@@ -12,9 +12,6 @@ all: test-debug test-release
 # ==============================================================================
 # PYTHON ОКРУЖЕНИЕ И E2E ТЕСТЫ
 # ==============================================================================
-# Убедимся, что ~/.local/bin в PATH для pipx, если он установлен глобально
-# В CI это лучше делать в шаге GitHub Actions
-# export PATH := $(HOME)/.local/bin:$(PATH)
 .PHONY: pip-install
 pip-install: venv/touchfile
 

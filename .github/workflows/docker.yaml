@@ -32,3 +32,26 @@ jobs:
 
           - name: Run tests
             run: make docker-test-release
+
+          - name: Build and start services for e2e tests
+            run: |
+                docker-compose up -d
+                docker-compose ps
+
+          - name: Wait for services to be ready
+            run: |
+                echo "Waiting for services to be ready..."
+                for i in {1..30}; do
+                  if docker-compose exec service-allocation curl -s http://localhost:8080/ping | grep "OK"; then
+                    echo "Services are ready!";
+                    break;
+                  fi;
+                  sleep 5;
+                done
+
+          - name: Run e2e tests
+            run: make e2e-test
+
+          - name: Stop services
+            if: always()
+            run: docker-compose down -v
