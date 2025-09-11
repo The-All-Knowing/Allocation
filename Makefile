@@ -130,10 +130,10 @@ docker-start-debug docker-start-release: docker-start-%:
 docker-start-service-debug docker-start-service-release: docker-start-service-%: docker-start-%
 
 docker-start-service-debug-bg:
-	$(DOCKER_COMPOSE) run -d service-allocation make start-debug
+	$(DOCKER_COMPOSE) run -d -p 8080:8080 service-allocation make start-debug
 
 docker-start-service-release-bg:
-	$(DOCKER_COMPOSE) run -d service-allocation make start-release
+	$(DOCKER_COMPOSE) run -d -p 8080:8080 service-allocation make start-release
 
 # Docker helpers
 .PHONY: docker-cmake-debug docker-build-debug docker-test-debug docker-clean-debug docker-install-debug docker-cmake-release docker-build-release docker-test-release docker-clean-release docker-install-release
