@@ -33,9 +33,9 @@ jobs:
 
     # выставим DB-данные job-wide, чтобы шаги и процесс тестов видели их
     env:
-      POSTGRES_USER: allocation_user
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: allocation_db_1
+      POSTGRES_DB: allocation
       POSTGRES_HOST: 127.0.0.1
       POSTGRES_PORT: 5432
       REDIS_HOST: 127.0.0.1
@@ -46,13 +46,13 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: allocation_user
+          POSTGRES_USER: user
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: allocation_db_1
+          POSTGRES_DB: allocation
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready -U allocation_user -d allocation_db_1
+          --health-cmd pg_isready -U user -d allocation
           --health-interval=5s --health-timeout=5s --health-retries=10
       redis:
         image: redis:7
