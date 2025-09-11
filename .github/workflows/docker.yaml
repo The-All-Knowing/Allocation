@@ -34,7 +34,7 @@ jobs:
             run: |
                 echo "Waiting for services to be ready..."
                 for i in {1..30}; do
-                  if docker-compose exec service-allocation curl -s http://localhost:8080/ping | grep "OK"; then
+                  if docker-compose exec -T service-allocation curl -s http://localhost:8080/ping | grep "OK"; then
                     echo "Services are ready!";
                     break;
                   fi;
