@@ -5,7 +5,7 @@ namespace Allocation
 {
     Adapters::Database::DatabaseConfig ReadDatabaseConfigurations()
     {
-        std::string POSTGRES_HOST = "postgres";
+        std::string POSTGRES_HOST = "localhost";
         if (Poco::Environment::has("POSTGRES_HOST"))
             POSTGRES_HOST = Poco::Environment::get("POSTGRES_HOST");
         int POSTGRES_PORT = 5432;
@@ -33,7 +33,7 @@ namespace Allocation
 
     Adapters::Redis::RedisConfig ReadRedisConfigurations()
     {
-        std::string REDIS_HOST = "redis";
+        std::string REDIS_HOST = "localhost";
         if (Poco::Environment::has("REDIS_HOST"))
             REDIS_HOST = Poco::Environment::get("REDIS_HOST");
         int REDIS_PORT = 6379;

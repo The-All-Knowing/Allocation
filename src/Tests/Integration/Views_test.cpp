@@ -64,7 +64,6 @@ namespace Allocation::Tests
         EXPECT_THAT(views, UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "b1"),
                                std::pair<std::string, std::string>("sku1", "b2")));
 
-
         CleanupForReference("b1");
         CleanupForReference("b2");
         CleanupForSku("sku1");

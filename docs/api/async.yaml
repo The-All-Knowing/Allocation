@@ -1,28 +1,76 @@
 asyncapi: '2.6.0'
 info:
-  title: Inventory Service
+  title: Allocation Service
   version: 1.0.0
+  description: Service responsible for managing product allocations and batches.
 
 channels:
-  product.updated:
+  batches.quantity.changed:
     subscribe:
-      summary: Получение обновлений о продуктах
+      summary: Получение команды на изменение количества партии
+      description: Сервис подписывается на этот канал для получения команд на изменение количества товара в конкретной партии.
       message:
+        name: ChangeBatchQuantityCommand
+        title: Change Batch Quantity Command
         contentType: application/json
         payload:
           type: object
           properties:
-            productId:
+            ref:
               type: string
-            version:
+              description: Ссылка на партию, количество которой нужно изменить.
+              example: "batch-001"
+            qty:
               type: integer
-  product.deleted:
+              description: Новое количество товара в партии.
+              minimum: 0
+              example: 50
+          required:
+            - ref
+            - qty
+        examples:
+          - name: example-change-batch-quantity
+            payload:
+              ref: "batch-001"
+              qty: 50
+
+  allocated.event:
     publish:
-      summary: Отправка события об удалении продукта
+      summary: Отправка события о выделении товара
+      description: Сервис публикует это событие после успешного выделения товара для заказа.
       message:
+        name: AllocatedEvent
+        title: Allocated Event
         contentType: application/json
         payload:
           type: object
           properties:
-            productId:
+            orderid:
               type: string
+              description: Идентификатор заказа, для которого был выделен товар.
+              example: "order-123"
+            SKU:
+              type: string
+              description: Артикул (SKU) выделенного товара.
+              example: "RED-CHAIR"
+            batchref:
+              type: string
+              description: Ссылка на партию, из которой был выделен товар.
+              example: "batch-001"
+            qty:
+              type: integer
+              description: Количество выделенного товара.
+              minimum: 1
+              example: 10
+          required:
+            - orderid
+            - SKU
+            - batchref
+            - qty
+        examples:
+          - name: example-allocated-event
+            payload:
+              orderid: "order-123"
+              SKU: "RED-CHAIR"
+              batchref: "batch-001"
+              qty: 10

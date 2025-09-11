@@ -35,11 +35,6 @@ namespace Allocation::Domain
         /// @note Либо добавляет все, либо не добавляет ни одной.
         bool AddBatches(const std::vector<Batch>& batches) noexcept;
 
-        /// @brief Удаляет партию по её ссылке.
-        /// @param reference Ссылка на партию.
-        /// @return true — если партия удалена, иначе false.
-        bool RemoveBatch(const std::string& reference) noexcept;
-
         /// @brief Аллоцирует строку заказа на партию продукта.
         /// @param line Строка заказа.
         /// @return Ссылка на партию, если аллокация успешна, иначе std::nullopt.

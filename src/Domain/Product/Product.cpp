@@ -43,19 +43,6 @@ namespace Allocation::Domain
         return true;
     }
 
-    bool Product::RemoveBatch(const std::string& reference) noexcept
-    {
-        auto it = _referenceByBatches.find(reference);
-        if (it != _referenceByBatches.end())
-        {
-            _referenceByBatches.erase(it);
-            _modifiedBatchRefs.insert(reference);
-            _isModify = true;
-            return true;
-        }
-        return false;
-    }
-
     std::optional<std::string> Product::Allocate(const OrderLine& line)
     {
         if (_referenceByBatches.empty())
