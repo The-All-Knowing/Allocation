@@ -1,45 +1,123 @@
-name: allocation Docker build
+name: CI with Docker Compose
 
-'on':
-    schedule:
-      - cron: '30 5 * * 1'  # Every Monday at 5:30
-    pull_request:
-    push:
-        branches:
-          - main
-          - develop
-          - feature/**
+on:
+  schedule:
+    - cron: '30 5 * * 1' # Every Monday at 5:30
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/**
+
+env:
+  UBSAN_OPTIONS: print_stacktrace=1
+  # Эти переменные окружения будут доступны внутри контейнера service-allocation
+  # и используются твоим docker-compose.yml
+  POSTGRES_DB: allocation
+  POSTGRES_USER: user
+  POSTGRES_PASSWORD: password
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  # Для e2e-тестов, которые запускаются из контейнера service-allocation
+  API_URL: http://service-allocation:8080 # Обращение по имени сервиса в сети docker-compose
 
 jobs:
-    tests:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v4
+  build-and-test:
+    runs-on: ubuntu-latest
 
-          - name: Install docker-compose
-            run: |
-                sudo apt update
-                sudo apt install -y docker-compose python3 python3-pip
+    steps:
+      - uses: actions/checkout@v4
 
-          - name: Cmake
-            run: |
-                make docker-cmake-release
-                sudo make dist-clean
+      - name: Setup Docker Compose
+        run: |
+          sudo apt update
+          sudo apt install -y docker-compose
 
-          - name: Build
-            run: make docker-build-release
+      - name: Build and Run Docker Compose services
+        run: |
+          # Сборка образа service-allocation и запуск всех сервисов (postgres, redis, service-allocation)
+          # --build: пересобирает образ service-allocation
+          # -d: запускает в фоновом режиме
+          docker-compose up --build -d
 
-          - name: Run test
-            run: make docker-test-release
+      - name: Wait for Postgres and Redis to be ready
+        # Используем docker-compose exec для проверки здоровья сервисов внутри сети docker-compose
+        run: |
+          echo "Waiting for Postgres..."
+          until docker-compose exec postgres pg_isready -U user -d allocation; do
+            sleep 2
+          done
+          echo "Postgres is ready!"
 
-          - name: Run service and e2e tests
-            env:
-              API_URL: http://localhost:8080
-              REDIS_HOST: redis
-              REDIS_PORT: 6379
-            run: |
-              make docker-start-service-debug-bg
-              echo "Waiting for service..."
-              sleep 60
-              curl http://localhost:8080/ping -v
-              make e2e-test
+          echo "Waiting for Redis..."
+          until docker-compose exec redis redis-cli ping; do
+            sleep 2
+          done
+          echo "Redis is ready!"
+
+      - name: Run database migrations
+        run: |
+          echo "Running migrations..."
+          # Выполняем миграции из контейнера service-allocation, так как он имеет доступ к postgres-client
+          # PGPASSWORD берется из переменных окружения, которые мы передали в docker-compose.yml
+          docker-compose exec service-allocation psql \
+            -h postgres -U user -d allocation \
+            -f ./postgresql/schemas/db-1.sql
+
+      - name: Run Conan install and CMake configure (Debug)
+        run: |
+          # Выполняем команды make внутри контейнера service-allocation
+          docker-compose exec service-allocation make conan-debug
+          docker-compose exec service-allocation make cmake-debug
+
+      - name: Build Debug
+        run: docker-compose exec service-allocation make build-debug
+
+      - name: Run Unit Tests (Debug)
+        run: docker-compose exec service-allocation make test-debug
+
+      - name: Run Conan install and CMake configure (Release)
+        run: |
+          docker-compose exec service-allocation make conan-release
+          docker-compose exec service-allocation make cmake-release
+
+      - name: Build Release
+        run: docker-compose exec service-allocation make build-release
+
+      - name: Run Unit Tests (Release)
+        run: docker-compose exec service-allocation make test-release
+
+      - name: Install Release build
+        run: |
+          # Установка в локальную директорию внутри контейнера
+          docker-compose exec service-allocation bash -c "PREFIX=/allocation/local_installation make install-release"
+
+      - name: Run service and E2E tests (Release)
+        run: |
+          # Запускаем сервис в фоновом режиме внутри контейнера service-allocation
+          # и затем запускаем e2e-тесты из того же контейнера
+          docker-compose exec -d service-allocation bash -c "/allocation/local_installation/bin/allocation"
+          
+          echo "Waiting for service to start..."
+          # Проверяем доступность сервиса, а не просто ждем
+          until curl -f http://localhost:8080/ping; do # curl из хоста, но порт 8080 проброшен
+            sleep 2
+          done
+          echo "Service is up!"
+
+          # Запускаем E2E тесты из контейнера service-allocation
+          docker-compose exec service-allocation make e2e-test
+
+      - name: Run code format check
+        run: |
+          # Можно добавить проверку форматирования, если это нужно для CI
+          # Например, запустить make format и проверить, что нет изменений (git diff --exit-code)
+          # Или просто выполнить форматирование
+          docker-compose exec service-allocation make format
+          # Если ты хочешь, чтобы CI падал, если код не отформатирован:
+          # docker-compose exec service-allocation bash -c "make format && git diff --exit-code"
+
+      - name: Stop Docker Compose services
+        if: always() # Выполнять всегда, даже если предыдущие шаги упали
+        run: docker-compose down -v
