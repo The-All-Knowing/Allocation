@@ -122,7 +122,7 @@ export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@servi
 
 # Internal hidden targets that are used only in docker environment
 --in-docker-start-debug --in-docker-start-release: --in-docker-start-%: install-%
-	psql ${DB_CONNECTION} -f ./postgresql/data/initial_data.sql
+	psql ${DB_CONNECTION} -f ./postgresql/schemas/db-1.sql
 	/home/user/.local/bin/allocation
 
 # Build and run service in docker environment
