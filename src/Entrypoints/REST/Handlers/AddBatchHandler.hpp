@@ -6,9 +6,6 @@
 namespace Allocation::Entrypoints::Rest::Handlers
 {
     /// @brief Обрабатывает HTTP-запрос на добавление новой партии товара.
-    ///
-    /// Реализует обработчик REST-эндпоинта, который принимает входящий запрос,
-    /// разбирает JSON-данные и инициирует команду добавления партии через слой приложения.
     class AddBatchHandler final : public Poco::Net::HTTPRequestHandler
     {
     public:

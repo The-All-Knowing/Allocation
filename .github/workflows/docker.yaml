@@ -21,8 +21,8 @@ jobs:
                 sudo apt update
                 sudo apt install -y docker-compose
 
-          - name: Run tests
-            run: make docker-test-release
+          - name: Run tests in Docker
+            run: docker-compose run --rm -T service-allocation make test-release
 
           - name: Build and start services for e2e tests
             run: |
@@ -32,8 +32,8 @@ jobs:
           - name: Wait for services to be ready
             run: |
                 echo "Waiting for services to be ready..."
-                for i in {1..30}; do
-                  if docker-compose exec -T service-allocation curl -s http://localhost:8080/ping | grep "OK"; then
+                while true; do
+                  if curl -s http://localhost:8080/ping | grep -q "OK"; then
                     echo "Services are ready!";
                     break;
                   fi;

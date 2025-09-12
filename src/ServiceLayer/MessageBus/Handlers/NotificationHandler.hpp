@@ -7,12 +7,15 @@
 
 namespace Allocation::ServiceLayer::Handlers
 {
-    /// Концепция для отправителей уведомлений.
+    /// @brief Концепция для отправителей уведомлений.
     template <typename T>
-    concept NotificationSender = requires(T t, std::string to, std::string msg) {
+    concept NotificationSender = requires(T t, const std::string& to, const std::string& msg) {
         { t(to, msg) } -> std::same_as<void>;
     };
 
+    /// @brief Отправитель уведомлений.
+    /// @tparam Message Тип сообщения.
+    /// @tparam Notifier Тип отправителя уведомлений.
     template <typename Message, NotificationSender Notifier>
         requires std::derived_from<Message, Domain::Events::AbstractEvent>
     class NotificationHandler

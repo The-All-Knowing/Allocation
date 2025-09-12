@@ -15,7 +15,7 @@ namespace Allocation::Domain
         /// @brief Количество продукта в заказе.
         size_t quantity;
 
-        /// @brief Оператор сравнения для строк заказа.
+        /// @brief Сравнивает строки заказа.
         /// @param other Другая строка заказа.
         /// @return Результат сравнения.
         auto operator<=>(const OrderLine&) const = default;

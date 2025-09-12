@@ -41,7 +41,7 @@ namespace Allocation::ServiceLayer::Handlers
     {
         auto product = uow.GetProductRepository().GetByBatchRef(command->ref);
         if (!product)
-            throw std::invalid_argument("Invalid referebce.");
+            throw std::invalid_argument("Invalid reference.");
         product->ChangeBatchQuantity(command->ref, command->qty);
         uow.Commit();
     }

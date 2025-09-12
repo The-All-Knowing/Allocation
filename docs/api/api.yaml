@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: allocation 1.0
-  description: a backend application built with Poco
+  title: Allocation Service
+  description: Service responsible for managing product allocations and batches.
   version: 1.0.0
 servers:
   - url: localhost:8080
@@ -19,11 +19,11 @@ paths:
             schema:
               type: object
               properties:
-                orderUID:
+                orderid:
                   type: string
-                  description: The unique identifier of the order
+                  description: The unique reference of the order
                   example: "order-123"
-                SKU:
+                sku:
                   type: string
                   description: The stock keeping unit of the product
                   example: "RED-CHAIR"
@@ -33,8 +33,8 @@ paths:
                   minimum: 1
                   example: 10
               required:
-                - orderUID
-                - SKU
+                - orderid
+                - sku
                 - quantity
       responses:
         '202':
@@ -58,7 +58,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Out of stock for SKU RED-CHAIR"
+                    example: "Could not serialize access due to concurrent update"
         '500':
           description: Internal Server Error - an unexpected error occurred on the server.
           content:
@@ -85,24 +85,24 @@ paths:
                   type: string
                   description: The reference identifier for the batch
                   example: "batch-001"
-                SKU:
+                sku:
                   type: string
                   description: The stock keeping unit of the product
                   example: "RED-CHAIR"
-                quantity:
+                qty:
                   type: integer
                   description: The quantity of products in the batch
                   minimum: 1
                   example: 100
                 eta:
                   type: string
-                  format: date
-                  description: The estimated time of arrival for the batch (optional)
-                  example: "2023-12-31"
+                  format: date-time
+                  description: The estimated time of arrival for the batch in ISO 8601 format (optional)
+                  example: "2023-12-31T23:59:59Z"
               required:
                 - ref
-                - SKU
-                - quantity
+                - sku
+                - qty
       responses:
         '201':
           description: Batch has been successfully added.
@@ -135,12 +135,12 @@ paths:
                     type: string
                     example: "Poco exception details"
 
-  /allocations/{orderUID}:
+  /allocations/{orderid}:
     get:
       summary: Get allocation details for an order
       description: Retrieve allocation details for a specific order
       parameters:
-        - name: orderUID
+        - name: orderid
           in: path
           description: The unique identifier of the order
           required: true
@@ -174,9 +174,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Invalid orderId"
+                    example: "Invalid orderid"
         '404':
-          description: Order not found or no allocations for the specified orderUID.
+          description: Order not found or no allocations for the specified orderid.
           content:
             application/json:
               schema:

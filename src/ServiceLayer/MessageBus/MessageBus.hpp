@@ -24,7 +24,9 @@ namespace Allocation::ServiceLayer
         /// @brief Подписывает обработчик на событие конкретного типа.
         /// @tparam T Тип события, производный от Domain::Events::AbstractEvent.
         /// @tparam F Тип функции-обработчика.
-        /// @param handler Функция-обработчик.
+        /// @param handler Функция-обработчик, принимающая два аргумента или один аргумент:
+        ///        - ссылку на Domain::IUnitOfWork для взаимодействия с хранилищем
+        ///        - std::shared_ptr на событие типа T (обязательный)
         template <typename T, typename F>
             requires std::derived_from<T, Domain::Events::AbstractEvent>
         void SubscribeToEvent(F&& handler) noexcept
@@ -48,7 +50,7 @@ namespace Allocation::ServiceLayer
         /// @tparam T Тип команды, производный от Domain::Commands::AbstractCommand.
         /// @param handler Функция-обработчик, принимающая два аргумента:
         ///        - ссылку на Domain::IUnitOfWork для взаимодействия с хранилищем
-        ///        - умный указатель на команду типа T
+        ///        - std::shared_ptr на команду типа T
         template <typename T>
             requires std::derived_from<T, Domain::Commands::AbstractCommand>
         void SetCommandHandler(auto&& handler) noexcept
@@ -59,12 +61,12 @@ namespace Allocation::ServiceLayer
         }
 
         /// @brief Обрабатывает входящее сообщение.
-        /// @param message Умный указатель на сообщение.
+        /// @param message Сообщение.
         /// @param uow Единица работы для обработки сообщения.
         void Handle(Domain::IMessagePtr message, Domain::IUnitOfWork& uow);
 
         /// @brief Обрабатывает входящее сообщение.
-        /// @param message Умный указатель на сообщение.
+        /// @param message Сообщение.
         /// @note Автоматически создаёт единицу работы.
         void Handle(Domain::IMessagePtr message);
 
@@ -83,14 +85,14 @@ namespace Allocation::ServiceLayer
 
         /// @brief Обрабатывает входящее событие.
         /// @param uow Единица работы для обработки события.
-        /// @param event Умный указатель на событие.
+        /// @param event Событие.
         /// @param queue Очередь для новых сообщений.
         void HandleEvent(Domain::IUnitOfWork& uow, Domain::Events::EventPtr event,
             std::queue<Domain::IMessagePtr>& queue) noexcept;
 
         /// @brief Обрабатывает входящую команду.
         /// @param uow Единица работы для обработки команды.
-        /// @param command Умный указатель на команду.
+        /// @param command Команда.
         /// @param queue Очередь для новых сообщений.
         void HandleCommand(Domain::IUnitOfWork& uow, Domain::Commands::CommandPtr command,
             std::queue<Domain::IMessagePtr>& queue);

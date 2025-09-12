@@ -5,61 +5,59 @@ info:
   description: Service responsible for managing product allocations and batches.
 
 channels:
-  batches.quantity.changed:
+  change_batch_quantity:
     subscribe:
-      summary: Получение команды на изменение количества партии
-      description: Сервис подписывается на этот канал для получения команд на изменение количества товара в конкретной партии.
+      summary: Getting a command to change the batch quantity
+      description: The service subscribes to this channel to receive commands to change the quantity of goods in a specific batch.
       message:
-        name: ChangeBatchQuantityCommand
-        title: Change Batch Quantity Command
+        name: ChangeBatchQuantity
         contentType: application/json
         payload:
           type: object
           properties:
-            ref:
+            batchref:
               type: string
-              description: Ссылка на партию, количество которой нужно изменить.
+              description: A link to the batch whose quantity needs to be changed.
               example: "batch-001"
             qty:
               type: integer
-              description: Новое количество товара в партии.
-              minimum: 0
+              description: The new quantity of goods in the batch.
+              minimum: 1
               example: 50
           required:
-            - ref
+            - batchref
             - qty
         examples:
           - name: example-change-batch-quantity
             payload:
-              ref: "batch-001"
+              batchref: "batch-001"
               qty: 50
 
-  allocated.event:
+  line_allocated:
     publish:
-      summary: Отправка события о выделении товара
-      description: Сервис публикует это событие после успешного выделения товара для заказа.
+      summary: Sending a product allocation event
+      description: The service publishes this event after successfully allocating a product for an order.
       message:
-        name: AllocatedEvent
-        title: Allocated Event
+        name: LineAllocated
         contentType: application/json
         payload:
           type: object
           properties:
             orderid:
               type: string
-              description: Идентификатор заказа, для которого был выделен товар.
+              description: The ID of the order for which the product was allocated.
               example: "order-123"
             SKU:
               type: string
-              description: Артикул (SKU) выделенного товара.
+              description: The SKU of the allocated product.
               example: "RED-CHAIR"
             batchref:
               type: string
-              description: Ссылка на партию, из которой был выделен товар.
+              description: A link to the batch from which the product was allocated.
               example: "batch-001"
             qty:
               type: integer
-              description: Количество выделенного товара.
+              description: The quantity of the allocated product.
               minimum: 1
               example: 10
           required:

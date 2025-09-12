@@ -19,7 +19,7 @@ namespace Allocation::Adapters::Repository
         explicit SqlRepository(const Poco::Data::Session& session);
 
         /// @brief Добавляет новый продукт в репозитории.
-        /// @param product Продукт для добавления или обновления.
+        /// @param product Продукт для добавления.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
         /// запроса.

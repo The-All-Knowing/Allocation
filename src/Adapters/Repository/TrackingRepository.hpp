@@ -15,8 +15,8 @@ namespace Allocation::Adapters::Repository
         /// @param repo Отслеживаемый репозиторий.
         TrackingRepository(Domain::IUpdatableRepository& repo);
 
-        /// @brief Добавляет продукт в репозиторий и отслеживает его.
-        /// @param product Продукт для добавления.
+        /// @brief Добавляет или обновляет продукт в репозиторий и отслеживает его.
+        /// @param product Продукт для добавления или обновления.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         void Add(Domain::ProductPtr product) override;
 
@@ -37,8 +37,8 @@ namespace Allocation::Adapters::Repository
         /// @brief Очищает все наблюдаемые продукты.
         void Clear() noexcept;
 
-        /// @brief Обновляет продукт в репозиторий и отслеживает его.
-        /// @param product Продукт для добавления.
+        /// @brief Обновляет продукт в репозитории.
+        /// @param product Продукт для обновления.
         /// @param oldVersion Прошлая версия продукта.
         void Update(Domain::ProductPtr product, int oldVersion) override;
 

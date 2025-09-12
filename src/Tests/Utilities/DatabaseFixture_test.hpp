@@ -15,7 +15,7 @@ namespace Allocation::Tests
     class Database_Fixture : public testing::Test
     {
     public:
-        /// @brief Настройка пула сессий и регистрация PostgreSQL коннектора.
+        /// @brief Настраивает пул сессий и регистрирует PostgreSQL коннектор.
         static void SetUpTestSuite()
         {
             if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
@@ -52,7 +52,7 @@ namespace Allocation::Tests
     class UoW_Fixture : public testing::Test
     {
     public:
-        /// @brief Настройка пула сессий и регистрация PostgreSQL коннектора.
+        /// @brief Настраивает пул сессий и регистрирует PostgreSQL коннектор.
         static void SetUpTestSuite()
         {
             if (auto& sessionPool = Adapters::Database::SessionPool::Instance();

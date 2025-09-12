@@ -13,7 +13,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
             Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) override
         {
             response.setStatus(Poco::Net::HTTPServerResponse::HTTP_OK);
-            response.send();
+            response.send() << "OK";
         }
     };
 }

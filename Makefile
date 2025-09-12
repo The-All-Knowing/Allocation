@@ -136,7 +136,7 @@ export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POS
 
 .PHONY: docker-start-debug docker-start-release
 docker-start-%:
-	$(DOCKER_COMPOSE) run -p 8080:8080 --rm service-allocation make -- --in-docker-start-$*
+	$(DOCKER_COMPOSE) run --rm service-allocation make -- --in-docker-start-$*
 
 .PHONY: docker-start-service-debug docker-start-service-release
 docker-start-service-%: docker-start-%

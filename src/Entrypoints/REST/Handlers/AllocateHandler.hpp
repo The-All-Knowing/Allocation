@@ -6,9 +6,6 @@
 namespace Allocation::Entrypoints::Rest::Handlers
 {
     /// @brief Обрабатывает HTTP-запрос на выделение заказа в партии товара.
-    ///
-    /// Реализует обработчик REST-эндпоинта, который принимает входящий запрос,
-    /// разбирает JSON-данные и инициирует команду выделение заказа в партии через слой приложения.
     class AllocateHandler final : public Poco::Net::HTTPRequestHandler
     {
     public:

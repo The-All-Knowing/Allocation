@@ -25,10 +25,10 @@ namespace Allocation::ServiceLayer::UoW
         /// @return true, если изменения подтверждены через Commit(), иначе false.
         bool IsCommited() const noexcept override;
 
-        /// @brief Получение репозитория продуктов.
+        /// @brief Возвращает репозиторий продуктов.
         [[nodiscard]] Domain::IRepository& GetProductRepository() override;
 
-        /// @brief Получение всех новых сообщений, сгенерированных продуктами
+        /// @brief Возвращает все новые сообщения, сгенерированные продуктами
         /// в рамках текущей единицы работы.
         /// @return Сгенерированные сообщения.
         [[nodiscard]] std::vector<Domain::IMessagePtr> GetNewMessages() noexcept override;

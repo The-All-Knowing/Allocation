@@ -9,7 +9,7 @@ namespace Allocation::ServiceLayer::Exceptions
     class InvalidSku : public std::exception
     {
     public:
-        /// @brief Конструктор исключения для недопустимого SKU.
+        /// @brief Конструктор.
         /// @param sku Недопустимый SKU.
         explicit InvalidSku(std::string_view sku) : _msg(std::format("Invalid SKU: {}", sku)) {}
 

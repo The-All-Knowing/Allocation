@@ -8,7 +8,7 @@ namespace Allocation::Domain::Commands
     /// @brief Команда "Allocate".
     struct Allocate final : public AbstractCommand
     {
-        /// @brief Конструктор команды "Allocate".
+        /// @brief Конструктор команды.
         /// @param orderid Идентификатор заказа.
         /// @param sku Артикул товара.
         /// @param qty Количество.
@@ -17,7 +17,7 @@ namespace Allocation::Domain::Commands
         {
         }
 
-        /// @brief Получить имя команды.
+        /// @brief Возвращает имя команды.
         /// @return Имя команды.
         [[nodiscard]] std::string Name() const override { return "Allocate"; };
 

@@ -10,7 +10,7 @@ namespace Allocation::Domain
     /// Предназначен для работы с изменяемыми агрегатами, состояние которых
     /// необходимо синхронизировать с хранилищем. Поддерживает механизм оптимистической блокировки
     /// (optimistic locking), что позволяет обнаруживать и предотвращать конфликты параллельных
-    /// изменений. Используется, например, в TrackingRepository или в рамках Unit of Work.
+    /// изменений. Используется, например, в TrackingRepository или в рамках AbstractUnitOfWork.
     class IUpdatableRepository : public IRepository
     {
     public:
@@ -26,7 +26,7 @@ namespace Allocation::Domain
         virtual void Update(ProductPtr product, int oldVersion) = 0;
 
     protected:
-        /// @brief Защищённый конструктор для предотвращения создания экземпляров напрямую.
+        /// @brief Конструктор.
         IUpdatableRepository() = default;
     };
 }

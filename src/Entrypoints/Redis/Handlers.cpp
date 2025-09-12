@@ -14,8 +14,8 @@ namespace Allocation::Entrypoints::Redis::Handlers
             return;
 
         Poco::JSON::Parser parser;
-        Poco::Dynamic::Var parsed = parser.parse(payload);
-        Poco::JSON::Object::Ptr json = parsed.extract<Poco::JSON::Object::Ptr>();
+        auto parsed = parser.parse(payload);
+        auto json = parsed.extract<Poco::JSON::Object::Ptr>();
 
         auto command = Domain::FromJson<Domain::Commands::ChangeBatchQuantity>(json);
         ServiceLayer::MessageBus::Instance().Handle(command);

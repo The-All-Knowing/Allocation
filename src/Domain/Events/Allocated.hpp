@@ -8,7 +8,7 @@ namespace Allocation::Domain::Events
     /// @brief Событие "Allocated".
     struct Allocated final : public AbstractEvent
     {
-        /// @brief Конструктор события "Allocated".
+        /// @brief Конструктор события.
         /// @param orderid Идентификатор заказа.
         /// @param SKU Артикул товара.
         /// @param batchref Ссылка на партию.
@@ -19,7 +19,7 @@ namespace Allocation::Domain::Events
               qty(qty),
               batchref(std::move(batchref)){};
 
-        /// @brief Получить имя события.
+        /// @brief Возвращает имя события.
         /// @return Имя события.
         [[nodiscard]] std::string Name() const override { return "Allocated"; };
 

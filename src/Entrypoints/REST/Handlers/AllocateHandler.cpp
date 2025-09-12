@@ -17,8 +17,8 @@ namespace Allocation::Entrypoints::Rest::Handlers
         body << bodyStream.rdbuf();
 
         Poco::JSON::Parser parser;
-        Poco::Dynamic::Var result = parser.parse(body.str());
-        Poco::JSON::Object::Ptr json = result.extract<Poco::JSON::Object::Ptr>();
+        auto result = parser.parse(body.str());
+        auto json = result.extract<Poco::JSON::Object::Ptr>();
 
         try
         {

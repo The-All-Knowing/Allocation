@@ -11,7 +11,7 @@ namespace Allocation::Domain::Commands
         /// @brief Деструктор абстрактной команды.
         ~AbstractCommand() override = default;
 
-        /// @brief Получить тип сообщения.
+        /// @brief Возвращает тип сообщения.
         /// @return Тип сообщения.
         [[nodiscard]] Type GetType() const override { return Type::Command; };
     };

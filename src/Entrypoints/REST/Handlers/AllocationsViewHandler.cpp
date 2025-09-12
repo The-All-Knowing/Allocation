@@ -12,9 +12,9 @@ namespace Allocation::Entrypoints::Rest::Handlers
     {
         try
         {
-            std::string uri = request.getURI();
+            auto uri = request.getURI();
             std::string prefix = "/allocations/";
-            std::string orderid = uri.substr(prefix.size());
+            auto orderid = uri.substr(prefix.size());
             if (orderid.empty())
                 throw std::invalid_argument("Invalid orderId");
 

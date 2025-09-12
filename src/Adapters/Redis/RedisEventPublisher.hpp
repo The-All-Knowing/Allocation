@@ -20,7 +20,7 @@ namespace Allocation::Adapters::Redis
         /// @brief Публикует событие в указанный канал.
         /// @param channel Канал для публикации.
         /// @param event Событие для публикации.
-        void operator()(std::string channel, std::shared_ptr<T> event) const
+        void operator()(const std::string& channel, std::shared_ptr<T> event) const
         {
             Poco::JSON::Object json;
             for (auto& [name, value] : GetAttributes<T>(event))

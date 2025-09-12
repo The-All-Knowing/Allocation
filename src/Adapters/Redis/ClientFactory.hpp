@@ -8,37 +8,41 @@
 namespace Allocation::Adapters::Redis
 {
     /// @brief Фабрика клиентов Redis.
-    /// Используется как синглтон для настройки подключения к Redis и
-    /// создания объектов клиента Poco::Redis::Client.
     class ClientFactory
     {
     public:
-        /// @brief Получает экземпляр фабрики (синглтон).
+        /// @brief Получает экземпляр фабрики.
         /// @return Ссылка на глобальный объект ClientFactory.
         static ClientFactory& Instance() noexcept;
 
-        /// @brief Проверяет, сконфигурирован ли пул подключений к Redis.
-        /// @return true, если фабрика уже настроена (адрес установлен), иначе false.
+        /// @brief Проверяет, сконфигурирован ли фабрика подключений к Redis.
+        /// @return true, если фабрика уже настроена, иначе false.
         bool IsConfigured() const noexcept;
 
         /// @brief Настраивает фабрику, указывая параметры подключения к Redis.
-        /// Обычно вызывается один раз при старте сервиса.
-        /// @param config Конфигурация Redis (хост, порт и др.).
+        /// @param config Конфигурация Redis.
         void Configure(const RedisConfig& config) noexcept;
 
         /// @brief Создаёт новый Redis-клиент.
-        /// @return Умный указатель на Poco::Redis::Client, связанный с текущей конфигурацией.
+        /// @return Новый Redis-клиент с текущей конфигурацией.
         Poco::Redis::Client::Ptr Create();
 
     private:
-        /// @brief Закрытый конструктор для реализации паттерна Singleton.
+        /// @brief Конструктор.
         ClientFactory() = default;
 
-        /// @brief Копирование запрещено.
+        /// @brief Копирующий конструктор.
         ClientFactory(const ClientFactory&) = delete;
+
+        /// @brief Перемещающий конструктор.
+        ClientFactory(ClientFactory&&) = delete;
+
+        /// @brief Оператор присваивания.
         ClientFactory& operator=(const ClientFactory&) = delete;
 
-        /// @brief Адрес Redis-сервера (IP + порт).
+        /// @brief Оператор перемещающего присваивания.
+        ClientFactory& operator=(ClientFactory&&) = delete;
+
         Poco::Net::SocketAddress _address;
     };
 }

@@ -17,7 +17,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
         std::ostringstream body;
         body << bodyStream.rdbuf();
         Poco::JSON::Parser parser;
-        Poco::Dynamic::Var result = parser.parse(body.str());
+        auto result = parser.parse(body.str());
         auto json = result.extract<Poco::JSON::Object::Ptr>();
 
         try
@@ -33,7 +33,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
         {
             response.setStatus(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
-            std::string msg = ex.displayText();
+            auto msg = ex.displayText();
             response.send() << "{\"error\":\"" << msg << "\"}";
 
             Allocation::Loggers::GetLogger()->Error(msg);

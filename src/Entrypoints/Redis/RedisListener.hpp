@@ -9,6 +9,12 @@
 
 namespace Allocation::Entrypoints::Redis
 {
+    /// @brief Концепт для обработчика Redis-сообщений.
+    template <typename Handler>
+    concept RedisMessageHandler = requires(Handler h, std::string payload) {
+        { h(payload) } -> std::same_as<void>;
+    };
+
     /// @brief Слушает сообщения из Redis и перенаправляет их в обработчики.
     class RedisListener
     {
@@ -19,7 +25,7 @@ namespace Allocation::Entrypoints::Redis
         {
         }
 
-        /// @brief Освобождает ресурсы, останавливая чтение при необходимости.
+        /// @brief Освобождает ресурсы, останавливая чтение.
         ~RedisListener()
         {
             if (!_reader.isStopped())
@@ -33,10 +39,10 @@ namespace Allocation::Entrypoints::Redis
         void Stop() { _reader.stop(); };
 
         /// @brief Подписывается на канал Redis и регистрирует обработчик сообщений.
-        /// @tparam Handler Тип функции-обработчика.
+        /// @tparam Handler Тип функции-обработчика (должен удовлетворять RedisMessageHandler).
         /// @param channel Имя канала Redis.
         /// @param handler Функция-обработчик, вызываемая при получении сообщения.
-        template <typename Handler>
+        template <RedisMessageHandler Handler>
         void Subscribe(const std::string& channel, Handler&& handler)
         {
             Poco::Redis::Array subscribe;

@@ -13,7 +13,7 @@ namespace Allocation::Domain::Events
         /// @brief Деструктор абстрактного события.
         ~AbstractEvent() override = default;
 
-        /// @brief Получить тип сообщения.
+        /// @brief Возвращает тип сообщения.
         /// @return Тип сообщения.
         [[nodiscard]] Type GetType() const override { return Type::Event; };
     };

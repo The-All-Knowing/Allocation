@@ -8,7 +8,7 @@ namespace Allocation::Domain::Commands
     /// @brief Команда "CreateBatch".
     struct CreateBatch final : public AbstractCommand
     {
-        /// @brief Конструктор команды "CreateBatch".
+        /// @brief Конструктор команды.
         /// @param ref Ссылка на партию.
         /// @param sku Артикул товара.
         /// @param qty Количество.
@@ -17,7 +17,7 @@ namespace Allocation::Domain::Commands
             std::optional<std::chrono::year_month_day> eta = std::nullopt)
             : ref(std::move(ref)), sku(std::move(sku)), qty(qty), eta(std::move(eta)){};
 
-        /// @brief Получить имя команды.
+        /// @brief Возвращает имя команды.
         /// @return Имя команды.
         [[nodiscard]] std::string Name() const override { return "CreateBatch"; };
 

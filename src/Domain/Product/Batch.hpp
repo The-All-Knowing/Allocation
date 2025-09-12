@@ -19,7 +19,7 @@ namespace Allocation::Domain
         Batch(const std::string& reference, const std::string& SKU, size_t quantity,
             std::optional<std::chrono::year_month_day> ETA = std::nullopt);
 
-        /// @brief Оператор присвоения.
+        /// @brief Присваивает значение объекту.
         /// @param other Другой объект.
         /// @return Текущий объект.
         Batch& operator=(const Batch& other) = default;
@@ -42,35 +42,35 @@ namespace Allocation::Domain
         /// @throw std::runtime_error Выбрасывается, если изъяты все строки заказов.
         [[nodiscard]] OrderLine DeallocateOne();
 
-        /// @brief Получает количество выделенных товаров в партии.
+        /// @brief Возвращает количество выделенных товаров в партии.
         /// @return Количество выделенных товаров.
         [[nodiscard]] int GetAllocatedQuantity() const noexcept;
 
-        /// @brief Получает доступное количество продуктов в партии.
+        /// @brief Возвращает доступное количество продуктов в партии.
         /// @return Доступное количество продуктов.
         [[nodiscard]] int GetAvailableQuantity() const noexcept;
 
-        /// @brief Получает количество продуктов в партии.
+        /// @brief Возвращает количество продуктов в партии.
         /// @return Количество продуктов в партии.
         [[nodiscard]] int GetPurchasedQuantity() const noexcept;
 
-        /// @brief Получает ссылку на партию.
+        /// @brief Возвращает ссылку на партию.
         /// @return Ссылка на партию.
         [[nodiscard]] std::string GetReference() const noexcept;
 
-        /// @brief Получает ожидаемую дату поставки.
+        /// @brief Возвращает ожидаемую дату поставки.
         /// @return Ожидаемая дата поставки.
         [[nodiscard]] std::optional<std::chrono::year_month_day> GetETA() const noexcept;
 
-        /// @brief Получает артикул продукта.
+        /// @brief Возвращает артикул продукта.
         /// @return Артикул продукта.
         [[nodiscard]] std::string GetSKU() const noexcept;
 
-        /// @brief Получает все выделенные линии заказа для данной партии.
+        /// @brief Возвращает все выделенные линии заказа для данной партии.
         /// @return Вектор выделенных линий заказа.
         [[nodiscard]] std::vector<OrderLine> GetAllocations() const noexcept;
 
-        /// @brief Оператор сравнения для партий.
+        /// @brief Сравнивает партии по всем атрибутам.
         /// @param other Правая партия.
         /// @return true, если партии равны; в противном случае - false.
         bool operator==(const Batch& other) const = default;
@@ -83,7 +83,7 @@ namespace Allocation::Domain
         std::set<OrderLine> _allocations;
     };
 
-    /// @brief Оператор сравнения для партий по ожидаемой дате поставки.
+    /// @brief Сравнивает партии по ожидаемой дате поставки.
     /// @param lhs Левая партия.
     /// @param rhs Правая партия.
     /// @return true, если левая партия имеет более раннюю дату поставки, чем правая.

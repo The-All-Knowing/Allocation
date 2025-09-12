@@ -18,11 +18,11 @@ namespace Allocation::Domain
         /// @brief Деструктор интерфейса сообщения.
         virtual ~IMessage() = default;
 
-        /// @brief Получить имя сообщения.
+        /// @brief Возвращает имя сообщения.
         /// @return Имя сообщения.
         [[nodiscard]] virtual std::string Name() const = 0;
 
-        /// @brief Получить тип сообщения.
+        /// @brief Возвращает тип сообщения.
         /// @return Тип сообщения.
         [[nodiscard]] virtual Type GetType() const = 0;
     };
