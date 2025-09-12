@@ -23,15 +23,15 @@
 
 ## Сборка проекта
 ### Основные команды
-- **`make test-release`** или **`make test-debug`**: Собирает и запускает юнит- и интеграционные тесты в режиме Release или Debug.
-- **`make e2e-test`**: Выполняет end-to-end тесты с использованием `pytest` (требуется активированное Python virtualenv).
+- **`make conan-release`** или **`make conan-debug`**: Загружает и собирает зависимости через Conan.
 - **`make cmake-release`** или **`make cmake-debug`**: Генерирует конфигурацию CMake для сборки в режиме Release или Debug.
 - **`make build-release`** или **`make build-debug`**: Собирает проект в режиме Release или Debug.
 - **`make start-release`** или **`make start-debug`**: Собирает и запускает сервис в указанном режиме.
-- **`make conan-release`** или **`make conan-debug`**: Загружает и собирает зависимости через Conan.
+- **`make test-release`** или **`make test-debug`**: Собирает и запускает юнит- и интеграционные тесты в режиме Release или Debug.
+- **`make e2e-test`**: Выполняет end-to-end тесты.
 - **`make docker-<command>`**: Выполняет указанную команду `<command>` в Docker-контейнере (например, `make docker-build-release`).
 
-> **Примечание**: Полный список команд доступен в `Makefile`. Если команда включает `/debug`, используйте её для отладочной сборки (например, `make test-release/debug` подразумевает выбор между `test-release` и `test-debug`).
+> **Примечание**: Полный список команд доступен в `Makefile`.
 
 ## Запуск
 Для запуска сервиса с использованием Docker выполните:
