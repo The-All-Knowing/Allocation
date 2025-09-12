@@ -9,14 +9,14 @@
 
 namespace Allocation::ServiceLayer::UoW
 {
-    /// @brief SQL реализация единицы работы (Unit of Work).
+    /// @brief SQL реализация единицы работы.
     class SqlUnitOfWork final : public AbstractUnitOfWork
     {
     public:
         /// @brief Конструктор.
         /// @details При создании объекта открывает сессию и начинает транзакцию с уровнем
         ///          изоляции REPEATABLE READ. Используется для работы с репозиторием внутри
-        ///          единицы работы (Unit of Work)
+        ///          единицы работы.
         SqlUnitOfWork()
             : _session(Adapters::Database::SessionPool::Instance().GetSession()),
               _repository(_session),

@@ -9,19 +9,19 @@
 
 namespace Allocation
 {
-    /// @brief Серверное приложение, использующее Poco::Util::ServerApplication.
+    /// @brief Главный класс серверного приложения.
     class ServerApp : public Poco::Util::ServerApplication
     {
     protected:
-        /// @brief Инициализирует приложения.
+        /// @brief Инициализирует ресурсы приложения.
         /// @param self Ссылка на текущее приложение.
         void initialize(Application& self) override;
 
-        /// @brief Деинициализирует, освобождает ресурсы приложения.
+        /// @brief Освобождает ресурсы приложения.
         void uninitialize() override;
 
         /// @brief Определяет параметры командной строки.
-        /// @param options Набор параметров.
+        /// @param options Инициализируемые обработчики параметров.
         void defineOptions(Poco::Util::OptionSet& options) override;
 
         /// @brief Главная функция приложения.
@@ -32,15 +32,14 @@ namespace Allocation
     private:
         /// @brief Обрабатывает команду "Help".
         /// @param name Название команды.
-        /// @param value Значение.
-        void HandleHelp(const std::string& name, const std::string& value);
+        void HandleHelp(const std::string& name, const std::string&);
 
         /// @brief Обрабатывает команду "Config".
         /// @param name Название команды.
-        /// @param value Значение.
-        void HandlePathToConfig(const std::string& name, const std::string& value);
+        /// @param path Путь к файлу конфигурации.
+        void HandlePathToConfig(const std::string& name, const std::string& path);
 
-        /// @brief Запускает сервер.
+        /// @brief Запускает основной цикл сервера.
         void StartServer();
 
         /// @brief Инициализирует параметры сервера.
@@ -68,7 +67,7 @@ namespace Allocation
         std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> LoadServerConfigFromFile();
 
         bool _helpRequested{false};
-        bool _isConfigFileLoaded{false};
+        Poco::File _configFile;
         Poco::Net::HTTPServerParams* _serverParameters;
         Poco::UInt16 _port;
         Entrypoints::Redis::RedisListenerPtr _redisListener;

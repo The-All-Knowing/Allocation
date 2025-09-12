@@ -15,10 +15,10 @@ namespace Allocation::ServiceLayer::UoW
         /// для отслеживания изменений и версионности.
         explicit AbstractUnitOfWork(Domain::IUpdatableRepository& repo);
 
-        /// @brief Подтверждает все изменения.
+        /// @brief Подтверждает изменения.
         void Commit() override;
 
-        /// @brief Откатывает все изменения.
+        /// @brief Откатывает изменения.
         void RollBack() override;
 
         /// @brief Проверяет, были ли изменения подтверждены.

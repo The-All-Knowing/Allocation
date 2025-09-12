@@ -22,7 +22,7 @@ namespace Allocation::Tests
     {
         Domain::Batch inStockBatch("in-stock-batch", "RETRO-CLOCK", 100);
         Domain::Batch shipmentBatch("shipment-batch", "RETRO-CLOCK", 100, tomorrow);
-        Domain::Product product("RETRO-CLOCK", {inStockBatch, shipmentBatch});
+        Domain::Product product("RETRO-CLOCK", {inStockBatch, shipmentBatch}, 0, false);
         Domain::OrderLine line("oref", "RETRO-CLOCK", 10);
 
         EXPECT_EQ(product.Allocate(line).value_or(""), "in-stock-batch");
@@ -39,7 +39,7 @@ namespace Allocation::Tests
         Domain::Batch earliest("speedy-batch", "MINIMALIST-SPOON", 100, today);
         Domain::Batch medium("normal-batch", "MINIMALIST-SPOON", 100, tomorrow);
         Domain::Batch latest("slow-batch", "MINIMALIST-SPOON", 100, later);
-        Domain::Product product("MINIMALIST-SPOON", {medium, earliest, latest});
+        Domain::Product product("MINIMALIST-SPOON", {medium, earliest, latest}, 0, false);
         Domain::OrderLine line("order1", "MINIMALIST-SPOON", 10);
 
         EXPECT_EQ(product.Allocate(line).value_or(""), "speedy-batch");
@@ -58,7 +58,7 @@ namespace Allocation::Tests
         Domain::Batch inStockBatch("in-stock-batch-ref", "HIGHBROW-POSTER", 100);
         Domain::Batch shipmentBatch("shipment-batch-ref", "HIGHBROW-POSTER", 100, tomorrow);
         Domain::OrderLine line("oref", "HIGHBROW-POSTER", 10);
-        Domain::Product product("HIGHBROW-POSTER", {inStockBatch, shipmentBatch});
+        Domain::Product product("HIGHBROW-POSTER", {inStockBatch, shipmentBatch}, 0, false);
         auto allocation = product.Allocate(line);
         EXPECT_TRUE(product.IsModified());
         EXPECT_EQ(allocation.value_or(""), inStockBatch.GetReference());
@@ -68,7 +68,7 @@ namespace Allocation::Tests
     {
         Domain::Batch batch("batchref", "RETRO-LAMPSHADE", 100);
         Domain::OrderLine line("oref", "RETRO-LAMPSHADE", 10);
-        Domain::Product product("RETRO-LAMPSHADE", {batch});
+        Domain::Product product("RETRO-LAMPSHADE", {batch}, 0, false);
         product.Allocate(line);
 
         EXPECT_TRUE(product.IsModified());
@@ -85,7 +85,7 @@ namespace Allocation::Tests
     TEST(Product, test_records_out_of_stock_event_if_cannot_allocate)
     {
         Domain::Batch batch("batch1", "SMALL-FORK", 10, today);
-        Domain::Product product("SMALL-FORK", {batch});
+        Domain::Product product("SMALL-FORK", {batch}, 0, false);
         product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
         auto allocation = product.Allocate(Domain::OrderLine("order1", "SMALL-FORK", 10));
         ASSERT_EQ(allocation, std::nullopt);
@@ -103,7 +103,7 @@ namespace Allocation::Tests
     TEST(Product, test_increments_version_number)
     {
         Domain::OrderLine line("oref", "SCANDI-PEN", 10);
-        Domain::Product product("SCANDI-PEN", {Domain::Batch("b1", "SCANDI-PEN", 100)}, 7);
+        Domain::Product product("SCANDI-PEN", {Domain::Batch("b1", "SCANDI-PEN", 100)}, 7, false);
         product.Allocate(line);
         EXPECT_EQ(product.GetVersion(), 8);
         EXPECT_TRUE(product.IsModified());
@@ -112,7 +112,7 @@ namespace Allocation::Tests
     TEST(Product, test_add_batch_marks_modified)
     {
         Domain::Batch batch("b-add", "DESK", 100);
-        Domain::Product product("DESK");
+        Domain::Product product("DESK", {}, 0, false);
 
         EXPECT_TRUE(product.AddBatch(batch));
         EXPECT_TRUE(product.IsModified());

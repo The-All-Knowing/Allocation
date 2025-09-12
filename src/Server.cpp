@@ -17,6 +17,13 @@ namespace Allocation
             Allocation::Loggers::InitializeLogger(
                 std::make_shared<ServiceLayer::Loggers::PocoLogger>());
 
+        if (_configFile.exists())
+            Allocation::Loggers::GetLogger()->Information(
+                "Loaded configuration from: " + _configFile.path());
+        else
+            Allocation::Loggers::GetLogger()->Information(
+                "No configuration file loaded. Using environment variables.");
+
         InitRedis();
         InitDatabase();
         InitMessageBus();
@@ -34,18 +41,17 @@ namespace Allocation
     {
         ServerApplication::defineOptions(options);
 
-        options.addOption(
-            Poco::Util::Option("help", "h", "Show help")
+        options.addOption(Poco::Util::Option("help", "h", "Show help")
                 .required(false)
                 .repeatable(false)
                 .callback(Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandleHelp)));
 
         options.addOption(Poco::Util::Option("config", "c", "Set path to config file")
-                              .argument("file")
-                              .required(false)
-                              .repeatable(false)
-                              .callback(Poco::Util::OptionCallback<ServerApp>(
-                                  this, &ServerApp::HandlePathToConfig)));
+                .argument("file")
+                .required(false)
+                .repeatable(false)
+                .callback(
+                    Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandlePathToConfig)));
     }
 
     int ServerApp::main(const std::vector<std::string>&)
@@ -56,7 +62,7 @@ namespace Allocation
         return Application::EXIT_OK;
     };
 
-    void ServerApp::HandleHelp(const std::string& name, const std::string& value)
+    void ServerApp::HandleHelp(const std::string& name, const std::string&)
     {
         Poco::Util::HelpFormatter helpFormatter(options());
         helpFormatter.setCommand(commandName());
@@ -67,42 +73,34 @@ namespace Allocation
         _helpRequested = true;
     }
 
-    void ServerApp::HandlePathToConfig(const std::string& name, const std::string& value)
+    void ServerApp::HandlePathToConfig(const std::string& name, const std::string& path)
     {
-        if (!Allocation::Loggers::IsInitialize())
-            Allocation::Loggers::InitializeLogger(
-                std::make_shared<ServiceLayer::Loggers::PocoLogger>());
-
         try
         {
-            Poco::Path path(value);
-            if (path.isRelative())
-                path = Poco::Path(Poco::Path::current()).append(path);
+            Poco::Path configPath(path);
+            if (configPath.isRelative())
+                configPath = Poco::Path(Poco::Path::current()).append(configPath);
 
-            std::string absPath = path.toString();
+            std::string absPath = configPath.toString();
+            std::cout << "Config path argument: " << absPath << std::endl;
 
-            Allocation::Loggers::GetLogger()->Information("Config path argument: " + absPath);
-
-            Poco::File configFile(path);
+            Poco::File configFile(configPath);
             if (!configFile.exists() || !configFile.isFile())
             {
-                std::ostringstream oss;
-                oss << "Configuration file not found or not a regular file: " << absPath
-                    << "\nLoading environment variables.";
-                Allocation::Loggers::GetLogger()->Error(oss.str());
+                std::cerr << "Configuration file not found or not a regular file: " << absPath
+                          << std::endl
+                          << "Loading environment variables." << std::endl;
                 return;
             }
+            _configFile = configFile;
 
             loadConfiguration(absPath);
-            Allocation::Loggers::GetLogger()->Information("Loaded configuration from: " + absPath);
-            _isConfigFileLoaded = true;
         }
         catch (const Poco::Exception& ex)
         {
-            std::ostringstream oss;
-            oss << "Failed to load configuration file '" << value << "': " << ex.displayText()
-                << "\nLoading environment variables.";
-            Allocation::Loggers::GetLogger()->Error(oss.str());
+            std::cerr << "Failed to load configuration file '" << path << "': " << ex.displayText()
+                      << std::endl
+                      << "Loading environment variables." << std::endl;
         }
     }
 
@@ -122,7 +120,7 @@ namespace Allocation
 
     void ServerApp::InitServer()
     {
-        if (_isConfigFileLoaded)
+        if (_configFile.exists())
         {
             auto [serverParameters, port] = LoadServerConfigFromFile();
             _serverParameters = serverParameters;
@@ -160,7 +158,7 @@ namespace Allocation
     void ServerApp::InitDatabase()
     {
         Adapters::Database::DatabaseConfig config;
-        if (_isConfigFileLoaded)
+        if (_configFile.exists())
             config = LoadDatabaseConfigFromFile();
         else
             config = ReadDatabaseConfigurations();
@@ -172,7 +170,7 @@ namespace Allocation
     void ServerApp::InitRedis()
     {
         Adapters::Redis::RedisConfig config;
-        if (_isConfigFileLoaded)
+        if (_configFile.exists())
             config = LoadRedisConfigFromFile();
         else
             config = ReadRedisConfigurations();
