@@ -46,7 +46,7 @@ namespace Allocation
         return result;
     }
 
-    std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> ReadServerConfigurations()
+    std::pair<std::unique_ptr<Poco::Net::HTTPServerParams>, Poco::UInt16> ReadServerConfigurations()
     {
         Poco::UInt16 ALLOCATION_PORT = 8080;
         if (Poco::Environment::has("ALLOCATION_PORT"))
@@ -57,10 +57,10 @@ namespace Allocation
             ALLOCATION_MAX_CONNECTIONS =
                 std::stoi(Poco::Environment::get("ALLOCATION_MAX_CONNECTIONS"));
 
-        Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
+        auto pParams = std::make_unique<Poco::Net::HTTPServerParams>();
         pParams->setMaxQueued(100);
         pParams->setMaxThreads(16);
         pParams->setMaxKeepAliveRequests(ALLOCATION_MAX_CONNECTIONS);
-        return {pParams, ALLOCATION_PORT};
+        return {std::move(pParams), ALLOCATION_PORT};
     }
 }

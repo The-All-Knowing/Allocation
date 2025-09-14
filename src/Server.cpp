@@ -41,17 +41,18 @@ namespace Allocation
     {
         ServerApplication::defineOptions(options);
 
-        options.addOption(Poco::Util::Option("help", "h", "Show help")
+        options.addOption(
+            Poco::Util::Option("help", "h", "Show help")
                 .required(false)
                 .repeatable(false)
                 .callback(Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandleHelp)));
 
         options.addOption(Poco::Util::Option("config", "c", "Set path to config file")
-                .argument("file")
-                .required(false)
-                .repeatable(false)
-                .callback(
-                    Poco::Util::OptionCallback<ServerApp>(this, &ServerApp::HandlePathToConfig)));
+                              .argument("file")
+                              .required(false)
+                              .repeatable(false)
+                              .callback(Poco::Util::OptionCallback<ServerApp>(
+                                  this, &ServerApp::HandlePathToConfig)));
     }
 
     int ServerApp::main(const std::vector<std::string>&)
@@ -108,7 +109,7 @@ namespace Allocation
     {
         Poco::Net::ServerSocket serverSocket(_port);
         Poco::Net::HTTPServer server(
-            new Entrypoints::Rest::HandlerFactory, serverSocket, _serverParameters);
+            new Entrypoints::Rest::HandlerFactory, serverSocket, _serverParameters.get());
 
         Allocation::Loggers::GetLogger()->Information(
             "Server listening on port " + std::to_string(_port));
@@ -123,13 +124,13 @@ namespace Allocation
         if (_configFile.exists())
         {
             auto [serverParameters, port] = LoadServerConfigFromFile();
-            _serverParameters = serverParameters;
+            _serverParameters = std::move(serverParameters);
             _port = port;
         }
         else
         {
             auto [serverParameters, port] = ReadServerConfigurations();
-            _serverParameters = serverParameters;
+            _serverParameters = std::move(serverParameters);
             _port = port;
         }
     }
@@ -211,14 +212,15 @@ namespace Allocation
         return result;
     }
 
-    std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> ServerApp::LoadServerConfigFromFile()
+    std::pair<std::unique_ptr<Poco::Net::HTTPServerParams>, Poco::UInt16>
+    ServerApp::LoadServerConfigFromFile()
     {
         const auto& cfg = config();
         Poco::UInt16 port = cfg.getInt("server.port", 8080);
-        Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
+        auto pParams = std::make_unique<Poco::Net::HTTPServerParams>();
         pParams->setMaxQueued(cfg.getInt("server.max_queued", 100));
         pParams->setMaxThreads(cfg.getInt("server.max_threads", 16));
         pParams->setMaxKeepAliveRequests(cfg.getInt("server.max_connections", 100));
-        return {pParams, port};
+        return {std::move(pParams), port};
     }
 }

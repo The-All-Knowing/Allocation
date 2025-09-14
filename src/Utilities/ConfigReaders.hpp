@@ -21,5 +21,6 @@ namespace Allocation
     /// @brief Читает настройки сервера из переменных окружения или устанавливает значения по
     /// умолчанию.
     /// @return Настройки сервера и порт.
-    std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> ReadServerConfigurations();
+    std::pair<std::unique_ptr<Poco::Net::HTTPServerParams>, Poco::UInt16>
+    ReadServerConfigurations();
 }

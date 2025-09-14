@@ -21,6 +21,9 @@ namespace Allocation::Adapters::Repository
 
     Domain::ProductPtr TrackingRepository::Get(const std::string& SKU)
     {
+        if (SKU.empty())
+            throw std::invalid_argument("SKU cannot be empty");
+
         if (auto it = _seenAndOldVersion.find(SKU); it != _seenAndOldVersion.end())
             return it->second.first;
 
@@ -33,6 +36,9 @@ namespace Allocation::Adapters::Repository
 
     Domain::ProductPtr TrackingRepository::GetByBatchRef(const std::string& batchRef)
     {
+        if (batchRef.empty())
+            throw std::invalid_argument("BatchRef cannot be empty");
+
         auto it = std::find_if(_seenAndOldVersion.begin(), _seenAndOldVersion.end(),
             [batchRef](auto& pair)
             { return pair.second.first->GetBatch(batchRef) != std::nullopt; });
@@ -62,6 +68,9 @@ namespace Allocation::Adapters::Repository
 
     void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
     {
+        if (!product)
+            throw std::invalid_argument("Cannot update nullptr product");
+
         _repo.Update(product, oldVersion);
     }
 }

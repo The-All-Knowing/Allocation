@@ -7,10 +7,18 @@ namespace Allocation::ServiceLayer::UoW
 
     void AbstractUnitOfWork::Commit()
     {
-        for (const auto& [product, _] : _tracking.GetSeen())
-            if (product->IsModified())
-                _tracking.Add(product);
-        _isCommited = true;
+        try
+        {
+            for (const auto& [product, _] : _tracking.GetSeen())
+                if (product->IsModified())
+                    _tracking.Add(product);
+            _isCommited = true;
+        }
+        catch (...)
+        {
+            _isCommited = false;
+            throw;  // Re-throw the exception to preserve original error information
+        }
     }
 
     void AbstractUnitOfWork::RollBack() { _isCommited = false; }

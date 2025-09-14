@@ -64,11 +64,12 @@ namespace Allocation
 
         /// @brief Загружает конфигурацию сервера из файла.
         /// @return Параметры сервера, порт.
-        std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> LoadServerConfigFromFile();
+        std::pair<std::unique_ptr<Poco::Net::HTTPServerParams>, Poco::UInt16>
+        LoadServerConfigFromFile();
 
         bool _helpRequested{false};
         Poco::File _configFile;
-        Poco::Net::HTTPServerParams* _serverParameters;
+        std::unique_ptr<Poco::Net::HTTPServerParams> _serverParameters;
         Poco::UInt16 _port;
         Entrypoints::Redis::RedisListenerPtr _redisListener;
     };

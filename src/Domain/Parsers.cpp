@@ -8,18 +8,33 @@ namespace Allocation::Domain
     template <>
     IMessagePtr FromJson<Commands::CreateBatch>(Poco::JSON::Object::Ptr json)
     {
+        if (!json)
+            throw std::invalid_argument("JSON object is null");
+
         if (!json->has("ref") || !json->has("sku") || !json->has("qty"))
             throw std::invalid_argument("It doesn't have the required ref or sku or qty fields.");
 
         auto ref = json->get("ref");
         if (!ref.isString())
             throw std::invalid_argument("Field 'ref' must be a string");
+        auto refStr = ref.convert<std::string>();
+        if (refStr.empty())
+            throw std::invalid_argument("Field 'ref' cannot be empty");
+
         auto sku = json->get("sku");
         if (!sku.isString())
             throw std::invalid_argument("Field 'sku' must be a string");
+        auto skuStr = sku.convert<std::string>();
+        if (skuStr.empty())
+            throw std::invalid_argument("Field 'sku' cannot be empty");
+
         auto qty = json->get("qty");
         if (!qty.isInteger())
             throw std::invalid_argument("Field 'qty' must be a integer");
+        auto qtyInt = qty.convert<int>();
+        if (qtyInt < 0)
+            throw std::invalid_argument("Field 'qty' must be non-negative");
+
         std::optional<std::chrono::year_month_day> eta;
         if (json->has("eta") && !json->isNull("eta"))
         {
@@ -38,13 +53,15 @@ namespace Allocation::Domain
             eta = Convert(dt);
         }
 
-        return std::make_shared<Commands::CreateBatch>(
-            ref.convert<std::string>(), sku.convert<std::string>(), qty.convert<int>(), eta);
+        return std::make_shared<Commands::CreateBatch>(refStr, skuStr, qtyInt, eta);
     }
 
     template <>
     IMessagePtr FromJson<Commands::Allocate>(Poco::JSON::Object::Ptr json)
     {
+        if (!json)
+            throw std::invalid_argument("JSON object is null");
+
         if (!json->has("orderid") || !json->has("sku") || !json->has("qty"))
             throw std::invalid_argument(
                 "It doesn't have the required orderid or sku or qty fields.");
@@ -52,31 +69,50 @@ namespace Allocation::Domain
         auto orderid = json->get("orderid");
         if (!orderid.isString())
             throw std::invalid_argument("Field 'orderid' must be a string");
+        auto orderidStr = orderid.convert<std::string>();
+        if (orderidStr.empty())
+            throw std::invalid_argument("Field 'orderid' cannot be empty");
+
         auto sku = json->get("sku");
         if (!sku.isString())
             throw std::invalid_argument("Field 'sku' must be a string");
+        auto skuStr = sku.convert<std::string>();
+        if (skuStr.empty())
+            throw std::invalid_argument("Field 'sku' cannot be empty");
+
         auto qty = json->get("qty");
         if (!qty.isInteger())
             throw std::invalid_argument("Field 'qty' must be a integer");
+        auto qtyInt = qty.convert<int>();
+        if (qtyInt <= 0)
+            throw std::invalid_argument("Field 'qty' must be positive");
 
-        return std::make_shared<Commands::Allocate>(
-            orderid.convert<std::string>(), sku.convert<std::string>(), qty.convert<int>());
+        return std::make_shared<Commands::Allocate>(orderidStr, skuStr, qtyInt);
     }
 
     template <>
     IMessagePtr FromJson<Commands::ChangeBatchQuantity>(Poco::JSON::Object::Ptr json)
     {
+        if (!json)
+            throw std::invalid_argument("JSON object is null");
+
         if (!json->has("batchref") || !json->has("qty"))
             throw std::invalid_argument("It doesn't have the required batchref or qty fields.");
 
         auto batchRef = json->get("batchref");
         if (!batchRef.isString())
             throw std::invalid_argument("Field 'batchRef' must be a string");
+        auto batchRefStr = batchRef.convert<std::string>();
+        if (batchRefStr.empty())
+            throw std::invalid_argument("Field 'batchRef' cannot be empty");
+
         auto qty = json->get("qty");
         if (!qty.isInteger())
             throw std::invalid_argument("Field 'qty' must be a integer");
+        auto qtyInt = qty.convert<int>();
+        if (qtyInt < 0)
+            throw std::invalid_argument("Field 'qty' must be non-negative");
 
-        return std::make_shared<Commands::ChangeBatchQuantity>(
-            batchRef.convert<std::string>(), qty.convert<int>());
+        return std::make_shared<Commands::ChangeBatchQuantity>(batchRefStr, qtyInt);
     }
 }
