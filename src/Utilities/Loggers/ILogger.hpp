@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
-
 namespace Allocation::Loggers
 {
     /// @brief Интерфейс логгера для логирования сообщений разного уровня.
@@ -26,12 +23,13 @@ namespace Allocation::Loggers
 
     using ILoggerPtr = std::shared_ptr<Loggers::ILogger>;
 
-    /// @brief Получает экземпляр логгера.
+    /// @brief Возвращает экземпляр логгера.
     /// @return Указатель на логгер.
+    /// @throw std::runtime_error Если логгер не инициализирован.
     ILoggerPtr GetLogger();
 
     /// @brief Инициализирует логгер.
-    /// @param logger Указатель на логгер.
+    /// @param logger Инициализирующий логгер.
     void InitializeLogger(ILoggerPtr logger);
 
     /// @brief Проверяет инициализирован ли логгер.

@@ -2,14 +2,10 @@
 
 #include <gmock/gmock.h>
 
-#include "Precompile.hpp"
-
 #include "Adapters/Database/Mappers/ProductMapper.hpp"
-#include "Adapters/Database/Session/SessionPool.hpp"
 #include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
 #include "Tests/Utilities/Common_test.hpp"
 #include "Tests/Utilities/DatabaseFixture_test.hpp"
-#include "Utilities/Common.hpp"
 
 
 namespace Allocation::Tests
@@ -19,7 +15,8 @@ namespace Allocation::Tests
     TEST_F(UoW_Fixture, test_uow_can_retrieve_a_batch_and_allocate_to_it)
     {
         {
-            auto session = Adapters::Database::SessionPool::Instance().GetSession();
+            auto session = Adapters::Database::DatabaseSessionPool::Instance().GetSession();
+            session.begin();
             Adapters::Database::Mapper::ProductMapper productMapper(session);
             auto product = std::make_shared<Domain::Product>("HIPSTER-WORKBENCH",
                 std::vector<Domain::Batch>{{"batch1", "HIPSTER-WORKBENCH", 100}});
@@ -28,15 +25,15 @@ namespace Allocation::Tests
         }
 
         ServiceLayer::UoW::SqlUnitOfWork uow;
-        auto& productRepo = uow.GetProductRepository();
-        auto product = productRepo.Get("HIPSTER-WORKBENCH");
+        auto& rep = uow.GetProductRepository();
+        auto product = rep.Get("HIPSTER-WORKBENCH");
 
         Domain::OrderLine orderLine("o1", "HIPSTER-WORKBENCH", 10);
         product->Allocate(orderLine);
         uow.Commit();
 
         {
-            auto session = uow.GetSession().value();
+            auto session = uow.GetSession();
             Adapters::Database::Mapper::BatchMapper batchMapper(session);
             auto retrievedBatches = batchMapper.Find("HIPSTER-WORKBENCH");
 
@@ -49,21 +46,21 @@ namespace Allocation::Tests
             EXPECT_EQ(allocationCount, 1);
         }
 
-        CleanupForSku("HIPSTER-WORKBENCH");
+        CleanupProduct("HIPSTER-WORKBENCH");
     }
 
     TEST_F(UoW_Fixture, test_rolls_back_uncommitted_work_by_default)
     {
         {
             ServiceLayer::UoW::SqlUnitOfWork uow;
-            auto session = uow.GetSession().value();
+            auto session = uow.GetSession();
             Adapters::Database::Mapper::ProductMapper productMapper(session);
             auto product = std::make_shared<Domain::Product>(
                 "MEDIUM-PLINTH", std::vector<Domain::Batch>{{"batch1", "MEDIUM-PLINTH", 100}});
             productMapper.Insert(product);
         }
 
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
+        auto session = Adapters::Database::DatabaseSessionPool::Instance().GetSession();
         int count = 0;
         session << "SELECT COUNT(*) FROM allocation.batches", into(count), now;
 
@@ -75,7 +72,7 @@ namespace Allocation::Tests
         try
         {
             ServiceLayer::UoW::SqlUnitOfWork uow;
-            auto session = uow.GetSession().value();
+            auto session = uow.GetSession();
             Adapters::Database::Mapper::ProductMapper productMapper(session);
             auto product = std::make_shared<Domain::Product>(
                 "MEDIUM-PLINTH", std::vector<Domain::Batch>{{"batch1", "MEDIUM-PLINTH", 100}});
@@ -87,7 +84,7 @@ namespace Allocation::Tests
         {
         }
 
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
+        auto session = Adapters::Database::DatabaseSessionPool::Instance().GetSession();
         int count = 0;
         session << "SELECT COUNT(*) FROM allocation.batches", into(count), now;
 
@@ -117,13 +114,14 @@ namespace Allocation::Tests
 
     TEST_F(UoW_Fixture, test_concurrent_updates_to_version_are_not_allowed)
     {
-        auto session = Adapters::Database::SessionPool::Instance().GetSession();
+        auto session = Adapters::Database::DatabaseSessionPool::Instance().GetSession();
+        session.begin();
         Adapters::Database::Mapper::ProductMapper productMapper(session);
 
-        std::string SKU = RandomSku();
+        std::string sku = RandomSku();
         std::string batch = RandomBatchRef();
         auto product = std::make_shared<Domain::Product>(
-            SKU, std::vector<Domain::Batch>{{batch, SKU, 100}}, 1);
+            sku, std::vector<Domain::Batch>{{batch, sku, 100}}, 1);
         productMapper.Insert(product);
         session.commit();
 
@@ -134,9 +132,9 @@ namespace Allocation::Tests
         std::vector<std::string> exceptions;
 
         std::barrier syncPoint(3);
-        std::thread t1(TryToAllocate, order1, SKU, std::ref(exceptionsMutex), std::ref(exceptions),
+        std::thread t1(TryToAllocate, order1, sku, std::ref(exceptionsMutex), std::ref(exceptions),
             std::ref(syncPoint));
-        std::thread t2(TryToAllocate, order2, SKU, std::ref(exceptionsMutex), std::ref(exceptions),
+        std::thread t2(TryToAllocate, order2, sku, std::ref(exceptionsMutex), std::ref(exceptions),
             std::ref(syncPoint));
 
         syncPoint.arrive_and_wait();
@@ -144,7 +142,7 @@ namespace Allocation::Tests
         t2.join();
 
         int version = 0;
-        session << "SELECT version_number FROM allocation.products WHERE sku = $1", use(SKU),
+        session << "SELECT version_number FROM allocation.products WHERE sku = $1", use(sku),
             into(version), now;
         EXPECT_EQ(version, 2);
 
@@ -158,10 +156,10 @@ namespace Allocation::Tests
             JOIN allocation.batches ON allocations.batch_id = batches.id
             WHERE order_lines.sku = $1
         )",
-            use(SKU), into(orderCount), now;
+            use(sku), into(orderCount), now;
 
         EXPECT_EQ(orderCount, 1);
 
-        CleanupForSku(SKU);
+        CleanupProduct(sku);
     }
 }

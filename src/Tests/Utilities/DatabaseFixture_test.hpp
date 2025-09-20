@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "Adapters/Database/Mappers/ProductMapper.hpp"
-#include "Adapters/Database/Session/SessionPool.hpp"
+#include "Adapters/Database/Session/DatabaseSessionPool.hpp"
 #include "ServiceLayer/MessageBus/Handlers/Handlers.hpp"
 #include "ServiceLayer/MessageBus/MessageBus.hpp"
 #include "Utilities/ConfigReaders.hpp"
@@ -11,29 +11,30 @@
 
 namespace Allocation::Tests
 {
-    /// @brief Фикстура для инициализации БД.
+    /// @brief Фикстура для инициализации подключения к БД.
     class Database_Fixture : public testing::Test
     {
     public:
-        /// @brief Настраивает пул сессий и регистрирует PostgreSQL коннектор.
+        /// @brief Инициализирует пул сессий.
         static void SetUpTestSuite()
         {
-            if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
+            if (auto& sessionPool = Adapters::Database::DatabaseSessionPool::Instance();
                 !sessionPool.IsConfigured())
             {
                 auto config = ReadDatabaseConfigurations();
                 sessionPool.Configure(config);
-                Poco::Data::PostgreSQL::Connector::registerConnector();
             }
         }
 
     protected:
+        /// @brief Открывает транзакцию перед каждым тестом.
         void SetUp() override
         {
-            _session = Adapters::Database::SessionPool::Instance().GetSession();
+            _session = Adapters::Database::DatabaseSessionPool::Instance().GetSession();
             _session.begin();
         }
 
+        /// @brief Откатывает транзакцию после каждого теста.
         void TearDown() override
         {
             try
@@ -45,41 +46,43 @@ namespace Allocation::Tests
             }
         }
 
-        Poco::Data::Session _session{Adapters::Database::SessionPool::Instance().GetSession()};
+        Poco::Data::Session _session{
+            Adapters::Database::DatabaseSessionPool::Instance().GetSession()};
     };
 
     /// @brief Фикстура для работы с Unit of Work с поддержкой автоматической очистки продуктов.
     class UoW_Fixture : public testing::Test
     {
     public:
-        /// @brief Настраивает пул сессий и регистрирует PostgreSQL коннектор.
+        /// @brief Инициализирует пул сессий.
         static void SetUpTestSuite()
         {
-            if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
+            if (auto& sessionPool = Adapters::Database::DatabaseSessionPool::Instance();
                 !sessionPool.IsConfigured())
             {
                 auto config = ReadDatabaseConfigurations();
                 sessionPool.Configure(config);
-                Poco::Data::PostgreSQL::Connector::registerConnector();
             }
         }
 
     protected:
-        /// @brief RAII-хелпер для удаления продукта из БД по SKU.
+        /// @brief RAII-хелпер для удаления агрегата-продукта из БД по артикулу продукции.
         class ProductCleanup
         {
         public:
-            /// @param sku Артикул удаляемого продукта.
+            /// @param sku Артикул удаляемого агрегата-продукта.
             explicit ProductCleanup(std::string sku) : _sku(std::move(sku)) {}
 
-            /// @brief Удаляет продукт из базы при выходе из области видимости.
+            /// @brief Удаляет агрегат-продукт из базы при выходе из области видимости.
             ~ProductCleanup()
             {
                 try
                 {
-                    auto session = Adapters::Database::SessionPool::Instance().GetSession();
+                    auto session = Adapters::Database::DatabaseSessionPool::Instance().GetSession();
+                    session.begin();
                     Adapters::Database::Mapper::ProductMapper productMapper(session);
-                    productMapper.Delete(productMapper.FindBySKU(_sku));
+                    if (auto product = productMapper.FindBySKU(_sku); product)
+                        productMapper.Delete(product);
                     session.commit();
                 }
                 catch (...)
@@ -91,35 +94,37 @@ namespace Allocation::Tests
             std::string _sku;
         };
 
-        /// @brief Создаёт RAII-объект для удаления продукта по SKU.
-        /// @param sku Артикул продукта.
-        /// @return RAII-объект, который удалит продукт при уничтожении.
-        ProductCleanup CleanupForSku(const std::string& sku) const { return ProductCleanup(sku); }
+        /// @brief Создаёт RAII-объект для удаления агрегата-продукта по артикулу.
+        /// @param sku Артикул продукции.
+        /// @return RAII-объект, который удалит агрегат-продукт при уничтожении.
+        ProductCleanup CleanupProduct(const std::string& sku) const { return ProductCleanup(sku); }
     };
 
+    /// @brief Фикстура для тестирования read-model с поддержкой очистки записей по ссылке на партию
+    /// заказа.
     class Views_Fixture : public UoW_Fixture
     {
     public:
         /// @brief Настройка тестового окружения.
         ///
         /// Выполняется один раз для всего набора тестов:
-        /// 1. Настройка пула соединений с базой данных и регистрация PostgreSQL-коннектора.
+        /// 1. Инициализирует пул соединений с базой данных.
         /// 2. Инициализация шины сообщений:
         ///    - Подписка на события аллокаций (Allocated, Deallocated) с обработчиками для
         ///    обновления read-model.
-        ///    - Настройка командных обработчиков для бизнес-команд (Allocate, CreateBatch,
+        ///    - Настройка командных обработчиков для команд (Allocate, CreateBatch,
         ///    ChangeBatchQuantity).
         static void SetUpTestSuite()
         {
-            if (auto& sessionPool = Adapters::Database::SessionPool::Instance();
+            if (auto& sessionPool = Adapters::Database::DatabaseSessionPool::Instance();
                 !sessionPool.IsConfigured())
             {
                 auto config = ReadDatabaseConfigurations();
                 sessionPool.Configure(config);
-                Poco::Data::PostgreSQL::Connector::registerConnector();
             }
 
             auto& messagebus = ServiceLayer::MessageBus::Instance();
+            messagebus.ClearHandlers();
             messagebus.SubscribeToEvent<Allocation::Domain::Events::Allocated>(
                 ServiceLayer::Handlers::AddAllocationToReadModel);
             messagebus.SubscribeToEvent<Allocation::Domain::Events::Deallocated>(
@@ -136,19 +141,21 @@ namespace Allocation::Tests
         }
 
     protected:
-        /// @brief RAII-хелпер для удаления записей read-model (CQRS) по reference.
+        /// @brief RAII-хелпер для удаления записей read-model по ссылке на партию заказа.
         class ViewCleanup
         {
         public:
             /// @param reference Ссылка на удаляемую партию.
             explicit ViewCleanup(std::string reference) : _reference(std::move(reference)) {}
 
-            /// @brief Удаляет записи read-model по reference при выходе из области видимости.
+            /// @brief Удаляет записи read-model по ссылке на партию заказа при выходе из области
+            /// видимости.
             ~ViewCleanup()
             {
                 try
                 {
-                    auto session = Adapters::Database::SessionPool::Instance().GetSession();
+                    auto session = Adapters::Database::DatabaseSessionPool::Instance().GetSession();
+                    session.begin();
                     session << "DELETE FROM allocation.allocations_view WHERE batchref = $1",
                         Poco::Data::Keywords::use(_reference), Poco::Data::Keywords::now;
                     session.commit();
@@ -162,10 +169,10 @@ namespace Allocation::Tests
             std::string _reference;
         };
 
-        /// @brief Создаёт RAII-объект для удаления записей read-model по reference.
-        /// @param reference Ссылка на удаляемую партию.
+        /// @brief Создаёт RAII-объект для удаления записей read-model по ссылке на партию заказа.
+        /// @param reference Ссылка на партию заказа.
         /// @return RAII-объект, который удалит записи read-model при уничтожении.
-        ViewCleanup CleanupForReference(const std::string& reference) const
+        ViewCleanup CleanupViewModel(const std::string& reference) const
         {
             return ViewCleanup(reference);
         }

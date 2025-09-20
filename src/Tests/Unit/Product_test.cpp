@@ -2,8 +2,6 @@
 
 #include <gtest/gtest.h>
 
-#include "Precompile.hpp"
-
 #include "Domain/Events/Allocated.hpp"
 #include "Domain/Events/OutOfStock.hpp"
 #include "Tests/Utilities/Common_test.hpp"
@@ -78,7 +76,7 @@ namespace Allocation::Tests
         ASSERT_TRUE(event);
         EXPECT_EQ("batchref", batch.GetReference());
         EXPECT_EQ("oref", line.reference);
-        EXPECT_EQ("RETRO-LAMPSHADE", line.SKU);
+        EXPECT_EQ("RETRO-LAMPSHADE", line.sku);
         EXPECT_EQ(10, line.quantity);
     }
 
@@ -97,7 +95,7 @@ namespace Allocation::Tests
         ASSERT_EQ(rawEvent->Name(), "OutOfStock");
         auto event = std::dynamic_pointer_cast<Domain::Events::OutOfStock>(rawEvent);
         ASSERT_TRUE(event);
-        EXPECT_EQ(event->SKU, batch.GetSKU());
+        EXPECT_EQ(event->sku, batch.GetSKU());
     }
 
     TEST(Product, test_increments_version_number)

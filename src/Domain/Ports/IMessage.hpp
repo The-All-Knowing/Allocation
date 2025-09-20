@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
-
 namespace Allocation::Domain
 {
     /// @brief Интерфейс сообщения.
@@ -11,11 +8,13 @@ namespace Allocation::Domain
         /// @brief Тип сообщения.
         enum class Type : int
         {
+            /// @brief Событие.
             Event,
+            /// @brief Команда.
             Command
         };
 
-        /// @brief Деструктор интерфейса сообщения.
+        /// @brief Деструктор.
         virtual ~IMessage() = default;
 
         /// @brief Возвращает имя сообщения.

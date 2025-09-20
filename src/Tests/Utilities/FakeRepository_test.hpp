@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Domain/Ports/IUpdatableRepository.hpp"
 #include "Domain/Product/Product.hpp"
 
@@ -31,11 +29,11 @@ namespace Allocation::Tests
         }
 
         /// @brief Получает продукт из репозитория.
-        /// @param SKU Артикул продукта.
+        /// @param sku Артикул продукта.
         /// @return Продукт с заданным артикулом.
-        [[nodiscard]] Domain::ProductPtr Get(const std::string& SKU) override
+        [[nodiscard]] Domain::ProductPtr Get(const std::string& sku) override
         {
-            auto it = _skuByProduct.find(std::string(SKU));
+            auto it = _skuByProduct.find(sku);
             if (it != _skuByProduct.end())
                 return it->second;
             return nullptr;

@@ -1,11 +1,8 @@
 #pragma once
 
-#include "Precompile.hpp"
-
-
 namespace Allocation::Entrypoints::Rest::Handlers
 {
-    /// @brief Обрабатывает HTTP-запрос на добавление новой партии товара.
+    /// @brief Обрабатывает HTTP-запрос на добавление новой партии заказа.
     class AddBatchHandler final : public Poco::Net::HTTPRequestHandler
     {
     public:

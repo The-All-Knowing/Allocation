@@ -29,7 +29,7 @@ def test_unhappy_path_returns_400_and_error_message():
         orderid, unknown_sku, qty=20, expect_success=False
     )
     assert r.status_code == 400
-    assert r.json()["message"] == f"Invalid SKU: {unknown_sku}"
+    assert r.json()["message"] == f"Invalid sku: {unknown_sku}"
 
     r = api_client.get_allocation(orderid)
     assert r.status_code == 404

@@ -1,76 +1,86 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Batch.hpp"
 #include "Domain/Ports/IMessage.hpp"
 
 
 namespace Allocation::Domain
 {
-    /// @brief Агрегат продукта, содержащий партии и реализующий бизнес-логику распределения.
+    /// @brief Агрегат-продукт, содержит партии заказа с общим артикулом продукции. 
+    /// Реализует бизнес-логику распределения позиций заказа в партиях заказа.
     class Product
     {
     public:
-        /// @brief Создаёт продукт.
-        /// @param SKU Артикул продукта.
-        /// @param batches Список партий продукта.
-        /// @param versionNumber Номер версии продукта.
+        /// @brief Создаёт агрегат-продукт.
+        /// @param sku Артикул продукции.
+        /// @param batches Список партий заказа продукции.
+        /// @param versionNumber Номер версии агрегата.
         /// @param isNew Новый агрегат или уже существовал.
-        explicit Product(const std::string& SKU, const std::vector<Batch>& batches = {},
+        explicit Product(const std::string& sku, const std::vector<Batch>& batches = {},
             size_t versionNumber = 0, bool isNew = true);
 
-        /// @brief Проверяет, был ли продукт изменён.
-        /// @return true — если продукт изменён, иначе false.
+        /// @brief Устанавливает флаг изменённости.
+        /// @param modified Новый флаг изменённости.
+        void SetModified(bool modified) noexcept;
+
+        /// @brief Проверяет, был ли агрегат изменён.
+        /// @return true — если агрегат изменён, иначе false.
         [[nodiscard]] bool IsModified() const noexcept;
 
-        /// @brief Добавляет партию к продукту.
-        /// @param batch Добавляемая партия.
+        /// @brief Добавляет партию заказа к агрегату.
+        /// @param batch Добавляемая партия заказа.
+        /// @throw std::invalid_argument Выбрасывается, если артикул партии не совпадает с артикулом
+        /// агрегата.
         /// @return true — если партия добавлена, иначе false.
-        bool AddBatch(const Batch& batch) noexcept;
+        bool AddBatch(const Batch& batch);
 
-        /// @brief Добавляет несколько партий к продукту.
-        /// @param batches Список партий для добавления.
+        /// @brief Добавляет несколько партий заказа к агрегату.
+        /// @param batches Добавляемые партии заказа.
+        /// @throw std::invalid_argument Выбрасывается, если артикул партии не совпадает с артикулом
+        /// агрегата.
         /// @return true — если партии добавлены, иначе false.
-        /// @note Либо добавляет все, либо не добавляет ни одной.
-        bool AddBatches(const std::vector<Batch>& batches) noexcept;
+        /// @note Либо добавляет все партии, либо не добавляет ни одной.
+        bool AddBatches(const std::vector<Batch>& batches);
 
-        /// @brief Аллоцирует строку заказа на партию продукта.
-        /// @param line Строка заказа.
-        /// @return Ссылка на партию, если аллокация успешна, иначе std::nullopt.
+        /// @brief Распределяет позицию заказа в партии заказа агрегата.
+        /// @param line Позиция заказа для распределения.
+        /// @throw std::invalid_argument Выбрасывается, если артикул позиции заказа не совпадает с
+        /// артикулом продукции агрегата.
+        /// @return Ссылка на партию заказа, если распределение успешно, иначе std::nullopt.
         std::optional<std::string> Allocate(const OrderLine& line);
 
-        /// @brief Изменяет количество в партии.
-        /// @param ref Ссылка на партию.
-        /// @param qty Новое количество.
-        void ChangeBatchQuantity(const std::string& ref, size_t qty);
+        /// @brief Изменяет количество продукции в партии заказа.
+        /// @param ref Ссылка на партию заказа.
+        /// @param qty Новое количество продукции.
+        /// @return true - если партия найдена и количество изменено, иначе false.
+        bool ChangeBatchQuantity(const std::string& ref, size_t qty);
 
-        /// @brief Возвращает все партии продукта.
-        /// @return Список партий.
+        /// @brief Возвращает все партии заказа агрегата.
+        /// @return Партии заказа агрегата.
         [[nodiscard]] std::vector<Batch> GetBatches() const noexcept;
 
-        /// @brief Возвращает партию продукта по её ссылке.
-        /// @param reference Ссылка на партию.
-        /// @return Партия, если найдена, иначе std::nullopt.
+        /// @brief Возвращает партию заказа по её ссылке.
+        /// @param reference Ссылка на партию заказа.
+        /// @return Партия заказа, если найдена, иначе std::nullopt.
         [[nodiscard]] std::optional<Batch> GetBatch(const std::string& reference) const noexcept;
 
-        /// @brief Возвращает ссылки изменённых партий.
-        /// @return Список ссылок изменённых партий.
+        /// @brief Возвращает ссылки изменённых партий заказа.
+        /// @return Ссылки изменённых партий заказа.
         [[nodiscard]] std::vector<std::string> GetModifiedBatches() const noexcept;
 
-        /// @brief Возвращает номер версии продукта.
+        /// @brief Возвращает номер версии агрегата.
         /// @return Номер версии.
         [[nodiscard]] size_t GetVersion() const noexcept;
 
-        /// @brief Возвращает артикул продукта.
-        /// @return Артикул.
+        /// @brief Возвращает артикул продукции агрегата.
+        /// @return Артикул продукции.
         [[nodiscard]] std::string GetSKU() const noexcept;
 
-        /// @brief Возвращает сообщения, сгенерированные продуктом.
-        /// @return Список сообщений.
+        /// @brief Возвращает сообщения, сгенерированные во время выполнения бизнес-логики.
+        /// @return Доменные сообщения.
         [[nodiscard]] const std::vector<Domain::IMessagePtr>& Messages() const noexcept;
 
-        /// @brief Очищает сообщения продукта.
+        /// @brief Очищает сообщения агрегата.
         void ClearMessages() noexcept;
 
     private:
@@ -79,20 +89,20 @@ namespace Allocation::Domain
         std::unordered_set<std::string> _modifiedBatchRefs;
         std::vector<Domain::IMessagePtr> _messages;
         size_t _versionNumber;
-        bool _isModify{false};
+        bool _isModified;
     };
 
     using ProductPtr = std::shared_ptr<Product>;
 
-    /// @brief Проверяет равенство двух продуктов.
+    /// @brief Проверяет равенство двух агрегатов.
     /// @param lhs Левый операнд.
     /// @param rhs Правый операнд.
-    /// @return true — если продукты равны, иначе false.
+    /// @return true — если агрегаты равны, иначе false.
     bool operator==(const Product& lhs, const Product& rhs) noexcept;
 
-    /// @brief Проверяет равенство двух умных указателей на продукт.
-    /// @param lhs Левый указатель.
-    /// @param rhs Правый указатель.
-    /// @return true — если оба указателя nullptr или продукты равны, иначе false.
+    /// @brief Проверяет равенство двух агрегатов.
+    /// @param lhs Левый операнд.
+    /// @param rhs Правый операнд.
+    /// @return true — если оба указателя nullptr или агрегаты равны, иначе false.
     bool operator==(const ProductPtr& lhs, const ProductPtr& rhs) noexcept;
 }

@@ -1,24 +1,20 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "AbstractUnitOfWork.hpp"
-#include "Adapters/Database/Session/SessionPool.hpp"
+#include "Adapters/Database/Session/DatabaseSessionPool.hpp"
 #include "Adapters/Repository/SqlRepository.hpp"
 
 
 namespace Allocation::ServiceLayer::UoW
 {
-    /// @brief SQL реализация единицы работы.
+    /// @brief Реализация единицы работы для SQL хранилища.
     class SqlUnitOfWork final : public AbstractUnitOfWork
     {
     public:
         /// @brief Конструктор.
-        /// @details При создании объекта открывает сессию и начинает транзакцию с уровнем
-        ///          изоляции REPEATABLE READ. Используется для работы с репозиторием внутри
-        ///          единицы работы.
+        /// @details При создании объекта открывает сессию к БД и начинает транзакцию.
         SqlUnitOfWork()
-            : _session(Adapters::Database::SessionPool::Instance().GetSession()),
+            : _session(Adapters::Database::DatabaseSessionPool::Instance().GetSession()),
               _repository(_session),
               AbstractUnitOfWork(_repository)
         {
@@ -26,18 +22,16 @@ namespace Allocation::ServiceLayer::UoW
             _session.begin();
         }
 
-        /// @brief Возвращает сессию базы данных.
-        /// @return Сессия базы данных.
-        [[nodiscard]] std::optional<Poco::Data::Session> GetSession() noexcept override
+        /// @brief Возвращает сессию подключения к базе данных.
+        /// @return Сессия подключения к базе данных.
+        [[nodiscard]] Poco::Data::Session GetSession() noexcept override
         {
             return _session;
         }
 
-        /// @brief Подтверждает изменения.
-        /// @throw std::runtime_error Выбрасывается, если не удалось обновить продукт из-за
-        /// конфликта версий.
-        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
-        /// запроса.
+        /// @brief Подтверждает внесённые изменения.
+        /// @throw std::runtime_error Если не удалось обновить агрегат из-за конфликта версий.
+        /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
         void Commit() override
         {
             AbstractUnitOfWork::Commit();
@@ -45,7 +39,7 @@ namespace Allocation::ServiceLayer::UoW
             _session.begin();
         }
 
-        /// @brief Откатывает изменения.
+        /// @brief Откатывает внесённые изменения.
         void RollBack() override
         {
             _session.rollback();

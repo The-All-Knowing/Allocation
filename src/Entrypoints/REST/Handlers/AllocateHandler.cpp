@@ -35,7 +35,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
             response.setStatus(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
             response.setContentType("application/json");
             std::string msg = ex.displayText();
-            response.send() << "{\"error\":\"" << msg << "\"}";
+            response.send() << "{\"message\":\"" << msg << "\"}";
 
             Allocation::Loggers::GetLogger()->Error(msg);
         }
@@ -58,6 +58,13 @@ namespace Allocation::Entrypoints::Rest::Handlers
             ostr << "{\"message\": \"" << msg << "\"}";
 
             Allocation::Loggers::GetLogger()->Error(msg);
+        }
+        catch (...)
+        {
+            response.setStatus(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.send() << "{\"message\":\" AllocateHandler unknown exception \"}";
+            Allocation::Loggers::GetLogger()->Error("AllocateHandler unknown exception");
         }
     }
 }

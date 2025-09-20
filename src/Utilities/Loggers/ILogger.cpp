@@ -20,7 +20,7 @@ namespace Allocation::Loggers
             }
 
             /// @brief Устанавливает экземпляр логгера.
-            /// @param logger Указатель на логгер.
+            /// @param logger Инициализирующий логгер.
             static void SetLogger(ILoggerPtr logger)
             {
                 std::lock_guard<std::mutex> lock(mutex_);
@@ -28,7 +28,8 @@ namespace Allocation::Loggers
             }
 
             /// @brief Получает экземпляр логгера.
-            /// @return Указатель на логгер.
+            /// @return Логгер.
+            /// @throw std::runtime_error Если логгер не инициализирован.
             static ILoggerPtr GetLogger()
             {
                 std::lock_guard<std::mutex> lock(mutex_);
@@ -41,10 +42,7 @@ namespace Allocation::Loggers
             static ILoggerPtr instance_;
             static std::mutex mutex_;
         };
-    }
 
-    namespace Internal
-    {
         ILoggerPtr LoggerHolder::instance_;
         std::mutex LoggerHolder::mutex_;
     }

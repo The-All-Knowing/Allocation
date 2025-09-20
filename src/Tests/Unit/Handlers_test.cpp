@@ -20,9 +20,10 @@ namespace Allocation::Tests
     public:
         static void SetUpTestSuite()
         {
-            ServiceLayer::MessageBus::Instance()
-                .SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
-                    ServiceLayer::Handlers::AddBatch);
+            auto& messagebus = ServiceLayer::MessageBus::Instance();
+            messagebus.ClearHandlers();
+            messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
+                ServiceLayer::Handlers::AddBatch);
         }
     };
 
@@ -56,6 +57,7 @@ namespace Allocation::Tests
         static void SetUpTestSuite()
         {
             auto& messagebus = ServiceLayer::MessageBus::Instance();
+            messagebus.ClearHandlers();
             messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(
                 ServiceLayer::Handlers::AddBatch);
             messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
@@ -91,7 +93,7 @@ namespace Allocation::Tests
                 messagebus.Handle(
                     std::make_shared<Domain::Commands::Allocate>("o1", "NONEXISTENTSKU", 10), uow);
             },
-            "Invalid SKU: NONEXISTENTSKU"));
+            "Invalid sku: NONEXISTENTSKU"));
     }
 
     TEST_F(Handlers_TestAllocate, test_commits)
@@ -134,6 +136,7 @@ namespace Allocation::Tests
         static void SetUpTestSuite()
         {
             auto& messagebus = ServiceLayer::MessageBus::Instance();
+            messagebus.ClearHandlers();
             messagebus.SetCommandHandler<Allocation::Domain::Commands::Allocate>(
                 ServiceLayer::Handlers::Allocate);
             messagebus.SetCommandHandler<Allocation::Domain::Commands::CreateBatch>(

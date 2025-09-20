@@ -5,17 +5,17 @@
 
 namespace Allocation::Domain::Events
 {
-    /// @brief Событие "Allocated".
+    /// @brief Событие "Распределена позиция заказа".
     struct Allocated final : public AbstractEvent
     {
-        /// @brief Конструктор события.
-        /// @param orderid Идентификатор заказа.
-        /// @param SKU Артикул товара.
-        /// @param batchref Ссылка на партию.
-        /// @param qty Количество.
-        Allocated(std::string orderid, std::string SKU, size_t qty, std::string batchref)
+        /// @brief Конструктор.
+        /// @param orderid Идентификатор заказа клиента.
+        /// @param sku Артикул товара товара заказа.
+        /// @param batchref Ссылка на партию в которой находится заказ.
+        /// @param qty Количество распределённого товара.
+        Allocated(std::string orderid, std::string sku, size_t qty, std::string batchref)
             : orderid(std::move(orderid)),
-              SKU(std::move(SKU)),
+              sku(std::move(sku)),
               qty(qty),
               batchref(std::move(batchref)){};
 
@@ -24,7 +24,7 @@ namespace Allocation::Domain::Events
         [[nodiscard]] std::string Name() const override { return "Allocated"; };
 
         std::string orderid;
-        std::string SKU;
+        std::string sku;
         size_t qty;
         std::string batchref;
     };
@@ -36,7 +36,7 @@ namespace Allocation::Domain::Events
     inline std::vector<EventAttribute> GetAttributes<Allocated>(EventPtr event)
     {
         auto p = std::static_pointer_cast<Allocated>(event);
-        return {{"orderid", p->orderid}, {"SKU", p->SKU}, {"qty", std::to_string(p->qty)},
+        return {{"orderid", p->orderid}, {"sku", p->sku}, {"qty", std::to_string(p->qty)},
             {"batchref", p->batchref}};
     };
 }

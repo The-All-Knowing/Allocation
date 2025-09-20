@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Domain/Events/AbstractEvent.hpp"
 
 
@@ -22,8 +20,13 @@ namespace Allocation::ServiceLayer::Handlers
     class PublisherHandler
     {
     public:
+        /// @brief Конструктор.
+        /// @param publisher Отправитель сообщений.
         PublisherHandler(Publisher publisher = {}) : _publisher(std::move(publisher)) {}
 
+        /// @brief Публикует сообщение в канал Redis.
+        /// @param event публикуемое событие.
+        /// @details В данном примере канал захардкожен как "line_allocated
         void operator()(std::shared_ptr<Message> event) const
         {
             Allocation::Loggers::GetLogger()->Debug(

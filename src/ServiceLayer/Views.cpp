@@ -8,10 +8,7 @@ namespace Allocation::ServiceLayer::Views
     {
         std::vector<std::pair<std::string, std::string>> results;
         auto session = uow.GetSession();
-        if (!session.has_value())
-            throw results;
-
-        Poco::Data::Statement select(*session);
+        Poco::Data::Statement select(session);
         select << "SELECT sku, batchref FROM allocation.allocations_view WHERE orderid = $1",
             Poco::Data::Keywords::use(orderid), Poco::Data::Keywords::now;
 

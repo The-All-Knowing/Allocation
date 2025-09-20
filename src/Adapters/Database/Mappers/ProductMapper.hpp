@@ -1,58 +1,58 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "BatchMapper.hpp"
 #include "Domain/Product/Product.hpp"
 
 
 namespace Allocation::Adapters::Database::Mapper
 {
-    /// @brief Маппер для работы с продуктами в базе данных.
+    /// @brief Маппер для отображения агрегата-продукт в базе данных и обратно.
     class ProductMapper
     {
     public:
-        /// @brief Конструктор маппера.
-        /// @param session Сессия базы данных.
+        /// @brief Конструктор.
+        /// @param session Сессия подключения к базе данных.
         explicit ProductMapper(const Poco::Data::Session& session);
 
-        /// @brief Возвращает продукт по артикулу.
-        /// @param SKU Артикул.
-        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
-        /// запроса.
+        /// @brief Находит агрегат-продукт по артикулу.
+        /// @param sku Артикул товара.
+        /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
         /// @return Найденный продукт или nullptr.
-        [[nodiscard]] Domain::ProductPtr FindBySKU(std::string SKU) const;
+        [[nodiscard]] Domain::ProductPtr FindBySKU(const std::string& sku) const;
 
-        /// @brief Получает продукт по ссылке партии.
-        /// @param ref Ссылка на партию.
-        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
-        /// запроса.
+        /// @brief Находит агрегат-продукт по идентификатору партии включённого в него.
+        /// @param ref Идентификатор партии.
+        /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
         /// @return Найденный продукт или nullptr.
-        [[nodiscard]] Domain::ProductPtr FindByBatchRef(std::string ref) const;
+        [[nodiscard]] Domain::ProductPtr FindByBatchRef(const std::string& ref) const;
 
-        /// @brief Обновляет продукт.
-        /// @param product Продукт для обновления.
-        /// @param oldVersion Прошлая версия продукта.
-        /// @throw Poco::Data::DataException Выбрасывается, если возникают ошибки при выполнении
-        /// запроса.
+        /// @brief Обновляет агрегат-продукт.
+        /// @param product Обновляемый агрегат-продукт.
+        /// @param oldVersion Исходная прочитанная версия продукта.
+        /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
+        /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         /// @return true - успешное обновление, иначе false.
         [[nodiscard]] bool Update(Domain::ProductPtr product, int oldVersion);
 
-        /// @brief Создаёт продукт.
-        /// @param product Продукт для создания.
-        /// @throw Poco::Data::DataExceptionn Выбрасывается, если возникают ошибки при выполнении
-        /// запроса.
+        /// @brief Сохраняет агрегат-продукт.
+        /// @param product Сохраняемый агрегат-продукт.
+        /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
+        /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         void Insert(Domain::ProductPtr product);
 
-        /// @brief Удаляет продукт.
-        /// @param product Удаляемый продукт.
+        /// @brief Удаляет агрегат-продукт.
+        /// @param product Удаляемый агрегат-продукт.
+        /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         /// @return true - успешное удаление, иначе false.
         bool Delete(Domain::ProductPtr product);
 
     private:
-        /// @brief Обновляет партии продукта.
-        /// @param product Продукт с партиями для обновления.
-        void UpdateBatches(Domain::ProductPtr product);
+        /// @brief Обновляет партии заказов, содержащиеся в агрегате.
+        /// @param batches Коллекция изменённых партий заказов, которые требуется сохранить.
+        /// @param batchRefs Идентификаторы партий заказов, которые были изменены или удалены.
+        /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
+        void UpdateBatches(
+            const std::vector<Domain::Batch>& batches, const std::vector<std::string>& batchRefs);
 
         mutable Poco::Data::Session _session;
         BatchMapper _batchMapper;

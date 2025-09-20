@@ -5,13 +5,13 @@
 
 namespace Allocation::Domain::Commands
 {
-    /// @brief Команда "Allocate".
+    /// @brief Команда "Распределить позицию заказа".
     struct Allocate final : public AbstractCommand
     {
-        /// @brief Конструктор команды.
-        /// @param orderid Идентификатор заказа.
-        /// @param sku Артикул товара.
-        /// @param qty Количество.
+        /// @brief Конструктор.
+        /// @param orderid Идентификатор заказа клиента.
+        /// @param sku Артикул товара для распределения.
+        /// @param qty Количество распределяемого товара.
         Allocate(std::string orderid, std::string sku, size_t qty)
             : orderid(std::move(orderid)), sku(std::move(sku)), qty(qty)
         {

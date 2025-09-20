@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-#include "Adapters/Database/Session/SessionPool.hpp"
+#include "Adapters/Database/Session/DatabaseSessionPool.hpp"
 #include "Entrypoints/REST/HandlerFactory.hpp"
 #include "Entrypoints/Redis/Handlers.hpp"
 #include "ServiceLayer/MessageBus/Handlers/Handlers.hpp"
@@ -17,9 +17,9 @@ namespace Allocation
             Allocation::Loggers::InitializeLogger(
                 std::make_shared<ServiceLayer::Loggers::PocoLogger>());
 
-        if (_configFile.exists())
+        if (_configFile.isFile())
             Allocation::Loggers::GetLogger()->Information(
-                "Loaded configuration from: " + _configFile.path());
+                "Loaded configuration from: " + _configFile.toString());
         else
             Allocation::Loggers::GetLogger()->Information(
                 "No configuration file loaded. Using environment variables.");
@@ -34,7 +34,7 @@ namespace Allocation
     void ServerApp::uninitialize()
     {
         _redisListener->Stop();
-        Adapters::Database::SessionPool::Instance().Shutdown();
+        Adapters::Database::DatabaseSessionPool::Instance().Shutdown();
     }
 
     void ServerApp::defineOptions(Poco::Util::OptionSet& options)
@@ -58,7 +58,7 @@ namespace Allocation
     {
         if (_helpRequested)
             return Application::EXIT_OK;
-        StartServer();
+        StartMainCycle();
         return Application::EXIT_OK;
     };
 
@@ -92,7 +92,7 @@ namespace Allocation
                           << "Loading environment variables." << std::endl;
                 return;
             }
-            _configFile = configFile;
+            _configFile = configPath;
 
             loadConfiguration(absPath);
         }
@@ -104,7 +104,7 @@ namespace Allocation
         }
     }
 
-    void ServerApp::StartServer()
+    void ServerApp::StartMainCycle()
     {
         Poco::Net::ServerSocket serverSocket(_port);
         Poco::Net::HTTPServer server(
@@ -120,9 +120,9 @@ namespace Allocation
 
     void ServerApp::InitServer()
     {
-        if (_configFile.exists())
+        if (_configFile.isFile())
         {
-            auto [serverParameters, port] = LoadServerConfigFromFile();
+            auto [serverParameters, port] = LoadServerConfigFromFile(config());
             _serverParameters = serverParameters;
             _port = port;
         }
@@ -157,68 +157,27 @@ namespace Allocation
 
     void ServerApp::InitDatabase()
     {
-        Adapters::Database::DatabaseConfig config;
-        if (_configFile.exists())
-            config = LoadDatabaseConfigFromFile();
+        Adapters::Database::DatabaseConfig databaseConfig;
+        if (_configFile.isFile())
+            databaseConfig = LoadDatabaseConfigFromFile(config());
         else
-            config = ReadDatabaseConfigurations();
+            databaseConfig = ReadDatabaseConfigurations();
 
-        Adapters::Database::SessionPool::Instance().Configure(config);
-        Poco::Data::PostgreSQL::Connector::registerConnector();
+        Adapters::Database::DatabaseSessionPool::Instance().Configure(databaseConfig);
     }
 
     void ServerApp::InitRedis()
     {
-        Adapters::Redis::RedisConfig config;
-        if (_configFile.exists())
-            config = LoadRedisConfigFromFile();
+        Adapters::Redis::RedisConfig redisConfig;
+        if (_configFile.isFile())
+            redisConfig = LoadRedisConfigFromFile(config());
         else
-            config = ReadRedisConfigurations();
+            redisConfig = ReadRedisConfigurations();
 
-        Adapters::Redis::ClientFactory::Instance().Configure(config);
-        _redisListener = std::make_shared<Entrypoints::Redis::RedisListener>();
+        Adapters::Redis::RedisConnectionPool::Instance().Configure(redisConfig);
+        _redisListener = std::make_unique<Entrypoints::Redis::RedisListener>();
         _redisListener->Subscribe(
             "change_batch_quantity", Entrypoints::Redis::Handlers::HandleChangeBatchQuantity);
         _redisListener->Start();
-    }
-
-    Adapters::Database::DatabaseConfig ServerApp::LoadDatabaseConfigFromFile()
-    {
-        const auto& cfg = config();
-        std::string dbHost = cfg.getString("database.host", "localhost");
-        int dbPort = cfg.getInt("database.port", 5432);
-        std::string dbname = cfg.getString("database.name", "allocation");
-        std::string user = cfg.getString("database.username", "user");
-        std::string password = cfg.getString("database.password", "password");
-
-        std::ostringstream oss;
-        oss << "host=" << dbHost << " port=" << dbPort << " dbname=" << dbname << " user=" << user
-            << " password=" << password;
-
-        Adapters::Database::DatabaseConfig config;
-        config.connTimeout = cfg.getInt("database.connection_timeout", 60);
-        config.connector = Poco::Data::PostgreSQL::Connector::KEY;
-        config.connectionString = oss.str();
-        return config;
-    }
-
-    Adapters::Redis::RedisConfig ServerApp::LoadRedisConfigFromFile()
-    {
-        const auto& cfg = config();
-        Adapters::Redis::RedisConfig result;
-        result.path = cfg.getString("redis.host", "localhost");
-        result.port = cfg.getInt("redis.port", 6379);
-        return result;
-    }
-
-    std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> ServerApp::LoadServerConfigFromFile()
-    {
-        const auto& cfg = config();
-        Poco::UInt16 port = cfg.getInt("server.port", 8080);
-        Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
-        pParams->setMaxQueued(cfg.getInt("server.max_queued", 100));
-        pParams->setMaxThreads(cfg.getInt("server.max_threads", 16));
-        pParams->setMaxKeepAliveRequests(cfg.getInt("server.max_connections", 100));
-        return {pParams, port};
     }
 }

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Precompile.hpp"
-
-#include "Adapters/Redis/ClientFactory.hpp"
+#include "Adapters/Redis/RedisConnectionPool.hpp"
 #include "Domain/Commands/AbstractCommand.hpp"
 #include "Utilities/Loggers/ILogger.hpp"
 
@@ -11,7 +9,7 @@ namespace Allocation::Entrypoints::Redis
 {
     /// @brief Концепт для обработчика Redis-сообщений.
     template <typename Handler>
-    concept RedisMessageHandler = requires(Handler h, std::string payload) {
+    concept RedisMessageHandler = requires(Handler h, const std::string& payload) {
         { h(payload) } -> std::same_as<void>;
     };
 
@@ -19,9 +17,10 @@ namespace Allocation::Entrypoints::Redis
     class RedisListener
     {
     public:
-        /// @brief Создаёт клиента Redis и настраивает асинхронного читателя.
+        /// @brief Создаёт клиента Redis и инициирует асинхронного читателя.
         RedisListener()
-            : _client(Adapters::Redis::ClientFactory::Instance().Create()), _reader(*_client)
+            : _connection(Adapters::Redis::RedisConnectionPool::Instance().GetConnection()),
+              _reader(*static_cast<Poco::Redis::Client::Ptr>(_connection))
         {
         }
 
@@ -39,17 +38,17 @@ namespace Allocation::Entrypoints::Redis
         void Stop() { _reader.stop(); };
 
         /// @brief Подписывается на канал Redis и регистрирует обработчик сообщений.
-        /// @tparam Handler Тип функции-обработчика (должен удовлетворять RedisMessageHandler).
-        /// @param channel Имя канала Redis.
-        /// @param handler Функция-обработчик, вызываемая при получении сообщения.
+        /// @tparam Handler Тип обработчика.
+        /// @param channel Имя канала подписки Redis.
+        /// @param handler Обработчик, вызываемый при получении сообщения.
         template <RedisMessageHandler Handler>
         void Subscribe(const std::string& channel, Handler&& handler)
         {
             Poco::Redis::Array subscribe;
             subscribe.add("SUBSCRIBE").add(channel);
 
-            _client->execute<void>(subscribe);
-            _client->flush();
+            static_cast<Poco::Redis::Client::Ptr>(_connection)->execute<void>(subscribe);
+            static_cast<Poco::Redis::Client::Ptr>(_connection)->flush();
             _handlers.try_emplace(channel, std::forward<Handler>(handler));
             _reader.redisResponse += Poco::delegate(this, &RedisListener::OnRedisMessage);
         }
@@ -99,13 +98,15 @@ namespace Allocation::Entrypoints::Redis
                 Allocation::Loggers::GetLogger()->Error(
                     "RedisListener exception: " + std::string(e.what()));
             }
+            catch (...)
+            {
+                Allocation::Loggers::GetLogger()->Error(
+                    "RedisListener exception: unknown exception");
+            }
         }
 
-        Poco::Redis::Client::Ptr _client;
+        Poco::Redis::PooledConnection _connection;
         Poco::Redis::AsyncReader _reader;
-
         std::unordered_map<std::string, std::function<void(const std::string&)>> _handlers;
     };
-
-    using RedisListenerPtr = std::shared_ptr<RedisListener>;
 }

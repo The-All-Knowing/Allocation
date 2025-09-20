@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Domain/Ports/IMessage.hpp"
 
 
@@ -10,7 +8,7 @@ namespace Allocation::Domain::Events
     /// @brief Абстрактное событие.
     struct AbstractEvent : public IMessage
     {
-        /// @brief Деструктор абстрактного события.
+        /// @brief Деструктор.
         ~AbstractEvent() override = default;
 
         /// @brief Возвращает тип сообщения.

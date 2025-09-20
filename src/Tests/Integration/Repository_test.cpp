@@ -1,11 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "Precompile.hpp"
-
-#include "Adapters/Database/Session/SessionPool.hpp"
 #include "Adapters/Repository/SqlRepository.hpp"
 #include "Tests/Utilities/DatabaseFixture_test.hpp"
-#include "Utilities/Common.hpp"
 
 
 namespace Allocation::Tests

@@ -5,8 +5,7 @@
 
 namespace Allocation::Domain
 {
-    /// @brief Интерфейс репозитория для работы с продуктами.
-    /// @note Необходимо использовать данный интерфейс при раборте с внешними системами.
+    /// @brief Интерфейс репозитория для работы с агрегатами-продуктами в хранилище.
     class IRepository
     {
     public:
@@ -16,18 +15,18 @@ namespace Allocation::Domain
         /// @brief Деструктор.
         virtual ~IRepository() = default;
 
-        /// @brief Добавляет/обновляет продукт в репозиторий.
-        /// @param product Продукт для добавления.
+        /// @brief Общий интерфейс для добавления или обновления агрегат-продукта.
+        /// @param product Агрегат-продукт для добавления или обновления.
         virtual void Add(Domain::ProductPtr product) = 0;
 
-        /// @brief Получает продукт из репозитория.
-        /// @param SKU Артикул продукта.
-        /// @return Найденный продукт или nullptr.
-        [[nodiscard]] virtual Domain::ProductPtr Get(const std::string& SKU) = 0;
+        /// @brief Возвращает агрегат-продукт по его артикулу.
+        /// @param sku Артикул товара.
+        /// @return Агрегат-продукт, если найден, иначе nullptr.
+        [[nodiscard]] virtual Domain::ProductPtr Get(const std::string& sku) = 0;
 
-        /// @brief Получает продукт из репозитория по ссылке партии.
-        /// @param batchRef Ссылка на партию.
-        /// @return Продукт с заданной ссылкой партии, иначе nullptr.
+        /// @brief Возвращает агрегат-продукт по идентификатору партии включённого в него.
+        /// @param batchRef Ссылка на партию заказа.
+        /// @return Агрегат-продукт, если найден, иначе nullptr.
         [[nodiscard]] virtual Domain::ProductPtr GetByBatchRef(const std::string& batchRef) = 0;
 
     private:

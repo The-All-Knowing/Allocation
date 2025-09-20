@@ -5,18 +5,18 @@
 
 namespace Allocation::Domain::Events
 {
-    /// @brief Событие "OutOfStock".
+    /// @brief Событие "Нет в наличии товара".
     struct OutOfStock final : public AbstractEvent
     {
-        /// @brief Конструктор события.
-        /// @param SKU Артикул товара.
-        OutOfStock(std::string SKU) : SKU(std::move(SKU)){};
+        /// @brief Конструктор.
+        /// @param sku Артикул товара которого нет в наличии.
+        OutOfStock(std::string sku) : sku(std::move(sku)){};
 
         /// @brief Возвращает имя события.
         /// @return Имя события.
         [[nodiscard]] std::string Name() const override { return "OutOfStock"; };
 
-        std::string SKU;
+        std::string sku;
     };
 
     /// @brief Читает аттрибуты события.
@@ -26,6 +26,6 @@ namespace Allocation::Domain::Events
     inline std::vector<EventAttribute> GetAttributes<OutOfStock>(EventPtr event)
     {
         auto p = std::static_pointer_cast<OutOfStock>(event);
-        return {{"SKU", p->SKU}};
+        return {{"sku", p->sku}};
     };
 }

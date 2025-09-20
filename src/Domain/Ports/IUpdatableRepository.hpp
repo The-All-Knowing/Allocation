@@ -5,24 +5,16 @@
 
 namespace Allocation::Domain
 {
-    /// @brief Интерфейс репозитория с поддержкой обновления и контроля версий.
-    ///
-    /// Предназначен для работы с изменяемыми агрегатами, состояние которых
-    /// необходимо синхронизировать с хранилищем. Поддерживает механизм оптимистической блокировки
-    /// (optimistic locking), что позволяет обнаруживать и предотвращать конфликты параллельных
-    /// изменений. Используется, например, в TrackingRepository или в рамках AbstractUnitOfWork.
+    /// @brief Расширенный интерфейс репозитория для обновления агрегатов.
     class IUpdatableRepository : public IRepository
     {
     public:
-        /// @brief Виртуальный деструктор.
+        /// @brief Деструктор.
         virtual ~IUpdatableRepository() = default;
 
-        /// @brief Обновляет продукт в репозитории с проверкой версии (optimistic locking).
-        /// @param product Продукт для обновления.
-        /// @param oldVersion Версия продукта, которая должна совпасть с текущей версией в хранилище
-        ///                   перед применением изменений.
-        /// @throw std::invalid_argument Если product == nullptr.
-        /// @throw std::runtime_error Если произошёл конфликт версий (версия в БД не совпала).
+        /// @brief Обновляет агрегат-продукт в репозитории.
+        /// @param product Агрегат-продукт для обновления.
+        /// @param oldVersion Изначальная версия агрегата, загруженная из репозитория.
         virtual void Update(ProductPtr product, int oldVersion) = 0;
 
     protected:

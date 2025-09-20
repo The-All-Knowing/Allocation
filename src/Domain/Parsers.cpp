@@ -8,6 +8,9 @@ namespace Allocation::Domain
     template <>
     IMessagePtr FromJson<Commands::CreateBatch>(Poco::JSON::Object::Ptr json)
     {
+        if (!json)
+            throw std::invalid_argument("JSON object is null");
+
         if (!json->has("ref") || !json->has("sku") || !json->has("qty"))
             throw std::invalid_argument("It doesn't have the required ref or sku or qty fields.");
 
@@ -45,6 +48,9 @@ namespace Allocation::Domain
     template <>
     IMessagePtr FromJson<Commands::Allocate>(Poco::JSON::Object::Ptr json)
     {
+        if (!json)
+            throw std::invalid_argument("JSON object is null");
+
         if (!json->has("orderid") || !json->has("sku") || !json->has("qty"))
             throw std::invalid_argument(
                 "It doesn't have the required orderid or sku or qty fields.");
@@ -66,6 +72,9 @@ namespace Allocation::Domain
     template <>
     IMessagePtr FromJson<Commands::ChangeBatchQuantity>(Poco::JSON::Object::Ptr json)
     {
+        if (!json)
+            throw std::invalid_argument("JSON object is null");
+            
         if (!json->has("batchref") || !json->has("qty"))
             throw std::invalid_argument("It doesn't have the required batchref or qty fields.");
 

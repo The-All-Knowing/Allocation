@@ -1,8 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
-
 namespace Allocation::Entrypoints::Rest::Handlers
 {
     /// @brief Обработчик health-check запроса.

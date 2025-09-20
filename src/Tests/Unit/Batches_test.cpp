@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include "Precompile.hpp"
-
 #include "Domain/Product/Batch.hpp"
 #include "Tests/Utilities/Common_test.hpp"
 

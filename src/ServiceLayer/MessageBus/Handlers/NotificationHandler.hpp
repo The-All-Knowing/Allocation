@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Domain/Events/AbstractEvent.hpp"
 
 
@@ -21,11 +19,16 @@ namespace Allocation::ServiceLayer::Handlers
     class NotificationHandler
     {
     public:
+        /// @brief Конструктор.
+        /// @param notifier Отправитель уведомлений.
         NotificationHandler(Notifier notifier = {}) : _notifier(std::move(notifier)) {}
 
+        /// @brief Отправляет уведомление.
+        /// @param event Событие "Нет в наличии товара".
+        /// @details В данном примере адрес получателя и текст сообщения захардкожены.
         void operator()(std::shared_ptr<Message> event) const
         {
-            _notifier("stock@made.com", std::format("Out of stock for {}", event->SKU));
+            _notifier("stock@made.com", std::format("Out of stock for {}", event->sku));
         }
 
     private:

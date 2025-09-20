@@ -1,13 +1,11 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Domain/Ports/IUpdatableRepository.hpp"
 
 
 namespace Allocation::Adapters::Repository
 {
-    /// @brief Репозиторий для отслеживания изменений продуктов.
+    /// @brief Репозиторий для отслеживания изменений агрегатов продуктов.
     class TrackingRepository final : public Domain::IUpdatableRepository
     {
     public:
@@ -15,34 +13,37 @@ namespace Allocation::Adapters::Repository
         /// @param repo Отслеживаемый репозиторий.
         TrackingRepository(Domain::IUpdatableRepository& repo);
 
-        /// @brief Добавляет или обновляет продукт в репозиторий и отслеживает его.
-        /// @param product Продукт для добавления или обновления.
+        /// @brief Общий интерфейс для добавления или обновления агрегат-продукта.
+        /// @param product Агрегат-продукт для добавления или обновления.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         void Add(Domain::ProductPtr product) override;
 
-        /// @brief Получает продукт из наблюдаемых по его SKU или загружает его.
-        /// @param SKU Артикул продукта.
-        /// @return Найденный продукт или nullptr.
-        [[nodiscard]] Domain::ProductPtr Get(const std::string& SKU) override;
+        /// @brief Возвращает агрегат-продукт по его артикулу.
+        /// @param sku Артикул товара.
+        /// @return Агрегат-продукт, если найден, иначе nullptr.
+        [[nodiscard]] Domain::ProductPtr Get(const std::string& sku) override;
 
-        /// @brief Получает продукт по ссылке партии из наблюдаемых или загружает его.
+        /// @brief Возвращает агрегат-продукт по идентификатору партии включённого в него.
         /// @param batchRef Ссылка на партию.
-        /// @return Найденный продукт или nullptr.
+        /// @return Агрегат-продукт, если найден, иначе nullptr.
         [[nodiscard]] Domain::ProductPtr GetByBatchRef(const std::string& batchRef) override;
 
-        /// @brief Получает все продукты, которые отслеживались в репозиторий.
+        /// @brief Получает все отслеживаемые агрегаты.
         /// @return Отслеживаемые продукты и их изначальные версии.
         [[nodiscard]] std::vector<std::pair<Domain::ProductPtr, int>> GetSeen() const noexcept;
 
         /// @brief Очищает все наблюдаемые продукты.
         void Clear() noexcept;
 
-        /// @brief Обновляет продукт в репозитории.
-        /// @param product Продукт для обновления.
-        /// @param oldVersion Прошлая версия продукта.
+        /// @brief Обновляет агрегат-продукт в репозитории.
+        /// @param product Агрегат-продукт для обновления.
+        /// @param oldVersion Изначальная версия агрегата, загруженная из репозитория.
+        /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         void Update(Domain::ProductPtr product, int oldVersion) override;
 
+    private:
         Domain::IUpdatableRepository& _repo;
-        std::unordered_map<std::string, std::pair<Domain::ProductPtr, int>> _seenAndOldVersion;
+        std::unordered_map<std::string, std::pair<Domain::ProductPtr, int>>
+            _skuToProductAndOldVersion;
     };
 }

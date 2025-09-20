@@ -47,6 +47,12 @@ namespace Allocation::ServiceLayer
         Handle(message, uow);
     }
 
+    void MessageBus::ClearHandlers() noexcept
+    {
+        _eventHandlers.clear();
+        _commandHandlers.clear();
+    }
+
     void MessageBus::HandleEvent(Domain::IUnitOfWork& uow, Domain::Events::EventPtr event,
         std::queue<Domain::IMessagePtr>& queue) noexcept
     {

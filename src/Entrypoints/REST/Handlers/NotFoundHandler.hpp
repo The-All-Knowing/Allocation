@@ -1,11 +1,8 @@
 #pragma once
 
-#include "Precompile.hpp"
-
-
 namespace Allocation::Entrypoints::Rest::Handlers
 {
-    /// @brief Обработчик запросов для несуществующих маршрутов (404 Not Found).
+    /// @brief Обработчик запросов для несуществующих маршрутов.
     class NotFoundHandler final : public Poco::Net::HTTPRequestHandler
     {
     public:

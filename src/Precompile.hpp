@@ -42,6 +42,7 @@
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Redis/AsyncReader.h>
 #include <Poco/Redis/Command.h>
+#include <Poco/Redis/PoolableConnectionFactory.h>
 #include <Poco/Redis/Redis.h>
 #include <Poco/Redis/Type.h>
 #include <Poco/UUIDGenerator.h>

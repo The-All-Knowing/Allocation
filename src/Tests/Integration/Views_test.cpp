@@ -5,7 +5,6 @@
 #include <gmock/gmock.h>
 
 #include "Adapters/Database/Mappers/ProductMapper.hpp"
-#include "Adapters/Database/Session/SessionPool.hpp"
 #include "Domain/Commands/Allocate.hpp"
 #include "Domain/Commands/ChangeBatchQuantity.hpp"
 #include "Domain/Commands/CreateBatch.hpp"
@@ -42,10 +41,10 @@ namespace Allocation::Tests
             views, UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "sku1batch"),
                        std::pair<std::string, std::string>("sku2", "sku2batch")));
 
-        CleanupForReference("sku1batch");
-        CleanupForReference("sku2batch");
-        CleanupForSku("sku1");
-        CleanupForSku("sku2");
+        CleanupProduct("sku1");
+        CleanupProduct("sku2");
+        CleanupViewModel("sku1batch"); 
+        CleanupViewModel("sku2batch"); 
     }
 
     TEST_F(Views_Fixture, test_deallocation)
@@ -64,8 +63,8 @@ namespace Allocation::Tests
         EXPECT_THAT(views, UnorderedElementsAre(std::pair<std::string, std::string>("sku1", "b1"),
                                std::pair<std::string, std::string>("sku1", "b2")));
 
-        CleanupForReference("b1");
-        CleanupForReference("b2");
-        CleanupForSku("sku1");
+        CleanupProduct("sku1");
+        CleanupViewModel("b1");
+        CleanupViewModel("b2");
     }
 }

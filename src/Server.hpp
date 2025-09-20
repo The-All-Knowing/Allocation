@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Adapters/Database/DatabaseConfig.hpp"
 #include "Adapters/Redis/RedisConfig.hpp"
 #include "Entrypoints/Redis/RedisListener.hpp"
@@ -40,7 +38,7 @@ namespace Allocation
         void HandlePathToConfig(const std::string& name, const std::string& path);
 
         /// @brief Запускает основной цикл сервера.
-        void StartServer();
+        void StartMainCycle();
 
         /// @brief Инициализирует параметры сервера.
         void InitServer();
@@ -48,28 +46,16 @@ namespace Allocation
         /// @brief Инициализирует шину сообщений.
         void InitMessageBus();
 
-        /// @brief Инициализирует базу данных.
+        /// @brief Инициализирует подключение к базе данных.
         void InitDatabase();
 
-        /// @brief Инициализирует Redis.
+        /// @brief Инициализирует подключение к Redis.
         void InitRedis();
 
-        /// @brief Загружает параметры БД из файла конфига.
-        /// @return Конфигурация подключения к СУБД.
-        Adapters::Database::DatabaseConfig LoadDatabaseConfigFromFile();
-
-        /// @brief Загружает параметры Redis из файла конфига.
-        /// @return Конфигурация подключения к Redis.
-        Adapters::Redis::RedisConfig LoadRedisConfigFromFile();
-
-        /// @brief Загружает конфигурацию сервера из файла.
-        /// @return Параметры сервера, порт.
-        std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> LoadServerConfigFromFile();
-
         bool _helpRequested{false};
-        Poco::File _configFile;
+        Poco::Path _configFile;
         Poco::Net::HTTPServerParams* _serverParameters;
         Poco::UInt16 _port;
-        Entrypoints::Redis::RedisListenerPtr _redisListener;
+        std::unique_ptr<Entrypoints::Redis::RedisListener> _redisListener;
     };
 }

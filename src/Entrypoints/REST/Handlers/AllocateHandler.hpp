@@ -1,11 +1,8 @@
 #pragma once
 
-#include "Precompile.hpp"
-
-
 namespace Allocation::Entrypoints::Rest::Handlers
 {
-    /// @brief Обрабатывает HTTP-запрос на выделение заказа в партии товара.
+    /// @brief Обрабатывает HTTP-запрос на распределение позиции заказа в партии заказа.
     class AllocateHandler final : public Poco::Net::HTTPRequestHandler
     {
     public:

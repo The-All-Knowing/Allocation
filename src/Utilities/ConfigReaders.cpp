@@ -41,7 +41,7 @@ namespace Allocation
             REDIS_PORT = std::stoi(Poco::Environment::get("REDIS_PORT"));
 
         Adapters::Redis::RedisConfig result;
-        result.path = REDIS_HOST;
+        result.hostname = REDIS_HOST;
         result.port = REDIS_PORT;
         return result;
     }
@@ -62,5 +62,44 @@ namespace Allocation
         pParams->setMaxThreads(16);
         pParams->setMaxKeepAliveRequests(ALLOCATION_MAX_CONNECTIONS);
         return {pParams, ALLOCATION_PORT};
+    }
+
+    Adapters::Database::DatabaseConfig LoadDatabaseConfigFromFile(
+        Poco::Util::LayeredConfiguration& cfg)
+    {
+        auto dbHost = cfg.getString("database.host", "localhost");
+        auto dbPort = cfg.getInt("database.port", 5432);
+        auto dbname = cfg.getString("database.name", "allocation");
+        auto user = cfg.getString("database.username", "user");
+        auto password = cfg.getString("database.password", "password");
+
+        std::ostringstream oss;
+        oss << "host=" << dbHost << " port=" << dbPort << " dbname=" << dbname << " user=" << user
+            << " password=" << password;
+
+        Adapters::Database::DatabaseConfig config;
+        config.connTimeout = cfg.getInt("database.connection_timeout", 60);
+        config.connector = Poco::Data::PostgreSQL::Connector::KEY;
+        config.connectionString = oss.str();
+        return config;
+    }
+
+    Adapters::Redis::RedisConfig LoadRedisConfigFromFile(Poco::Util::LayeredConfiguration& cfg)
+    {
+        Adapters::Redis::RedisConfig result;
+        result.hostname = cfg.getString("redis.host", "localhost");
+        result.port = cfg.getInt("redis.port", 6379);
+        return result;
+    }
+
+    std::pair<Poco::Net::HTTPServerParams*, Poco::UInt16> LoadServerConfigFromFile(
+        Poco::Util::LayeredConfiguration& cfg)
+    {
+        Poco::UInt16 port = cfg.getInt("server.port", 8080);
+        Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
+        pParams->setMaxQueued(cfg.getInt("server.max_queued", 100));
+        pParams->setMaxThreads(cfg.getInt("server.max_threads", 16));
+        pParams->setMaxKeepAliveRequests(cfg.getInt("server.max_connections", 100));
+        return {pParams, port};
     }
 }

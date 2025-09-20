@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(allocation LANGUAGES CXX)
 
 SET(CMAKE_CXX_STANDARD 23)
@@ -16,6 +16,7 @@ include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories(${PROJECT_NAME}_unittest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories(${PROJECT_NAME}_unittest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC Poco::Poco)
+target_precompile_headers(${PROJECT_NAME}_objs PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/src/Precompile.hpp>")
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)

@@ -12,14 +12,18 @@ namespace Allocation::Adapters::Repository
         _mapper.Insert(product);
     }
 
-    Domain::ProductPtr SqlRepository::Get(const std::string& SKU)
+    Domain::ProductPtr SqlRepository::Get(const std::string& sku)
     {
-        return _mapper.FindBySKU(std::string(SKU));
+        if (sku.empty())
+            return nullptr;
+        return _mapper.FindBySKU(sku);
     }
 
     Domain::ProductPtr SqlRepository::GetByBatchRef(const std::string& batchRef)
     {
-        return _mapper.FindByBatchRef(std::string(batchRef));
+        if (batchRef.empty())
+            return nullptr;
+        return _mapper.FindByBatchRef(batchRef);
     }
 
     void SqlRepository::Update(Domain::ProductPtr product, int oldVersion)
@@ -27,6 +31,6 @@ namespace Allocation::Adapters::Repository
         if (!product)
             throw std::invalid_argument("The nullptr product");
         if (!_mapper.Update(product, oldVersion))
-            std::runtime_error("Could not serialize access due to concurrent update");
+            throw std::runtime_error("Could not serialize access due to concurrent update");
     }
 }

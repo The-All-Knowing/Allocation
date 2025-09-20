@@ -3,7 +3,8 @@
 
 namespace Allocation
 {
-    std::optional<std::chrono::year_month_day> Convert(Poco::Nullable<Poco::DateTime> date) noexcept
+    std::optional<std::chrono::year_month_day> Convert(
+        Poco::Nullable<Poco::DateTime> date) noexcept
     {
         std::optional<std::chrono::year_month_day> result;
         if (date.isNull())
@@ -16,7 +17,8 @@ namespace Allocation
         return result;
     }
 
-    Poco::Nullable<Poco::DateTime> Convert(std::optional<std::chrono::year_month_day> date) noexcept
+    Poco::Nullable<Poco::DateTime> Convert(
+        std::optional<std::chrono::year_month_day> date) noexcept
     {
         Poco::Nullable<Poco::DateTime> result;
         if (!date.has_value())
@@ -33,7 +35,7 @@ namespace Allocation
     std::chrono::year_month_day operator+(
         const std::chrono::year_month_day& ymd, const std::chrono::days& days) noexcept
     {
-        return std::chrono::sys_days(ymd) + days;
+        return std::chrono::year_month_day{std::chrono::sys_days{ymd} + days};
     }
 
     std::chrono::year_month_day operator+(

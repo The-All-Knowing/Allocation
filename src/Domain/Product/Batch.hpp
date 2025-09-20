@@ -1,87 +1,86 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "OrderLine.hpp"
 
 
 namespace Allocation::Domain
 {
-    /// @brief Представляет партию продуктов для распределения.
+    /// @brief Представляет партию заказа продукции для распределения.
     class Batch
     {
     public:
-        /// @brief Конструктор для создания партии продуктов.
-        /// @param reference Ссылка на партию.
-        /// @param SKU Артикул продукта.
-        /// @param quantity Количество продукта в партии.
-        /// @param ETA Ожидаемая дата поставки.
-        Batch(const std::string& reference, const std::string& SKU, size_t quantity,
-            std::optional<std::chrono::year_month_day> ETA = std::nullopt);
+        /// @brief Конструктор.
+        /// @param reference Ссылка партии заказа.
+        /// @param sku Артикул продукции.
+        /// @param quantity Количество продукции в партии.
+        /// @param eta Ожидаемая дата поставки.
+        Batch(const std::string& reference, const std::string& sku, size_t quantity,
+            std::optional<std::chrono::year_month_day> eta = std::nullopt);
 
-        /// @brief Присваивает значение объекту.
+        /// @brief Копирующий оператор присваивания.
         /// @param other Другой объект.
         /// @return Текущий объект.
         Batch& operator=(const Batch& other) = default;
 
-        /// @brief Устанавливает количество приобретенных товаров в партии.
+        /// @brief Устанавливает количество продукции в партии.
         /// @param newQty Новое количество.
         void SetPurchasedQuantity(size_t newQty) noexcept;
 
-        /// @brief Проверяет, можно ли выделить линию заказа из партии.
-        /// @param line Линия заказа для проверки.
-        /// @return true, если выделение возможно; в противном случае - false.
+        /// @brief Проверяет, можно ли распределить позицию заказа в партии.
+        /// @param line Позиция заказа для проверки.
+        /// @return true, если распределение возможно; в противном случае - false.
         [[nodiscard]] bool CanAllocate(const OrderLine& line) const noexcept;
 
-        /// @brief Выделяет линию заказа из партии.
-        /// @param line Линия заказа для выделения.
+        /// @brief Распределяет позицию заказа в партии.
+        /// @param line Позиция заказа для распределения.
         void Allocate(const OrderLine& line) noexcept;
 
-        /// @brief Освобождает линию заказа из партии.
-        /// @return Освобожденная линия заказа.
-        /// @throw std::runtime_error Выбрасывается, если изъяты все строки заказов.
+        /// @brief Отменяет распределение одной позиции заказа в партии.
+        /// @return Отменённая позиция заказа.
+        /// @throw std::runtime_error Выбрасывается, если отменены все позиции заказов.
         [[nodiscard]] OrderLine DeallocateOne();
 
-        /// @brief Возвращает количество выделенных товаров в партии.
-        /// @return Количество выделенных товаров.
+        /// @brief Возвращает количество распределённых товаров в партии.
+        /// @return Количество распределённой продукции в партии.
         [[nodiscard]] int GetAllocatedQuantity() const noexcept;
 
-        /// @brief Возвращает доступное количество продуктов в партии.
-        /// @return Доступное количество продуктов.
+        /// @brief Возвращает доступное количество продукции в партии.
+        /// @return Доступное количество продукции в партии.
         [[nodiscard]] int GetAvailableQuantity() const noexcept;
 
-        /// @brief Возвращает количество продуктов в партии.
-        /// @return Количество продуктов в партии.
+        /// @brief Возвращает количество продукции в партии заказа.
+        /// @return Количество продукции в партии.
         [[nodiscard]] int GetPurchasedQuantity() const noexcept;
 
-        /// @brief Возвращает ссылку на партию.
-        /// @return Ссылка на партию.
+        /// @brief Возвращает ссылку партии заказа.
+        /// @return Ссылка партии заказа.
         [[nodiscard]] std::string GetReference() const noexcept;
 
         /// @brief Возвращает ожидаемую дату поставки.
         /// @return Ожидаемая дата поставки.
         [[nodiscard]] std::optional<std::chrono::year_month_day> GetETA() const noexcept;
 
-        /// @brief Возвращает артикул продукта.
-        /// @return Артикул продукта.
+        /// @brief Возвращает артикул продукции.
+        /// @return Артикул продукции.
         [[nodiscard]] std::string GetSKU() const noexcept;
 
-        /// @brief Возвращает все выделенные линии заказа для данной партии.
-        /// @return Вектор выделенных линий заказа.
+        /// @brief Возвращает все распределённые позиции заказа для данной партии.
+        /// @return Распределённых позиций заказа в партии.
         [[nodiscard]] std::vector<OrderLine> GetAllocations() const noexcept;
-
-        /// @brief Сравнивает партии по всем атрибутам.
-        /// @param other Правая партия.
-        /// @return true, если партии равны; в противном случае - false.
-        bool operator==(const Batch& other) const = default;
 
     private:
         std::string _reference;
-        std::string _SKU;
+        std::string _sku;
         size_t _purchasedQuantity;
-        std::optional<std::chrono::year_month_day> _ETA;
-        std::set<OrderLine> _allocations;
+        std::optional<std::chrono::year_month_day> _eta;
+        std::unordered_set<OrderLine> _allocations;
     };
+
+    /// @brief Сравнивает партии по ссылкам партий заказов.
+    /// @param lhs Левая партия.
+    /// @param rhs Правая партия.
+    /// @return true, если ссылки партий равны; в противном случае - false.
+    bool operator==(const Batch& lhs, const Batch& rhs) noexcept;
 
     /// @brief Сравнивает партии по ожидаемой дате поставки.
     /// @param lhs Левая партия.

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Commands/Allocate.hpp"
 #include "Commands/ChangeBatchQuantity.hpp"
 #include "Commands/CreateBatch.hpp"
@@ -9,11 +7,7 @@
 
 namespace Allocation::Domain
 {
-    /// @brief Универсальный шаблон преобразования JSON в доменный объект.
-    ///
-    /// Базовый шаблон является заглушкой и должен быть специализирован для
-    /// конкретных доменных типов.
-    /// @endcode
+    /// @brief Шаблонная функция для парсинга JSON в доменный объект.
     template <typename T>
     IMessagePtr FromJson(Poco::JSON::Object::Ptr)
     {
@@ -21,24 +15,24 @@ namespace Allocation::Domain
         return {};
     }
 
-    /// @brief Преобразует JSON-объект в команду CreateBatch.
+    /// @brief Парсит JSON-объект в команду "Создать партию заказа".
     /// @param json JSON-объект с полями ref, sku, qty и опционально eta.
     /// @throw std::invalid_argument если отсутствуют обязательные поля или они некорректны.
-    /// @return Умный указатель на команду CreateBatch.
+    /// @return Команда "Создать партию заказа".
     template <>
     IMessagePtr FromJson<Commands::CreateBatch>(Poco::JSON::Object::Ptr json);
 
-    /// @brief Преобразует JSON-объект в команду Allocate.
+    /// @brief Парсит JSON-объект в команду "Распределить позицию заказа".
     /// @param json JSON-объект с полями orderid, sku и qty.
     /// @throw std::invalid_argument если отсутствуют обязательные поля или они некорректны.
-    /// @return Умный указатель на команду Allocate.
+    /// @return Команда "Распределить позицию заказа".
     template <>
     IMessagePtr FromJson<Commands::Allocate>(Poco::JSON::Object::Ptr json);
 
-    /// @brief Преобразует JSON-объект в команду ChangeBatchQuantity.
+    /// @brief Парсит JSON-объект в команду "Изменить количество товара в партии заказа".
     /// @param json JSON-объект с полями batchref и qty.
     /// @throw std::invalid_argument если отсутствуют обязательные поля или они некорректны.
-    /// @return Умный указатель на команду ChangeBatchQuantity.
+    /// @return Команда "Изменить количество товара в партии заказа".
     template <>
     IMessagePtr FromJson<Commands::ChangeBatchQuantity>(Poco::JSON::Object::Ptr json);
 }

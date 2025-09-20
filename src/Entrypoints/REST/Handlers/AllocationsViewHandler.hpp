@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Precompile.hpp"
-
-
 namespace Allocation::Entrypoints::Rest::Handlers
 {
-    /// @brief Обрабатывает HTTP-запрос на получение партии и артикула товара.
+    /// @brief Обрабатывает HTTP-запрос на получение партий заказа и артикула товаров в которых
+    /// клиентский заказ.
     class AllocationsViewHandler final : public Poco::Net::HTTPRequestHandler
     {
     public:

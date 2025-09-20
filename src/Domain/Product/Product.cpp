@@ -9,42 +9,56 @@
 namespace Allocation::Domain
 {
     Product::Product(
-        const std::string& SKU, const std::vector<Batch>& batches, size_t versionNumber, bool isNew)
-        : _sku(SKU), _versionNumber(versionNumber), _isModify(isNew)
+        const std::string& sku, const std::vector<Batch>& batches, size_t versionNumber, bool isNew)
+        : _sku(sku), _versionNumber(versionNumber), _isModified(isNew)
     {
         for (const auto& batch : batches)
             _referenceByBatches.insert({batch.GetReference(), batch});
     }
 
-    bool Product::IsModified() const noexcept { return _isModify; }
+    void Product::SetModified(bool modified) noexcept { _isModified = modified; }
 
-    bool Product::AddBatch(const Batch& batch) noexcept
+    bool Product::IsModified() const noexcept { return _isModified; }
+
+    bool Product::AddBatch(const Batch& batch)
     {
+        if (batch.GetSKU() != _sku)
+            throw std::invalid_argument("Batch SKU does not match Product SKU");
+
         if (_referenceByBatches.contains(batch.GetReference()))
             return false;
-        _referenceByBatches.insert({batch.GetReference(), batch});
-        _modifiedBatchRefs.insert(batch.GetReference());
-        _isModify = true;
+        auto batchRef = batch.GetReference();
+        _referenceByBatches.insert({batchRef, batch});
+        _modifiedBatchRefs.insert(batchRef);
+        _isModified = true;
         return true;
     }
 
-    bool Product::AddBatches(const std::vector<Batch>& batches) noexcept
+    bool Product::AddBatches(const std::vector<Batch>& batches)
     {
         for (const auto& batch : batches)
+        {
+            if (batch.GetSKU() != _sku)
+                throw std::invalid_argument("Batch SKU does not match Product SKU");
             if (_referenceByBatches.contains(batch.GetReference()))
                 return false;
+        }
 
         for (const auto& batch : batches)
         {
-            _referenceByBatches.insert({batch.GetReference(), batch});
-            _modifiedBatchRefs.insert(batch.GetReference());
+            auto batchRef = batch.GetReference();
+            _referenceByBatches.insert({batchRef, batch});
+            _modifiedBatchRefs.insert(batchRef);
         }
-        _isModify = true;
+        _isModified = true;
         return true;
     }
 
     std::optional<std::string> Product::Allocate(const OrderLine& line)
     {
+        if (line.sku != _sku)
+            throw std::invalid_argument("OrderLine SKU does not match Product SKU");
+
         if (_referenceByBatches.empty())
             return std::nullopt;
 
@@ -60,35 +74,37 @@ namespace Allocation::Domain
             if (!batch->CanAllocate(line))
                 continue;
 
+            auto batchRef = batch->GetReference();
             batch->Allocate(line);
             _versionNumber++;
-            _modifiedBatchRefs.insert(batch->GetReference());
-            _isModify = true;
+            _modifiedBatchRefs.insert(batchRef);
+            _isModified = true;
             _messages.push_back(std::make_shared<Events::Allocated>(
-                line.reference, line.SKU, line.quantity, batch->GetReference()));
-            return batch->GetReference();
+                line.reference, line.sku, line.quantity, batchRef));
+            return batchRef;
         }
 
-        _messages.push_back(std::make_shared<Events::OutOfStock>(line.SKU));
+        _messages.push_back(std::make_shared<Events::OutOfStock>(line.sku));
         return std::nullopt;
     }
 
-    void Product::ChangeBatchQuantity(const std::string& ref, size_t newQty)
+    bool Product::ChangeBatchQuantity(const std::string& ref, size_t newQty)
     {
         auto it = _referenceByBatches.find(ref);
         if (it == _referenceByBatches.end())
-            return;
+            return false;
         auto& batch = it->second;
         batch.SetPurchasedQuantity(newQty);
         _modifiedBatchRefs.insert(batch.GetReference());
-        _isModify = true;
+        _isModified = true;
 
         while (batch.GetAvailableQuantity() < 0)
         {
             auto order = batch.DeallocateOne();
             _messages.push_back(
-                std::make_shared<Events::Deallocated>(order.reference, order.SKU, order.quantity));
+                std::make_shared<Events::Deallocated>(order.reference, order.sku, order.quantity));
         }
+        return true;
     }
 
     std::vector<Batch> Product::GetBatches() const noexcept
@@ -100,9 +116,9 @@ namespace Allocation::Domain
         return result;
     }
 
-    std::optional<Batch> Product::GetBatch(const std::string& reference) const noexcept
+    std::optional<Batch> Product::GetBatch(const std::string& batchReference) const noexcept
     {
-        if (auto it = _referenceByBatches.find(reference); it != _referenceByBatches.end())
+        if (auto it = _referenceByBatches.find(batchReference); it != _referenceByBatches.end())
             return it->second;
 
         return std::nullopt;

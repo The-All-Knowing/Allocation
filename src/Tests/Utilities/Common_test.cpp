@@ -4,10 +4,10 @@
 namespace Allocation::Tests
 {
     std::pair<Domain::Batch, Domain::OrderLine> MakeBatchAndLine(
-        const std::string& SKU, size_t batchQty, size_t lineQty)
+        const std::string& sku, size_t batchQty, size_t lineQty)
     {
-        return {Domain::Batch("batch-001", SKU, batchQty),
-            Domain::OrderLine("order-123", SKU, lineQty)};
+        return {Domain::Batch("batch-001", sku, batchQty),
+            Domain::OrderLine("order-123", sku, lineQty)};
     }
 
     std::string RandomSuffix()

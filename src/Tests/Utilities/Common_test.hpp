@@ -1,20 +1,18 @@
 #pragma once
 
-#include "Precompile.hpp"
-
 #include "Domain/Product/Batch.hpp"
 #include "gtest/gtest-assertion-result.h"
 
 
 namespace Allocation::Tests
 {
-    /// @brief Создаёт партию и строку заказа.
-    /// @param SKU Артикул.
-    /// @param batchQty Количество в партии.
-    /// @param lineQty Количество в строке заказа.
-    /// @return Пара (партия, строка заказа).
+    /// @brief Создаёт партию заказа и позицию заказа.
+    /// @param sku Артикул продукции.
+    /// @param batchQty Количество продукции в партии заказа.
+    /// @param lineQty Количество в продукции в позиции заказа.
+    /// @return Пара: партия заказа - позиция заказа.
     std::pair<Domain::Batch, Domain::OrderLine> MakeBatchAndLine(
-        const std::string& SKU, size_t batchQty, size_t lineQty);
+        const std::string& sku, size_t batchQty, size_t lineQty);
 
     /// @brief Проверяет, выбрасывает ли функция ожидаемое исключение с заданным сообщением.
     /// @tparam Exception Тип ожидаемого исключения.
