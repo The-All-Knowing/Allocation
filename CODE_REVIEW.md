@@ -103,7 +103,28 @@ _skuToProductAndOldVersion.insert({product->GetSKU(), {product, product->GetVers
 }
 ```
 
-### 6. **СРЕДНЕ: Отсутствие проверки инвариантов**
+### 6. **ВЫСОКО: Несоответствие типов для версий**
+
+**Файлы**: `src/Domain/Ports/IUpdatableRepository.hpp`, `src/Adapters/Repository/TrackingRepository.cpp`
+
+**Проблема**: Версии продуктов имеют несовместимые типы в разных частях системы
+```cpp
+// Product.hpp - использует size_t (unsigned)
+[[nodiscard]] size_t GetVersion() const noexcept;
+
+// IUpdatableRepository.hpp - использует int (signed) 
+virtual void Update(ProductPtr product, int oldVersion) = 0;
+
+// TrackingRepository.cpp - может привести к signed/unsigned conversion
+void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
+{
+    // Проблема: сравнение product->GetVersion() (size_t) с oldVersion (int)
+}
+```
+
+**Рекомендация**: Использовать `size_t` везде для версий, поскольку версии логически не могут быть отрицательными
+
+### 7. **СРЕДНЕ: Отсутствие проверки инвариантов**
 
 **Файл**: `src/Adapters/Repository/TrackingRepository.cpp`
 
@@ -120,7 +141,7 @@ void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
 }
 ```
 
-### 7. **СРЕДНЕ: Проблемы с exception safety**
+### 8. **СРЕДНЕ: Проблемы с exception safety**
 
 **Файл**: `src/ServiceLayer/UoW/SqlUnitOfWork.hpp`
 
@@ -184,7 +205,7 @@ void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
 }
 ```
 
-### 8. **СРЕДНЕ: Проблемы с CMake конфигурацией**
+### 9. **СРЕДНЕ: Проблемы с CMake конфигурацией**
 
 **Файл**: `CMakeLists.txt`
 
@@ -196,7 +217,7 @@ file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[hc]pp)
 
 **Рекомендация**: Явно перечислить исходные файлы или использовать подкаталоги с отдельными CMakeLists.txt
 
-### 9. **НИЗКО: Избыточное использование shared_ptr**
+### 10. **НИЗКО: Избыточное использование shared_ptr**
 
 **Файлы**: Различные handler'ы в MessageBus  
 

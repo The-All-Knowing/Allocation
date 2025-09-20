@@ -206,7 +206,69 @@ class SqlUnitOfWork final : public ISqlUnitOfWork
 };
 ```
 
-## 4. Добавление валидации в TrackingRepository
+## 4. Исправление несоответствия типов для версий
+
+### Текущая проблема:
+```cpp
+// Product.hpp - использует size_t
+[[nodiscard]] size_t GetVersion() const noexcept;
+
+// IUpdatableRepository.hpp - использует int
+virtual void Update(ProductPtr product, int oldVersion) = 0;
+```
+
+### Предлагаемое решение:
+
+```cpp
+// В IUpdatableRepository.hpp
+namespace Allocation::Domain
+{
+    class IUpdatableRepository : public IRepository
+    {
+    public:
+        /// @brief Обновляет агрегат-продукт в репозитории.
+        /// @param product Агрегат-продукт для обновления.
+        /// @param oldVersion Изначальная версия агрегата, загруженная из репозитория.
+        virtual void Update(ProductPtr product, size_t oldVersion) = 0;
+    };
+}
+
+// В TrackingRepository.hpp
+void Update(Domain::ProductPtr product, size_t oldVersion) override;
+
+// В SqlRepository.hpp  
+void Update(Domain::ProductPtr product, size_t oldVersion) override;
+
+// В TrackingRepository.cpp
+void TrackingRepository::Update(Domain::ProductPtr product, size_t oldVersion)
+{
+    if (!product) {
+        throw std::invalid_argument("Product cannot be null");
+    }
+    
+    // Теперь типы совместимы - оба size_t
+    if (product->GetVersion() <= oldVersion) {
+        throw std::logic_error(
+            "Product version (" + std::to_string(product->GetVersion()) + 
+            ") must be greater than old version (" + std::to_string(oldVersion) + ")"
+        );
+    }
+    
+    if (!product->IsModified()) {
+        return;
+    }
+    
+    try {
+        _repo.Update(product, oldVersion);
+        product->SetModified(false);
+    } catch (const std::exception& e) {
+        // TODO: Add logging
+        throw;
+    }
+}
+```
+
+## 5. Добавление валидации в TrackingRepository
 
 ### Предлагаемое решение:
 ```cpp
@@ -243,7 +305,7 @@ void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
 }
 ```
 
-## 5. Улучшение CMake конфигурации
+## 6. Улучшение CMake конфигурации
 
 ### Текущая проблема:
 ```cmake
@@ -281,6 +343,7 @@ set(ALL_SOURCES ${DOMAIN_SOURCES} ${SERVICE_LAYER_SOURCES} ${ADAPTER_SOURCES})
 1. **Thread Safety**: Добавление мьютексов и atomic переменных
 2. **Exception Safety**: Proper RAII и exception handling
 3. **Architecture**: Соблюдение принципов чистой архитектуры
-4. **Robustness**: Добавление валидации и проверок
+4. **Type Safety**: Консистентное использование типов для версий
+5. **Robustness**: Добавление валидации и проверок
 
 Рекомендуется внедрять эти изменения постепенно, с тщательным тестированием каждого исправления.
