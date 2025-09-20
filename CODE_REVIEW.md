@@ -103,26 +103,39 @@ _skuToProductAndOldVersion.insert({product->GetSKU(), {product, product->GetVers
 }
 ```
 
-### 6. **ВЫСОКО: Несоответствие типов для версий**
+### 6. **СРЕДНЕ: Ограничения валидации версий с учетом Poco::Data**
 
-**Файлы**: `src/Domain/Ports/IUpdatableRepository.hpp`, `src/Adapters/Repository/TrackingRepository.cpp`
+**Файлы**: `src/Domain/Product/Product.hpp`, `src/Adapters/Database/Mappers/ProductMapper.cpp`
 
-**Проблема**: Версии продуктов имеют несовместимые типы в разных частях системы
+**Проблема**: Версии продуктов используют разные типы, но это обусловлено ограничениями Poco::Data
 ```cpp
-// Product.hpp - использует size_t (unsigned)
+// Product.hpp - внутреннее представление использует size_t
 [[nodiscard]] size_t GetVersion() const noexcept;
 
-// IUpdatableRepository.hpp - использует int (signed) 
-virtual void Update(ProductPtr product, int oldVersion) = 0;
+// ProductMapper.cpp - для совместимости с PostgreSQL INTEGER и Poco::Data
+int version = product->GetVersion(); // неявное приведение size_t -> int
 
-// TrackingRepository.cpp - может привести к signed/unsigned conversion
-void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
-{
-    // Проблема: сравнение product->GetVersion() (size_t) с oldVersion (int)
-}
+// Database schema (db-1.sql)
+version_number INTEGER NOT NULL DEFAULT 0  -- PostgreSQL INTEGER = 32-bit signed
 ```
 
-**Рекомендация**: Использовать `size_t` везде для версий, поскольку версии логически не могут быть отрицательными
+**Анализ**: Использование `int` в интерфейсах репозитория оправдано из-за:
+1. PostgreSQL INTEGER (32-bit signed) в схеме БД  
+2. Poco::Data требует соответствия типов C++ и БД для `use()`/`into()`
+3. Приведение `size_t` -> `int` может быть безопасным для разумных номеров версий
+
+**Рекомендация**: Добавить проверки вместо изменения типов:
+```cpp
+void Update(ProductPtr product, int oldVersion) {
+    if (oldVersion < 0) 
+        throw std::invalid_argument("Version cannot be negative");
+    
+    // Проверка переполнения при приведении size_t -> int
+    auto productVersion = product->GetVersion();
+    if (productVersion > static_cast<size_t>(std::numeric_limits<int>::max()))
+        throw std::overflow_error("Product version exceeds int range");
+}
+```
 
 ### 7. **СРЕДНЕ: Отсутствие проверки инвариантов**
 

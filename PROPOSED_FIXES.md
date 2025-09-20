@@ -206,50 +206,51 @@ class SqlUnitOfWork final : public ISqlUnitOfWork
 };
 ```
 
-## 4. Исправление несоответствия типов для версий
+## 4. Улучшение валидации версий с учетом ограничений Poco::Data
 
-### Текущая проблема:
+### Текущая ситуация:
 ```cpp
-// Product.hpp - использует size_t
+// Product.hpp - внутреннее представление
 [[nodiscard]] size_t GetVersion() const noexcept;
 
-// IUpdatableRepository.hpp - использует int
-virtual void Update(ProductPtr product, int oldVersion) = 0;
+// ProductMapper.cpp - ограничение Poco::Data и PostgreSQL INTEGER
+int version = product->GetVersion(); // неявное приведение
+
+// Database schema
+version_number INTEGER NOT NULL DEFAULT 0  -- 32-bit signed
 ```
+
+### Анализ проблемы:
+Первоначальная рекомендация изменить все на `size_t` неприменима из-за:
+1. PostgreSQL INTEGER (32-bit signed) в схеме БД
+2. Poco::Data требует соответствия типов для `use()`/`into()`
+3. Изменение схемы БД повлияет на существующие данные
 
 ### Предлагаемое решение:
 
 ```cpp
-// В IUpdatableRepository.hpp
-namespace Allocation::Domain
-{
-    class IUpdatableRepository : public IRepository
-    {
-    public:
-        /// @brief Обновляет агрегат-продукт в репозитории.
-        /// @param product Агрегат-продукт для обновления.
-        /// @param oldVersion Изначальная версия агрегата, загруженная из репозитория.
-        virtual void Update(ProductPtr product, size_t oldVersion) = 0;
-    };
-}
-
-// В TrackingRepository.hpp
-void Update(Domain::ProductPtr product, size_t oldVersion) override;
-
-// В SqlRepository.hpp  
-void Update(Domain::ProductPtr product, size_t oldVersion) override;
-
-// В TrackingRepository.cpp
-void TrackingRepository::Update(Domain::ProductPtr product, size_t oldVersion)
+// В TrackingRepository.cpp - добавляем безопасные проверки
+void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
 {
     if (!product) {
         throw std::invalid_argument("Product cannot be null");
     }
     
-    // Теперь типы совместимы - оба size_t
-    if (product->GetVersion() <= oldVersion) {
+    if (oldVersion < 0) {
+        throw std::invalid_argument("Version cannot be negative");
+    }
+    
+    // Безопасное сравнение с проверкой переполнения
+    auto productVersion = product->GetVersion();
+    if (productVersion > static_cast<size_t>(std::numeric_limits<int>::max())) {
+        throw std::overflow_error("Product version exceeds database INTEGER range");
+    }
+    
+    // Приведение безопасно после проверки
+    int currentVersion = static_cast<int>(productVersion);
+    if (currentVersion <= oldVersion) {
         throw std::logic_error(
-            "Product version (" + std::to_string(product->GetVersion()) + 
+            "Product version (" + std::to_string(currentVersion) + 
             ") must be greater than old version (" + std::to_string(oldVersion) + ")"
         );
     }
@@ -266,7 +267,30 @@ void TrackingRepository::Update(Domain::ProductPtr product, size_t oldVersion)
         throw;
     }
 }
+
+// В ProductMapper.cpp - добавляем проверку переполнения
+bool ProductMapper::Update(Domain::ProductPtr product, int oldVersion)
+{
+    if (!product)
+        throw std::invalid_argument("Product is nullptr");
+    
+    auto productVersion = product->GetVersion();
+    if (productVersion > static_cast<size_t>(std::numeric_limits<int>::max())) {
+        throw std::overflow_error("Product version exceeds PostgreSQL INTEGER range");
+    }
+    
+    // ... остальная логика остается той же
+    int newVersion = static_cast<int>(productVersion);
+    
+    // ... SQL update code
+}
 ```
+
+### Альтернативное решение (для будущего):
+Если потребуется поддержка версий больше 2^31-1, можно:
+1. Изменить схему БД на `BIGINT` 
+2. Использовать `Poco::Int64` вместо `int`
+3. Обновить все связанные типы
 
 ## 5. Добавление валидации в TrackingRepository
 
@@ -343,7 +367,7 @@ set(ALL_SOURCES ${DOMAIN_SOURCES} ${SERVICE_LAYER_SOURCES} ${ADAPTER_SOURCES})
 1. **Thread Safety**: Добавление мьютексов и atomic переменных
 2. **Exception Safety**: Proper RAII и exception handling
 3. **Architecture**: Соблюдение принципов чистой архитектуры
-4. **Type Safety**: Консистентное использование типов для версий
-5. **Robustness**: Добавление валидации и проверок
+4. **Framework Compatibility**: Учет ограничений Poco::Data и PostgreSQL
+5. **Robustness**: Добавление валидации и проверок с учетом типов БД
 
 Рекомендуется внедрять эти изменения постепенно, с тщательным тестированием каждого исправления.
