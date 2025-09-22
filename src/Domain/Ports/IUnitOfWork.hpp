@@ -20,7 +20,7 @@ namespace Allocation::Domain
         virtual void RollBack() = 0;
 
         /// @brief Проверяет, были ли изменения зафиксированы.
-        [[nodiscard]] virtual bool IsCommited() const noexcept = 0;
+        [[nodiscard]] virtual bool IsCommitted() const noexcept = 0;
 
         /// @brief Возвращает сессию подключения к базе данных.
         /// @return Сессию подключения к базе данных.

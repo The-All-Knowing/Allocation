@@ -10,12 +10,12 @@ namespace Allocation::ServiceLayer::UoW
         for (const auto& [product, _] : _tracking.GetSeen())
             if (product->IsModified())
                 _tracking.Add(product);
-        _isCommited = true;
+        _isCommitted = true;
     }
 
-    void AbstractUnitOfWork::RollBack() { _isCommited = false; }
+    void AbstractUnitOfWork::RollBack() { _isCommitted = false; }
 
-    bool AbstractUnitOfWork::IsCommited() const noexcept { return _isCommited; }
+    bool AbstractUnitOfWork::IsCommitted() const noexcept { return _isCommitted; }
 
     Domain::IRepository& AbstractUnitOfWork::GetProductRepository() { return _tracking; }
 

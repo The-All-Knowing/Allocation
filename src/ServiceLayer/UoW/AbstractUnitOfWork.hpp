@@ -23,7 +23,7 @@ namespace Allocation::ServiceLayer::UoW
 
         /// @brief Проверяет, были ли изменения зафиксированы.
         /// @return true, если изменения зафиксированы, иначе false.
-        bool IsCommited() const noexcept override;
+        bool IsCommitted() const noexcept override;
 
         /// @brief Возвращает репозиторий для работы с агрегатами-продуктами.
         [[nodiscard]] Domain::IRepository& GetProductRepository() override;
@@ -35,6 +35,6 @@ namespace Allocation::ServiceLayer::UoW
 
     private:
         Adapters::Repository::TrackingRepository _tracking;
-        bool _isCommited{false};
+        bool _isCommitted{false};
     };
 }
