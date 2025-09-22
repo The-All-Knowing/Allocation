@@ -4,6 +4,7 @@
 #include "Domain/Events/Allocated.hpp"
 #include "Domain/Events/Deallocated.hpp"
 #include "Domain/Events/OutOfStock.hpp"
+#include "Utilities/Common.hpp"
 
 
 namespace Allocation::Domain
@@ -79,12 +80,12 @@ namespace Allocation::Domain
             _versionNumber++;
             _modifiedBatchRefs.insert(batchRef);
             _isModified = true;
-            _messages.push_back(std::make_shared<Events::Allocated>(
-                line.reference, line.sku, line.quantity, batchRef));
+            _messages.push_back(
+                Make<Events::Allocated>(line.reference, line.sku, line.quantity, batchRef));
             return batchRef;
         }
 
-        _messages.push_back(std::make_shared<Events::OutOfStock>(line.sku));
+        _messages.push_back(Make<Events::OutOfStock>(line.sku));
         return std::nullopt;
     }
 
@@ -102,7 +103,7 @@ namespace Allocation::Domain
         {
             auto order = batch.DeallocateOne();
             _messages.push_back(
-                std::make_shared<Events::Deallocated>(order.reference, order.sku, order.quantity));
+                Make<Events::Deallocated>(order.reference, order.sku, order.quantity));
         }
         return true;
     }

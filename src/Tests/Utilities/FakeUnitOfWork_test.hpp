@@ -6,7 +6,7 @@
 
 namespace Allocation::Tests
 {
-    /// @brief FakeStatementImpl — тестовый фейк, не выполняющий реальных SQL-запросов
+    /// @brief Фейковая реализация StatementImpl для использования в контексте FakeSessionImpl.
     class FakeStatementImpl : public Poco::Data::StatementImpl
     {
     public:

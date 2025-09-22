@@ -12,6 +12,7 @@
 #include "ServiceLayer/MessageBus/MessageBus.hpp"
 #include "ServiceLayer/UoW/SqlUnitOfWork.hpp"
 #include "Tests/Utilities/DatabaseFixture_test.hpp"
+#include "Utilities/Common.hpp"
 
 
 namespace Allocation::Tests
@@ -23,16 +24,15 @@ namespace Allocation::Tests
     TEST_F(Views_Fixture, test_allocations_view)
     {
         auto& messageBus = ServiceLayer::MessageBus::Instance();
-        messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>("sku1batch", "sku1", 50));
-        messageBus.Handle(
-            std::make_shared<Domain::Commands::CreateBatch>("sku2batch", "sku2", 50, today));
-        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("order1", "sku1", 20));
-        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("order1", "sku2", 20));
+        messageBus.Handle(Make<Domain::Commands::CreateBatch>("sku1batch", "sku1", 50));
+        messageBus.Handle(Make<Domain::Commands::CreateBatch>("sku2batch", "sku2", 50, today));
+        messageBus.Handle(Make<Domain::Commands::Allocate>("order1", "sku1", 20));
+        messageBus.Handle(Make<Domain::Commands::Allocate>("order1", "sku2", 20));
 
         messageBus.Handle(
-            std::make_shared<Domain::Commands::CreateBatch>("sku1batch-later", "sku1", 50, today));
-        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("otherorder", "sku1", 30));
-        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("otherorder", "sku2", 10));
+            Make<Domain::Commands::CreateBatch>("sku1batch-later", "sku1", 50, today));
+        messageBus.Handle(Make<Domain::Commands::Allocate>("otherorder", "sku1", 30));
+        messageBus.Handle(Make<Domain::Commands::Allocate>("otherorder", "sku2", 10));
 
         ServiceLayer::UoW::SqlUnitOfWork uow;
         auto views = ServiceLayer::Views::Allocations("order1", uow);
@@ -43,8 +43,8 @@ namespace Allocation::Tests
 
         CleanupProduct("sku1");
         CleanupProduct("sku2");
-        CleanupViewModel("sku1batch"); 
-        CleanupViewModel("sku2batch"); 
+        CleanupViewModel("sku1batch");
+        CleanupViewModel("sku2batch");
     }
 
     TEST_F(Views_Fixture, test_deallocation)
@@ -52,10 +52,10 @@ namespace Allocation::Tests
         const year_month_day today(2020y, January, 31d);
         auto& messageBus = ServiceLayer::MessageBus::Instance();
 
-        messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>("b1", "sku1", 50));
-        messageBus.Handle(std::make_shared<Domain::Commands::CreateBatch>("b2", "sku1", 50, today));
-        messageBus.Handle(std::make_shared<Domain::Commands::Allocate>("o1", "sku1", 40));
-        messageBus.Handle(std::make_shared<Domain::Commands::ChangeBatchQuantity>("b1", 10));
+        messageBus.Handle(Make<Domain::Commands::CreateBatch>("b1", "sku1", 50));
+        messageBus.Handle(Make<Domain::Commands::CreateBatch>("b2", "sku1", 50, today));
+        messageBus.Handle(Make<Domain::Commands::Allocate>("o1", "sku1", 40));
+        messageBus.Handle(Make<Domain::Commands::ChangeBatchQuantity>("b1", 10));
 
         ServiceLayer::UoW::SqlUnitOfWork uow;
         auto views = ServiceLayer::Views::Allocations("o1", uow);

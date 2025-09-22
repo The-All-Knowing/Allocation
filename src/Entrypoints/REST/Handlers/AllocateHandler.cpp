@@ -15,7 +15,6 @@ namespace Allocation::Entrypoints::Rest::Handlers
         std::istream& bodyStream = request.stream();
         std::ostringstream body;
         body << bodyStream.rdbuf();
-
         Poco::JSON::Parser parser;
         auto result = parser.parse(body.str());
         auto json = result.extract<Poco::JSON::Object::Ptr>();

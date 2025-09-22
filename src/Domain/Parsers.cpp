@@ -41,7 +41,7 @@ namespace Allocation::Domain
             eta = Convert(dt);
         }
 
-        return std::make_shared<Commands::CreateBatch>(
+        return Make<Commands::CreateBatch>(
             ref.convert<std::string>(), sku.convert<std::string>(), qty.convert<int>(), eta);
     }
 
@@ -65,7 +65,7 @@ namespace Allocation::Domain
         if (!qty.isInteger())
             throw std::invalid_argument("Field 'qty' must be a integer");
 
-        return std::make_shared<Commands::Allocate>(
+        return Make<Commands::Allocate>(
             orderid.convert<std::string>(), sku.convert<std::string>(), qty.convert<int>());
     }
 
@@ -74,7 +74,7 @@ namespace Allocation::Domain
     {
         if (!json)
             throw std::invalid_argument("JSON object is null");
-            
+
         if (!json->has("batchref") || !json->has("qty"))
             throw std::invalid_argument("It doesn't have the required batchref or qty fields.");
 
@@ -85,7 +85,7 @@ namespace Allocation::Domain
         if (!qty.isInteger())
             throw std::invalid_argument("Field 'qty' must be a integer");
 
-        return std::make_shared<Commands::ChangeBatchQuantity>(
+        return Make<Commands::ChangeBatchQuantity>(
             batchRef.convert<std::string>(), qty.convert<int>());
     }
 }

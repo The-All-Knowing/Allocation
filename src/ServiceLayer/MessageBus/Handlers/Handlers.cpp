@@ -2,6 +2,7 @@
 
 #include "Domain/Product/Product.hpp"
 #include "ServiceLayer/Exceptions.hpp"
+#include "Utilities/Common.hpp"
 
 
 namespace Allocation::ServiceLayer::Handlers
@@ -34,8 +35,7 @@ namespace Allocation::ServiceLayer::Handlers
 
     void Reallocate(Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Events::Deallocated> event)
     {
-        Allocate(uow,
-            std::make_shared<Domain::Commands::Allocate>(event->orderid, event->sku, event->qty));
+        Allocate(uow, Make<Domain::Commands::Allocate>(event->orderid, event->sku, event->qty));
     }
 
     void ChangeBatchQuantity(

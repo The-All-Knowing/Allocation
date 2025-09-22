@@ -51,5 +51,5 @@ namespace Allocation::Loggers
 
     void InitializeLogger(ILoggerPtr logger) { Internal::LoggerHolder::SetLogger(logger); }
 
-    bool IsInitialize() { return Internal::LoggerHolder::IsInitialize(); };
+    bool IsInitialize() { return Internal::LoggerHolder::IsInitialize(); }
 }
