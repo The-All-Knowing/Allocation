@@ -1,17 +1,18 @@
 import requests
-from tests.config import ALLOCATION_URL
+
+url = "http://localhost:8080"
 
 
 def post_to_add_batch(ref, sku, qty, eta):
     r = requests.post(
-        f"{ALLOCATION_URL}/add_batch", json={"ref": ref, "sku": sku, "qty": qty, "eta": eta}
+        f"{url}/add_batch", json={"ref": ref, "sku": sku, "qty": qty, "eta": eta}
     )
     assert r.status_code == 201
 
 
 def post_to_allocate(orderid, sku, qty, expect_success=True):
     r = requests.post(
-        f"{ALLOCATION_URL}/allocate",
+        f"{url}/allocate",
         json={
             "orderid": orderid,
             "sku": sku,
@@ -24,4 +25,4 @@ def post_to_allocate(orderid, sku, qty, expect_success=True):
 
 
 def get_allocation(orderid):
-    return requests.get(f"{ALLOCATION_URL}/allocations/{orderid}")
+    return requests.get(f"{url}/allocations/{orderid}")

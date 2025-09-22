@@ -1,90 +1,59 @@
 # Allocation Service
 
 ## Описание
-Учебный проект, реализующий идеи из книги *"Паттерны разработки на Python: TDD, DDD и событийно-ориентированная архитектура"* Гарри Персиваля и Боба Грегори. Сервис управляет распределением продуктов и партиями товаров, используя асинхронные сообщения. Реализован на C++ с использованием библиотек Poco, PostgreSQL, Redis и паттернов проектирования, таких как DDD и CQRS.
+Учебный проект реализованный на C++, адаптирующий идеи из книги *"Паттерны разработки на Python: TDD, DDD и событийно-ориентированная архитектура"* Гарри Персиваля и Боба Грегори. 
 
-### Требования
-Для сборки и запуска проекта нужны:
-- C++23
-- CMake ≥ 3.12
-- Conan 2.x
-- PostgreSQL ≥ 12
-- Redis
-- Python ≥ 3.x (для e2e тестов)
-- pycodestyle и clang-format (для проверки стиля кода)
+Сервис предназначен для управления распределением позиций заказов в партиях поставок. Подробное описание проекта доступно в [Wiki проекта](https://github.com/The-All-Knowing/Allocation/wiki).
 
-## Установка
-1. Склонируйте репозиторий:
+## Запуск
    ```bash
    git clone https://github.com/The-All-Knowing/Allocation.git
    cd Allocation
+   docker-compose up
    ```
-2. Настройте переменные окружения (см. раздел [Переменные окружения](#переменные-окружения) в [Запуск](#запуск)).
 
 ## Сборка проекта
-### Основные команды
-- **`make conan-release`** или **`make conan-debug`**: Загружает и собирает зависимости через Conan.
-- **`make cmake-release`** или **`make cmake-debug`**: Генерирует конфигурацию CMake для сборки в режиме Release или Debug.
-- **`make build-release`** или **`make build-debug`**: Собирает проект в режиме Release или Debug.
-- **`make start-release`** или **`make start-debug`**: Собирает и запускает сервис в указанном режиме.
-- **`make test-release`** или **`make test-debug`**: Собирает и запускает юнит- и интеграционные тесты в режиме Release или Debug.
+### Основные команды 
+- **`make conan-release(debug)`**: Загружает/собирает зависимости.
+- **`make cmake-release(debug)`**: Генерирует конфигурацию для сборки.
+- **`make build-release(debug)`**: Запускает сборку проекта.
+- **`make start-release(debug)`**: Запускает сервис.
+- **`make test-release(debug)`**: Запускает юнит- и интеграционные тесты.
 - **`make e2e-test`**: Выполняет end-to-end тесты.
 - **`make docker-<command>`**: Выполняет указанную команду `<command>` в Docker-контейнере (например, `make docker-build-release`).
 
 > **Примечание**: Полный список команд доступен в `Makefile`.
 
-## Запуск
-Для запуска сервиса с использованием Docker выполните:
-```bash
-docker-compose up
-```
-Это поднимет контейнеры для сервиса, PostgreSQL и Redis.
+### Зависимости
+- C++23
+- CMake ≥ 3.16
+- Conan 2.x
+- PostgreSQL
+- Redis
+- Python ≥ 3.x
+- pycodestyle и clang-format
 
-Альтернативно, для запуска в Docker через Make:
+### Сборка
 ```bash
-make docker-start-service-release
-```
-
-Для запуска без Docker:
-```bash
-make start-release
+make build-release
 ```
 
 ### Переменные окружения
-Перед запуском настройте следующие переменные окружения (например, в файле `.env` или напрямую в командной строке). Они используются для подключения к базам данных и могут быть переопределены в конфигурационном файле.
-
-- `POSTGRES_HOST`: Хост PostgreSQL (по умолчанию `localhost`).
-- `POSTGRES_PORT`: Порт PostgreSQL (по умолчанию `5432`).
-- `POSTGRES_DB`: Название БД (по умолчанию `allocation`).
-- `POSTGRES_USER`: Название пользователя (по умолчанию `user`).
-- `POSTGRES_PASSWORD`: Пароль подключения к БД (по умолчанию `password`).
-- `REDIS_HOST`: Хост Redis (по умолчанию `localhost`).
-- `REDIS_PORT`: Порт Redis (по умолчанию `6379`).
-
-> **Примечание**: Полный список переменных окружения доступен в файле `.env`. Параметры также можно передавать через ключ `--config`, например:  
-> ```bash
-> allocation --config ./configs/Allocation.ini
-> ```
-
-Пример:
+Перед запуском настройте переменные окружения перечисленные в файле `.env` или при запуске передайте конфиг файл.
+ 
 ```bash
-export POSTGRES_HOST=localhost
-export POSTGRES_PORT=5432
-export POSTGRES_DB=allocation
-export POSTGRES_USER=user
-export POSTGRES_PASSWORD=password
-export REDIS_HOST=localhost
-export REDIS_PORT=6379
-make start-release
+allocation --config ./configs/Allocation.ini
 ```
 
 ## Тестирование
-- **Юнит- и интеграционные тесты**:
+Требует инициализации переменных окружения из `.env`.
+
+- **Юнит- и интеграционные тесты**
   ```bash
   make test-release
   ```
-  Для отладки используйте `make test-debug`.
-- **End-to-end тесты**:
+
+- **End-to-end тесты**
   ```bash
   make e2e-test
   ```
