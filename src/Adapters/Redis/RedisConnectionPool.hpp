@@ -17,7 +17,7 @@ namespace Allocation::Adapters::Redis
         /// @return true - сконфигурирован, false - не сконфигурирован.
         bool IsConfigured() const noexcept;
 
-        /// @brief Конфигурирует или рекогфигурирует пул подключения к Redis.
+        /// @brief Конфигурирует пул подключения к Redis.
         /// @param config Конфигурация Redis.
         /// @throw std::runtime_error Если пул уже сконфигурирован.
         void Configure(const RedisConfig& config);

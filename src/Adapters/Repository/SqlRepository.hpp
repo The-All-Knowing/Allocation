@@ -38,7 +38,7 @@ namespace Allocation::Adapters::Repository
         /// @throw std::runtime_error Если не удалось обновить агрегат из-за конфликта версий.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
-        void Update(Domain::ProductPtr product, int oldVersion) override;
+        void Update(Domain::ProductPtr product, size_t oldVersion) override;
 
     private:
         Database::Mapper::ProductMapper _mapper;

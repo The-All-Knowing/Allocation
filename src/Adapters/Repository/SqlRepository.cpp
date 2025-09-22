@@ -26,7 +26,7 @@ namespace Allocation::Adapters::Repository
         return _mapper.FindByBatchRef(batchRef);
     }
 
-    void SqlRepository::Update(Domain::ProductPtr product, int oldVersion)
+    void SqlRepository::Update(Domain::ProductPtr product, size_t oldVersion)
     {
         if (!product)
             throw std::invalid_argument("The nullptr product");

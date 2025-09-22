@@ -59,7 +59,7 @@ namespace Allocation::Adapters::Database::Mapper
         return std::make_shared<Domain::Product>(sku, batches, version, false);
     }
 
-    bool ProductMapper::Update(Domain::ProductPtr product, int oldVersion)
+    bool ProductMapper::Update(Domain::ProductPtr product, size_t oldVersion)
     {
         if (!product)
             throw std::invalid_argument("Product is nullptr");

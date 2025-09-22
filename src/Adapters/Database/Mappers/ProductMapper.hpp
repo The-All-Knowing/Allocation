@@ -32,7 +32,7 @@ namespace Allocation::Adapters::Database::Mapper
         /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
         /// @return true - успешное обновление, иначе false.
-        [[nodiscard]] bool Update(Domain::ProductPtr product, int oldVersion);
+        [[nodiscard]] bool Update(Domain::ProductPtr product, size_t oldVersion);
 
         /// @brief Сохраняет агрегат-продукт.
         /// @param product Сохраняемый агрегат-продукт.

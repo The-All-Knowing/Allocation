@@ -30,7 +30,7 @@ namespace Allocation::Adapters::Repository
 
         /// @brief Получает все отслеживаемые агрегаты.
         /// @return Отслеживаемые продукты и их изначальные версии.
-        [[nodiscard]] std::vector<std::pair<Domain::ProductPtr, int>> GetSeen() const noexcept;
+        [[nodiscard]] std::vector<std::pair<Domain::ProductPtr, size_t>> GetSeen() const noexcept;
 
         /// @brief Очищает все наблюдаемые продукты.
         void Clear() noexcept;
@@ -39,11 +39,11 @@ namespace Allocation::Adapters::Repository
         /// @param product Агрегат-продукт для обновления.
         /// @param oldVersion Изначальная версия агрегата, загруженная из репозитория.
         /// @throw std::invalid_argument Выбрасывается, если передан nullptr вместо продукта.
-        void Update(Domain::ProductPtr product, int oldVersion) override;
+        void Update(Domain::ProductPtr product, size_t oldVersion) override;
 
     private:
         Domain::IUpdatableRepository& _repo;
-        std::unordered_map<std::string, std::pair<Domain::ProductPtr, int>>
+        std::unordered_map<std::string, std::pair<Domain::ProductPtr, size_t>>
             _skuToProductAndOldVersion;
     };
 }

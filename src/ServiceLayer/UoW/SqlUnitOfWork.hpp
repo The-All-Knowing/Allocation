@@ -22,6 +22,13 @@ namespace Allocation::ServiceLayer::UoW
             _session.begin();
         }
 
+        /// @brief Деструктор.
+        /// @details Откатывает незафиксированные изменения.
+        ~SqlUnitOfWork()
+        {
+            _session.rollback();
+        }
+
         /// @brief Возвращает сессию подключения к базе данных.
         /// @return Сессия подключения к базе данных.
         [[nodiscard]] Poco::Data::Session GetSession() noexcept override
@@ -32,6 +39,7 @@ namespace Allocation::ServiceLayer::UoW
         /// @brief Подтверждает внесённые изменения.
         /// @throw std::runtime_error Если не удалось обновить агрегат из-за конфликта версий.
         /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
+        /// @details После фиксаций изменений запускает новую транзакцию.
         void Commit() override
         {
             AbstractUnitOfWork::Commit();
@@ -40,10 +48,12 @@ namespace Allocation::ServiceLayer::UoW
         }
 
         /// @brief Откатывает внесённые изменения.
+        /// @details После отката изменений запускает новую транзакцию.
         void RollBack() override
         {
             _session.rollback();
             AbstractUnitOfWork::RollBack();
+            _session.begin();
         }
 
     private:

@@ -15,7 +15,7 @@ namespace Allocation::Domain
         /// @brief Обновляет агрегат-продукт в репозитории.
         /// @param product Агрегат-продукт для обновления.
         /// @param oldVersion Изначальная версия агрегата, загруженная из репозитория.
-        virtual void Update(ProductPtr product, int oldVersion) = 0;
+        virtual void Update(ProductPtr product, size_t oldVersion) = 0;
 
     protected:
         /// @brief Конструктор.

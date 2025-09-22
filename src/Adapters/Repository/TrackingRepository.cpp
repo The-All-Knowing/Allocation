@@ -56,9 +56,9 @@ namespace Allocation::Adapters::Repository
         return product;
     }
 
-    std::vector<std::pair<Domain::ProductPtr, int>> TrackingRepository::GetSeen() const noexcept
+    std::vector<std::pair<Domain::ProductPtr, size_t>> TrackingRepository::GetSeen() const noexcept
     {
-        std::vector<std::pair<Domain::ProductPtr, int>> result;
+        std::vector<std::pair<Domain::ProductPtr, size_t>> result;
         result.reserve(_skuToProductAndOldVersion.size());
         for (const auto& [_, productAndOldVersion] : _skuToProductAndOldVersion)
             result.push_back(productAndOldVersion);
@@ -68,7 +68,7 @@ namespace Allocation::Adapters::Repository
 
     void TrackingRepository::Clear() noexcept { _skuToProductAndOldVersion.clear(); }
 
-    void TrackingRepository::Update(Domain::ProductPtr product, int oldVersion)
+    void TrackingRepository::Update(Domain::ProductPtr product, size_t oldVersion)
     {
         if (!product)
             throw std::invalid_argument("The nullptr product");

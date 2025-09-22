@@ -11,7 +11,7 @@ CREATE TABLE allocation.order_lines (
 -- Таблица агрегатов продуктов
 CREATE TABLE allocation.products (
     sku VARCHAR(255) PRIMARY KEY,
-    version_number INTEGER NOT NULL DEFAULT 0
+    version_number BIGINT NOT NULL DEFAULT 0
 );
 
 -- Таблица партий заказов
