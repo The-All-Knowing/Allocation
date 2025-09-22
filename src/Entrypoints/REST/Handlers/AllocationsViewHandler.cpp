@@ -10,6 +10,8 @@ namespace Allocation::Entrypoints::Rest::Handlers
     void AllocationsViewHandler::handleRequest(
         Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
     {
+        response.set("Access-Control-Allow-Origin", "*");
+
         try
         {
             auto uri = request.getURI();

@@ -12,6 +12,8 @@ namespace Allocation::Entrypoints::Rest::Handlers
     void AllocateHandler::handleRequest(
         Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response)
     {
+        response.set("Access-Control-Allow-Origin", "*");
+
         std::istream& bodyStream = request.stream();
         std::ostringstream body;
         body << bodyStream.rdbuf();

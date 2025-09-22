@@ -4,13 +4,13 @@ CREATE SCHEMA IF NOT EXISTS allocation;
 CREATE TABLE allocation.order_lines (
     id SERIAL PRIMARY KEY,
     sku VARCHAR(255) NOT NULL,
-    qty INTEGER NOT NULL,
+    qty INTEGER NOT NULL CHECK (qty > 0),
     orderid VARCHAR(255) NOT NULL
 );
 
 -- Таблица агрегатов продуктов
 CREATE TABLE allocation.products (
-    sku VARCHAR(255) PRIMARY KEY,
+    sku VARCHAR(255) PRIMARY KEY CHECK (sku <> ''),
     version_number BIGINT NOT NULL DEFAULT 0
 );
 
@@ -19,7 +19,7 @@ CREATE TABLE allocation.batches (
     id SERIAL PRIMARY KEY,
     reference VARCHAR(255) UNIQUE NOT NULL,
     sku VARCHAR(255) NOT NULL REFERENCES allocation.products(sku),
-    _purchased_quantity INTEGER NOT NULL,
+    _purchased_quantity INTEGER NOT NULL CHECK (_purchased_quantity > 0), 
     eta DATE
 );
 

@@ -9,6 +9,7 @@ namespace Allocation::Entrypoints::Rest::Handlers
         void handleRequest(
             Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) override
         {
+            response.set("Access-Control-Allow-Origin", "*");
             response.setStatus(Poco::Net::HTTPServerResponse::HTTP_OK);
             response.send() << "OK";
         }

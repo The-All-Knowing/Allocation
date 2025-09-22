@@ -2,13 +2,18 @@ asyncapi: '2.6.0'
 info:
   title: Allocation Service
   version: 1.0.0
-  description: Service responsible for managing product allocations and batches.
+  description: >
+    Service responsible for managing product allocations and batches
+    It subscribes to external commands (via Redis Pub/Sub or Streams) and
+    publishes domain events after handling business logic
 
 channels:
   change_batch_quantity:
     subscribe:
-      summary: Getting a command to change the batch quantity
-      description: The service subscribes to this channel to receive commands to change the quantity of goods in a specific batch.
+      summary: Command to change the batch quantity
+      description: >
+        The service listens to this channel to receive commands
+        for updating the quantity of a specific batch
       message:
         name: ChangeBatchQuantity
         contentType: application/json
@@ -17,11 +22,11 @@ channels:
           properties:
             batchref:
               type: string
-              description: A link to the batch whose quantity needs to be changed.
+              description: Reference identifier of the batch to update
               example: "batch-001"
             qty:
               type: integer
-              description: The new quantity of goods in the batch.
+              description: New total quantity for the batch
               minimum: 1
               example: 50
           required:
@@ -35,8 +40,10 @@ channels:
 
   line_allocated:
     publish:
-      summary: Sending a product allocation event
-      description: The service publishes this event after successfully allocating a product for an order.
+      summary: Product allocation event
+      description: >
+        The service publishes this event after successfully allocating
+        an order line to a batch
       message:
         name: LineAllocated
         contentType: application/json
@@ -45,30 +52,30 @@ channels:
           properties:
             orderid:
               type: string
-              description: The ID of the order for which the product was allocated.
+              description: Identifier of the order for which the product was allocated
               example: "order-123"
-            SKU:
+            sku:
               type: string
-              description: The SKU of the allocated product.
+              description: Stock Keeping Unit (SKU) of the allocated product
               example: "RED-CHAIR"
-            batchref:
-              type: string
-              description: A link to the batch from which the product was allocated.
-              example: "batch-001"
             qty:
               type: integer
-              description: The quantity of the allocated product.
+              description: Quantity of the allocated product
               minimum: 1
               example: 10
+            batchref:
+              type: string
+              description: Reference identifier of the batch from which the allocation was made
+              example: "batch-001"
           required:
             - orderid
-            - SKU
+            - sku
             - batchref
             - qty
         examples:
-          - name: example-allocated-event
+          - name: example-line-allocated
             payload:
               orderid: "order-123"
-              SKU: "RED-CHAIR"
-              batchref: "batch-001"
+              sku: "RED-CHAIR"
               qty: 10
+              batchref: "batch-001"
