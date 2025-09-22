@@ -33,7 +33,7 @@ namespace Allocation::Tests
         ServiceLayer::MessageBus::Instance().Handle(
             std::make_shared<Domain::Commands::CreateBatch>("b1", "CRUNCHY-ARMCHAIR", 100), uow);
         EXPECT_TRUE(uow.GetProductRepository().Get("CRUNCHY-ARMCHAIR"));
-        EXPECT_TRUE(uow.IsCommited());
+        EXPECT_TRUE(uow.IsCommitted());
     }
 
     TEST_F(Handlers_TestAddBatch, test_for_existing_product)
@@ -104,7 +104,7 @@ namespace Allocation::Tests
             std::make_shared<Domain::Commands::CreateBatch>("b1", "OMINOUS-MIRROR", 100), uow);
         messagebus.Handle(
             std::make_shared<Domain::Commands::Allocate>("o1", "OMINOUS-MIRROR", 10), uow);
-        EXPECT_TRUE(uow.IsCommited());
+        EXPECT_TRUE(uow.IsCommitted());
     }
 
     TEST_F(Handlers_TestAllocate, test_sends_email_on_out_of_stock_error)
