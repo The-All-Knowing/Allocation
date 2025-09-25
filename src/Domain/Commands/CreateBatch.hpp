@@ -5,7 +5,7 @@
 
 namespace Allocation::Domain::Commands
 {
-    /// @brief Команда "Создать партию заказа".
+    /// @brief Команда "Создать партию поставки".
     struct CreateBatch final : public AbstractCommand
     {
         /// @brief Конструктор.

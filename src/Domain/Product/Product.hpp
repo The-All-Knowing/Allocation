@@ -27,7 +27,7 @@ namespace Allocation::Domain
         /// @return true — если агрегат изменён, иначе false.
         [[nodiscard]] bool IsModified() const noexcept;
 
-        /// @brief Добавляет партию заказа к агрегату.
+        /// @brief Добавляет партию поставки к агрегату.
         /// @param batch Добавляемая партия заказа.
         /// @throw std::invalid_argument Выбрасывается, если артикул партии не совпадает с артикулом
         /// агрегата.
@@ -46,11 +46,11 @@ namespace Allocation::Domain
         /// @param line Позиция заказа для распределения.
         /// @throw std::invalid_argument Выбрасывается, если артикул позиции заказа не совпадает с
         /// артикулом продукции агрегата.
-        /// @return Ссылка на партию заказа, если распределение успешно, иначе std::nullopt.
+        /// @return Ссылка на партию поставки, если распределение успешно, иначе std::nullopt.
         std::optional<std::string> Allocate(const OrderLine& line);
 
         /// @brief Изменяет количество продукции в партии заказа.
-        /// @param ref Ссылка на партию заказа.
+        /// @param ref Ссылка на партию поставки.
         /// @param qty Новое количество продукции.
         /// @return true - если партия найдена и количество изменено, иначе false.
         bool ChangeBatchQuantity(const std::string& ref, size_t qty);
@@ -59,8 +59,8 @@ namespace Allocation::Domain
         /// @return Партии заказа агрегата.
         [[nodiscard]] std::vector<Batch> GetBatches() const noexcept;
 
-        /// @brief Возвращает партию заказа по её ссылке.
-        /// @param reference Ссылка на партию заказа.
+        /// @brief Возвращает партию поставки по её ссылке.
+        /// @param reference Ссылка на партию поставки.
         /// @return Партия заказа, если найдена, иначе std::nullopt.
         [[nodiscard]] std::optional<Batch> GetBatch(const std::string& reference) const noexcept;
 

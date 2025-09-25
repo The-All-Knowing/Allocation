@@ -22,6 +22,7 @@ namespace Allocation::Entrypoints::Redis
             : _connection(Adapters::Redis::RedisConnectionPool::Instance().GetConnection()),
               _reader(*static_cast<Poco::Redis::Client::Ptr>(_connection))
         {
+            _reader.redisResponse += Poco::delegate(this, &RedisListener::OnRedisMessage);
         }
 
         /// @brief Освобождает ресурсы, останавливая чтение.
@@ -50,7 +51,6 @@ namespace Allocation::Entrypoints::Redis
             static_cast<Poco::Redis::Client::Ptr>(_connection)->execute<void>(subscribe);
             static_cast<Poco::Redis::Client::Ptr>(_connection)->flush();
             _handlers.try_emplace(channel, std::forward<Handler>(handler));
-            _reader.redisResponse += Poco::delegate(this, &RedisListener::OnRedisMessage);
         }
 
     private:

@@ -5,7 +5,7 @@ namespace Allocation::Domain
     /// @brief Интерфейс сообщения.
     struct IMessage
     {
-        /// @brief Тип сообщения.
+        /// @brief Типы сообщений.
         enum class Type : int
         {
             /// @brief Событие.

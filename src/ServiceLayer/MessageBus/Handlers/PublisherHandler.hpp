@@ -12,7 +12,7 @@ namespace Allocation::ServiceLayer::Handlers
             { t(channel, event) } -> std::same_as<void>;
         };
 
-    /// @brief Отправитель сообщений в канал Redis.
+    /// @brief Handler отправителя сообщений в канал Redis.
     /// @tparam Message Тип сообщения.
     /// @tparam Publisher Тип отправителя сообщений.
     template <typename Message, PublisherSender<Message> Publisher>

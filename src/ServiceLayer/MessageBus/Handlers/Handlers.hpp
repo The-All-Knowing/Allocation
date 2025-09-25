@@ -15,9 +15,9 @@
 
 namespace Allocation::ServiceLayer::Handlers
 {
-    /// @brief Добавляет новую партию заказа.
+    /// @brief Добавляет новую партию поставки.
     /// @param uow Единица работы.
-    /// @param command Команда "Создать партию заказа".
+    /// @param command Команда "Создать партию поставки".
     void AddBatch(Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Commands::CreateBatch> command);
 
     /// @brief Распределяет позицию заказа в партии заказа.
@@ -28,7 +28,7 @@ namespace Allocation::ServiceLayer::Handlers
     /// @brief Изменяет количество товара в партии заказа.
     /// @param uow Единица работы.
     /// @param command Команда "Изменить количество товара в партии заказа".
-    /// @throw std::invalid_argument Выбрасывается, если передана неверная ссылка на партию заказа.
+    /// @throw std::invalid_argument Выбрасывается, если передана неверная ссылка на партию поставки.
     void ChangeBatchQuantity(
         Domain::IUnitOfWork& uow, std::shared_ptr<Domain::Commands::ChangeBatchQuantity> command);
 

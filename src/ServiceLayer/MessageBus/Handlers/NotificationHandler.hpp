@@ -11,7 +11,7 @@ namespace Allocation::ServiceLayer::Handlers
         { t(to, msg) } -> std::same_as<void>;
     };
 
-    /// @brief Отправитель уведомлений.
+    /// @brief Handler отправителя уведомлений.
     /// @tparam Message Тип сообщения.
     /// @tparam Notifier Тип отправителя уведомлений.
     template <typename Message, NotificationSender Notifier>

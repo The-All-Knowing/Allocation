@@ -15,10 +15,10 @@ namespace Allocation::Domain
         return {};
     }
 
-    /// @brief Парсит JSON-объект в команду "Создать партию заказа".
+    /// @brief Парсит JSON-объект в команду "Создать партию поставки".
     /// @param json JSON-объект с полями ref, sku, qty и опционально eta.
     /// @throw std::invalid_argument если отсутствуют обязательные поля или они некорректны.
-    /// @return Команда "Создать партию заказа".
+    /// @return Команда "Создать партию поставки".
     template <>
     IMessagePtr FromJson<Commands::CreateBatch>(Poco::JSON::Object::Ptr json);
 

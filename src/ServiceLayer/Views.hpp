@@ -5,10 +5,10 @@
 
 namespace Allocation::ServiceLayer::Views
 {
-    /// @brief Получает распределённые позиции заказа по идентификатору заказа клиента.
+    /// @brief Возвращает распределённые позиции заказа по идентификатору заказа клиента.
     /// @param orderid Идентификатор заказа клиента.
     /// @param uow Единица работы.
-    /// @return Пары: артикул продукции - ссылка на партию заказа.
+    /// @return Пары: артикул продукции - ссылка на партию поставки.
     std::vector<std::pair<std::string, std::string>> Allocations(
         std::string orderid, Domain::IUnitOfWork& uow);
 }

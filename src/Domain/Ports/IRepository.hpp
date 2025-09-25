@@ -25,7 +25,7 @@ namespace Allocation::Domain
         [[nodiscard]] virtual Domain::ProductPtr Get(const std::string& sku) = 0;
 
         /// @brief Возвращает агрегат-продукт по идентификатору партии включённого в него.
-        /// @param batchRef Ссылка на партию заказа.
+        /// @param batchRef Ссылка на партию поставки.
         /// @return Агрегат-продукт, если найден, иначе nullptr.
         [[nodiscard]] virtual Domain::ProductPtr GetByBatchRef(const std::string& batchRef) = 0;
 

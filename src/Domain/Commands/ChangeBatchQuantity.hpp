@@ -9,7 +9,7 @@ namespace Allocation::Domain::Commands
     struct ChangeBatchQuantity final : public AbstractCommand
     {
         /// @brief Конструктор.
-        /// @param ref Ссылка на партию заказа.
+        /// @param ref Ссылка на партию поставки.
         /// @param qty Новое количество товара.
         ChangeBatchQuantity(std::string ref, size_t qty) : ref(std::move(ref)), qty(qty) {}
 

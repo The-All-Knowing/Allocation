@@ -27,7 +27,7 @@ namespace Allocation::Adapters::Repository
         [[nodiscard]] Domain::ProductPtr Get(const std::string& sku) override;
 
         /// @brief Возвращает агрегат-продукт по идентификатору партии включённого в него.
-        /// @param batchRef Ссылка на партию заказа.
+        /// @param batchRef Ссылка на партию поставки.
         /// @throw Poco::Data::DataException Если возникает ошибка при выполнении запроса.
         /// @return Найденный агрегат-продукт, если найден, иначе nullptr.
         [[nodiscard]] Domain::ProductPtr GetByBatchRef(const std::string& batchRef) override;

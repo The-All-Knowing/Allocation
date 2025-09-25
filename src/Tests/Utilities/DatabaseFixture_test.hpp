@@ -101,7 +101,7 @@ namespace Allocation::Tests
     };
 
     /// @brief Фикстура для тестирования read-model с поддержкой очистки записей по ссылке на партию
-    /// заказа.
+    /// поставки.
     class Views_Fixture : public UoW_Fixture
     {
     public:
@@ -141,14 +141,15 @@ namespace Allocation::Tests
         }
 
     protected:
-        /// @brief RAII-хелпер для удаления записей read-model по ссылке на партию заказа.
+        /// @brief RAII-хелпер для удаления записей read-model по ссылке на партию поставки.
         class ViewCleanup
         {
         public:
+            /// @brief Конструктор.
             /// @param reference Ссылка на удаляемую партию.
             explicit ViewCleanup(std::string reference) : _reference(std::move(reference)) {}
 
-            /// @brief Удаляет записи read-model по ссылке на партию заказа при выходе из области
+            /// @brief Удаляет записи read-model по ссылке на партию поставки при выходе из области
             /// видимости.
             ~ViewCleanup()
             {
@@ -169,8 +170,8 @@ namespace Allocation::Tests
             std::string _reference;
         };
 
-        /// @brief Создаёт RAII-объект для удаления записей read-model по ссылке на партию заказа.
-        /// @param reference Ссылка на партию заказа.
+        /// @brief Создаёт RAII-объект для удаления записей read-model по ссылке на партию поставки.
+        /// @param reference Ссылка на партию поставки.
         /// @return RAII-объект, который удалит записи read-model при уничтожении.
         ViewCleanup CleanupViewModel(const std::string& reference) const
         {
