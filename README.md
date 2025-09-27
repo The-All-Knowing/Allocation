@@ -1,4 +1,4 @@
-# Allocation Service
+# Cosmiccpp
 
 ## Описание
 Учебный проект реализованный на C++, адаптирующий идеи из книги *"Паттерны разработки на Python: TDD, DDD и событийно-ориентированная архитектура"* Гарри Персиваля и Боба Грегори. 
@@ -19,7 +19,7 @@
 - **`make build-release(debug)`**: Запускает сборку проекта.
 - **`make start-release(debug)`**: Запускает сервис.
 - **`make test-release(debug)`**: Запускает юнит- и интеграционные тесты.
-- **`make e2e-test`**: Выполняет end-to-end тесты.
+- **`make e2e-test`**: Запускает end-to-end тесты.
 - **`make docker-<command>`**: Выполняет указанную команду `<command>` в Docker-контейнере (например, `make docker-build-release`).
 
 > **Примечание**: Полный список команд доступен в `Makefile`.
@@ -57,4 +57,5 @@ allocation --config ./configs/Allocation.ini
   ```bash
   make e2e-test
   ```
+
 
