@@ -2,8 +2,8 @@
 
 ## Запуск
    ```bash
-   git clone https://github.com/The-All-Knowing/Allocation.git
-   cd Allocation
+   https://github.com/The-All-Knowing/cosmiccpp.git
+   cd cosmiccpp
    docker-compose up
    ```
 
@@ -52,6 +52,7 @@ allocation --config ./configs/Allocation.ini
   ```bash
   make e2e-test
   ```
+
 
 
 
