@@ -15,7 +15,6 @@ namespace Allocation::ServiceLayer
 
     void MessageBus::Handle(Domain::IMessagePtr message, Domain::IUnitOfWork& uow)
     {
-        std::vector<std::string> result;
         std::queue<Domain::IMessagePtr> queue;
         queue.push(message);
 
